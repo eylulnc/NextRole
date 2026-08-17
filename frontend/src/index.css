@@ -1,0 +1,46 @@
+:root {
+  --color-bg: oklch(98% 0.004 250);
+  --color-surface: #fff;
+  --color-border: oklch(92% 0.006 250);
+  --color-text: oklch(22% 0.014 250);
+  --color-text-muted: oklch(48% 0.012 250);
+  --color-text-faint: oklch(55% 0.01 250);
+  --color-accent: oklch(65% 0.11 35);
+  --color-accent-hover: oklch(58% 0.115 35);
+  --color-input-bg: oklch(98% 0.004 250);
+
+  --font-heading: "Sora", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  font-family: var(--font-body);
+  color: var(--color-text);
+}
+
+a {
+  color: var(--color-accent);
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+}
+
+button {
+  font-family: inherit;
+}
+
+::placeholder {
+  color: oklch(62% 0.01 250);
+}
+
+#root {
+  min-height: 100vh;
+}

@@ -1,1 +1,1 @@
-rootProject.name = "job-tracker-backend"
+rootProject.name = "nextrole-backend"
