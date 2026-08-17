@@ -38,6 +38,12 @@ export interface CreateApplicationRequest {
 
 export type UpdateApplicationRequest = Partial<CreateApplicationRequest>;
 
+export interface StatusHistoryEntry {
+	id: string;
+	status: ApplicationStatus;
+	changedAt: string;
+}
+
 export interface Page<T> {
 	content: T[];
 	totalElements: number;
