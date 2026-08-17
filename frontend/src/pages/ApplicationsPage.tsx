@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { createApplication, deleteApplication, listApplications, updateApplication } from "../api/applications";
 import type { Application, CreateApplicationRequest } from "../types/application";
 import { AppShell } from "../components/AppShell";
@@ -9,6 +10,7 @@ import { IconButton, PencilIcon, TrashIcon } from "../components/IconButton";
 import { formatDate } from "../utils/date";
 
 export function ApplicationsPage() {
+	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const [applications, setApplications] = useState<Application[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -49,7 +51,7 @@ export function ApplicationsPage() {
 	}
 
 	async function handleDelete(id: string) {
-		if (!window.confirm("Delete this application?")) return;
+		if (!window.confirm(t("applications.confirmDelete"))) return;
 		await deleteApplication(id);
 		await refresh();
 	}
@@ -57,7 +59,7 @@ export function ApplicationsPage() {
 	return (
 		<AppShell>
 			<div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 14 }}>
-				<h1 style={{ font: "700 26px var(--font-heading)", margin: 0 }}>Applications</h1>
+				<h1 style={{ font: "700 26px var(--font-heading)", margin: 0 }}>{t("applications.title")}</h1>
 				<button
 					onClick={() => setCreating(true)}
 					style={{
@@ -70,13 +72,13 @@ export function ApplicationsPage() {
 						cursor: "pointer",
 					}}
 				>
-					+ New application
+					{t("applications.newApplication")}
 				</button>
 			</div>
 
 			<input
 				type="text"
-				placeholder="Search company or role"
+				placeholder={t("applications.searchPlaceholder")}
 				value={search}
 				onChange={(e) => setSearch(e.target.value)}
 				style={{
@@ -90,9 +92,9 @@ export function ApplicationsPage() {
 			/>
 
 			{loading ? (
-				<p style={{ color: "var(--color-text-muted)" }}>Loading…</p>
+				<p style={{ color: "var(--color-text-muted)" }}>{t("applications.loading")}</p>
 			) : filtered.length === 0 ? (
-				<p style={{ color: "var(--color-text-muted)" }}>No applications yet. Add your first one.</p>
+				<p style={{ color: "var(--color-text-muted)" }}>{t("applications.empty")}</p>
 			) : (
 				<div style={{ background: "#fff", border: "1px solid var(--color-border)", borderRadius: 14, overflowX: "auto" }}>
 					<div style={{ minWidth: 880 }}>
@@ -109,12 +111,12 @@ export function ApplicationsPage() {
 							borderBottom: "1px solid var(--color-border)",
 						}}
 					>
-						<div>Company / Role</div>
-						<div>Location</div>
-						<div>Salary</div>
-						<div>Tech stack</div>
-						<div>Status</div>
-						<div>Applied</div>
+						<div>{t("applications.columns.companyRole")}</div>
+						<div>{t("applications.columns.location")}</div>
+						<div>{t("applications.columns.salary")}</div>
+						<div>{t("applications.columns.techStack")}</div>
+						<div>{t("applications.columns.status")}</div>
+						<div>{t("applications.columns.applied")}</div>
 						<div />
 					</div>
 					{filtered.map((app) => (
@@ -191,10 +193,14 @@ export function ApplicationsPage() {
 								onClick={(e) => e.stopPropagation()}
 								style={{ display: "flex", gap: 2, justifyContent: "flex-end" }}
 							>
-								<IconButton onClick={() => setEditing(app)} label={`Edit ${app.company}`}>
+								<IconButton onClick={() => setEditing(app)} label={t("applications.editAria", { company: app.company })}>
 									<PencilIcon />
 								</IconButton>
-								<IconButton onClick={() => handleDelete(app.id)} label={`Delete ${app.company}`} variant="danger">
+								<IconButton
+									onClick={() => handleDelete(app.id)}
+									label={t("applications.deleteAria", { company: app.company })}
+									variant="danger"
+								>
 									<TrashIcon />
 								</IconButton>
 							</div>

@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 
 const inputStyle: React.CSSProperties = {
@@ -20,6 +21,7 @@ const labelStyle: React.CSSProperties = {
 };
 
 export function AuthPage() {
+	const { t } = useTranslation();
 	const [isSignup, setIsSignup] = useState(false);
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -40,7 +42,7 @@ export function AuthPage() {
 			}
 			navigate("/applications");
 		} catch {
-			setError(isSignup ? "Could not create account. Try a different email." : "Invalid email or password.");
+			setError(isSignup ? t("auth.signupError") : t("auth.loginError"));
 		} finally {
 			setSubmitting(false);
 		}
@@ -71,30 +73,30 @@ export function AuthPage() {
 				<div style={{ flex: 1, padding: "56px 48px", display: "flex", flexDirection: "column", gap: 28 }}>
 					<div style={{ display: "flex", alignItems: "center", gap: 10 }}>
 						<div style={{ width: 32, height: 32, borderRadius: 9, background: "var(--color-accent)" }} />
-						<span style={{ font: "700 18px var(--font-heading)" }}>NextRole</span>
+						<span style={{ font: "700 18px var(--font-heading)" }}>{t("app.name")}</span>
 					</div>
 					<div>
 						<h1 style={{ font: "700 28px var(--font-heading)", margin: "0 0 8px" }}>
-							{isSignup ? "Create your account" : "Welcome back"}
+							{isSignup ? t("auth.createAccountTitle") : t("auth.welcomeBackTitle")}
 						</h1>
 						<p style={{ margin: 0, color: "var(--color-text-muted)", fontSize: 14 }}>
-							{isSignup ? "Start tracking your job search in minutes." : "Sign in to keep tracking your applications."}
+							{isSignup ? t("auth.createAccountSubtitle") : t("auth.welcomeBackSubtitle")}
 						</p>
 					</div>
 					<form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 						<label style={labelStyle}>
-							Email
+							{t("auth.emailLabel")}
 							<input
 								type="email"
 								required
-								placeholder="you@example.com"
+								placeholder={t("auth.emailPlaceholder")}
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
 								style={inputStyle}
 							/>
 						</label>
 						<label style={labelStyle}>
-							Password
+							{t("auth.passwordLabel")}
 							<input
 								type="password"
 								required
@@ -121,11 +123,11 @@ export function AuthPage() {
 								opacity: submitting ? 0.7 : 1,
 							}}
 						>
-							{isSignup ? "Create account" : "Sign in"}
+							{isSignup ? t("auth.createAccountCta") : t("auth.signInCta")}
 						</button>
 					</form>
 					<p style={{ margin: 0, fontSize: 13, color: "var(--color-text-muted)" }}>
-						{isSignup ? "Already have an account?" : "Don't have an account?"}{" "}
+						{isSignup ? t("auth.haveAccount") : t("auth.noAccount")}{" "}
 						<a
 							href="#"
 							onClick={(e) => {
@@ -135,7 +137,7 @@ export function AuthPage() {
 							}}
 							style={{ fontWeight: 600, textDecoration: "none" }}
 						>
-							{isSignup ? "Sign in" : "Sign up"}
+							{isSignup ? t("auth.signInLink") : t("auth.signUpLink")}
 						</a>
 					</p>
 				</div>
@@ -158,7 +160,7 @@ export function AuthPage() {
 							borderRadius: 8,
 						}}
 					>
-						NextRole
+						{t("app.name")}
 					</span>
 				</div>
 			</div>
