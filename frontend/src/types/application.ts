@@ -44,6 +44,48 @@ export interface StatusHistoryEntry {
 	changedAt: string;
 }
 
+export interface Note {
+	id: string;
+	text: string;
+	createdAt: string;
+}
+
+export interface CreateNoteRequest {
+	text: string;
+}
+
+export interface Interview {
+	id: string;
+	round: string;
+	interviewer: string | null;
+	scheduledAt: string;
+	mode: string | null;
+	notes: string | null;
+	createdAt: string;
+}
+
+export interface CreateInterviewRequest {
+	round: string;
+	interviewer?: string;
+	scheduledAt: string;
+	mode?: string;
+	notes?: string;
+}
+
+export interface Contact {
+	id: string;
+	name: string;
+	role: string | null;
+	email: string | null;
+	createdAt: string;
+}
+
+export interface CreateContactRequest {
+	name: string;
+	role?: string;
+	email?: string;
+}
+
 export interface Page<T> {
 	content: T[];
 	totalElements: number;
