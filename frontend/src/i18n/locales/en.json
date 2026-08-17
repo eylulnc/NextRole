@@ -3,7 +3,9 @@
 		"name": "NextRole"
 	},
 	"nav": {
-		"logOut": "Log out"
+		"logOut": "Log out",
+		"collapseSidebar": "Collapse sidebar",
+		"expandSidebar": "Expand sidebar"
 	},
 	"status": {
 		"SAVED": "Saved",
@@ -31,10 +33,35 @@
 		"signupError": "Could not create account. Try a different email.",
 		"loginError": "Invalid email or password."
 	},
+	"nav_links": {
+		"dashboard": "Dashboard",
+		"applications": "Applications",
+		"calendar": "Calendar"
+	},
+	"dashboard": {
+		"title": "Dashboard",
+		"subtitle": "{{count}} active applications",
+		"stats": {
+			"activeApplications": "Active applications",
+			"interviewsThisWeek": "Interviews this week",
+			"responseRate": "Response rate",
+			"avgDaysInPipeline": "Avg days in pipeline"
+		},
+		"addedThisMonth": "+{{count}} this month",
+		"acrossPipeline": "Across pipeline",
+		"upcomingInterviews": "Upcoming interviews",
+		"recentActivity": "Recent activity",
+		"pipelineOverview": "Pipeline overview",
+		"noUpcomingInterviews": "No interviews scheduled.",
+		"noRecentActivity": "No recent activity yet.",
+		"movedTo": "{{company}} moved to {{status}}"
+	},
 	"applications": {
 		"title": "Applications",
 		"newApplication": "+ New application",
 		"searchPlaceholder": "Search company or role",
+		"boardView": "Board",
+		"tableView": "Table",
 		"loading": "Loading…",
 		"empty": "No applications yet. Add your first one.",
 		"confirmDelete": "Delete this application?",
@@ -57,6 +84,14 @@
 		"location": "Location",
 		"salaryMin": "Salary min",
 		"salaryMax": "Salary max",
+		"currency": "Currency",
+		"workMode": "Work mode",
+		"workModeOptions": {
+			"none": "—",
+			"REMOTE": "Remote",
+			"HYBRID": "Hybrid",
+			"ONSITE": "Onsite"
+		},
 		"techStack": "Tech stack (comma-separated)",
 		"applicationDate": "Application date",
 		"status": "Status",
