@@ -6,6 +6,7 @@ import { AppShell } from "../components/AppShell";
 import { StatusBadge } from "../components/StatusBadge";
 import { ApplicationFormModal } from "../components/ApplicationFormModal";
 import { IconButton, PencilIcon, TrashIcon } from "../components/IconButton";
+import { formatDate } from "../utils/date";
 
 export function ApplicationsPage() {
 	const navigate = useNavigate();
@@ -138,30 +139,54 @@ export function ApplicationsPage() {
 							<div style={{ color: "oklch(40% 0.012 250)" }}>
 								{app.salaryMin && app.salaryMax ? `€${app.salaryMin / 1000}k–${app.salaryMax / 1000}k` : "—"}
 							</div>
-							<div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
-								{(app.techStack ?? "")
-									.split(",")
-									.map((t) => t.trim())
-									.filter(Boolean)
-									.map((t) => (
-										<span
-											key={t}
-											style={{
-												font: "500 10px var(--font-mono)",
-												background: "oklch(95% 0.006 250)",
-												padding: "3px 6px",
-												borderRadius: 5,
-												color: "oklch(38% 0.012 250)",
-											}}
-										>
-											{t}
-										</span>
-									))}
+							<div style={{ display: "flex", gap: 5, flexWrap: "nowrap", overflow: "hidden" }}>
+								{(() => {
+									const tags = (app.techStack ?? "")
+										.split(",")
+										.map((t) => t.trim())
+										.filter(Boolean);
+									const MAX_VISIBLE = 3;
+									const visible = tags.slice(0, MAX_VISIBLE);
+									const hiddenCount = tags.length - visible.length;
+									return (
+										<>
+											{visible.map((t) => (
+												<span
+													key={t}
+													style={{
+														font: "500 10px var(--font-mono)",
+														background: "oklch(95% 0.006 250)",
+														padding: "3px 6px",
+														borderRadius: 5,
+														color: "oklch(38% 0.012 250)",
+														whiteSpace: "nowrap",
+													}}
+												>
+													{t}
+												</span>
+											))}
+											{hiddenCount > 0 && (
+												<span
+													style={{
+														font: "500 10px var(--font-mono)",
+														padding: "3px 6px",
+														color: "var(--color-text-faint)",
+														whiteSpace: "nowrap",
+													}}
+												>
+													+{hiddenCount}
+												</span>
+											)}
+										</>
+									);
+								})()}
 							</div>
 							<div>
 								<StatusBadge status={app.status} />
 							</div>
-							<div style={{ color: "var(--color-text-muted)" }}>{app.applicationDate ?? "—"}</div>
+							<div style={{ color: "var(--color-text-muted)" }}>
+							{app.applicationDate ? formatDate(app.applicationDate) : "—"}
+						</div>
 							<div
 								onClick={(e) => e.stopPropagation()}
 								style={{ display: "flex", gap: 2, justifyContent: "flex-end" }}
