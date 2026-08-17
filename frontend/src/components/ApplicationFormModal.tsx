@@ -20,6 +20,12 @@ const labelStyle: React.CSSProperties = {
 	color: "oklch(38% 0.012 250)",
 };
 
+const fieldRowStyle: React.CSSProperties = {
+	display: "grid",
+	gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+	gap: 14,
+};
+
 interface Props {
 	initial?: Application;
 	onSubmit: (request: CreateApplicationRequest) => Promise<void>;
@@ -76,9 +82,9 @@ export function ApplicationFormModal({ initial, onSubmit, onClose }: Props) {
 				style={{
 					background: "#fff",
 					borderRadius: 16,
-					padding: 28,
+					padding: 32,
 					width: "100%",
-					maxWidth: 480,
+					maxWidth: 720,
 					display: "flex",
 					flexDirection: "column",
 					gap: 16,
@@ -89,26 +95,34 @@ export function ApplicationFormModal({ initial, onSubmit, onClose }: Props) {
 				<h2 style={{ font: "700 18px var(--font-heading)", margin: 0 }}>
 					{initial ? "Edit application" : "New application"}
 				</h2>
-				<form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-					<label style={labelStyle}>
-						Company
-						<input
-							required
-							value={form.company}
-							onChange={(e) => update("company", e.target.value)}
-							style={inputStyle}
-						/>
-					</label>
-					<label style={labelStyle}>
-						Role
-						<input required value={form.role} onChange={(e) => update("role", e.target.value)} style={inputStyle} />
-					</label>
-					<label style={labelStyle}>
-						Location
-						<input value={form.location ?? ""} onChange={(e) => update("location", e.target.value)} style={inputStyle} />
-					</label>
-					<div style={{ display: "flex", gap: 12 }}>
-						<label style={{ ...labelStyle, flex: 1 }}>
+				<form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+					<div style={fieldRowStyle}>
+						<label style={labelStyle}>
+							Company
+							<input
+								required
+								value={form.company}
+								onChange={(e) => update("company", e.target.value)}
+								style={inputStyle}
+							/>
+						</label>
+						<label style={labelStyle}>
+							Role
+							<input required value={form.role} onChange={(e) => update("role", e.target.value)} style={inputStyle} />
+						</label>
+					</div>
+					<div style={fieldRowStyle}>
+						<label style={labelStyle}>
+							Location
+							<input value={form.location ?? ""} onChange={(e) => update("location", e.target.value)} style={inputStyle} />
+						</label>
+						<label style={labelStyle}>
+							Tech stack (comma-separated)
+							<input value={form.techStack ?? ""} onChange={(e) => update("techStack", e.target.value)} style={inputStyle} />
+						</label>
+					</div>
+					<div style={fieldRowStyle}>
+						<label style={labelStyle}>
 							Salary min
 							<input
 								type="number"
@@ -117,7 +131,7 @@ export function ApplicationFormModal({ initial, onSubmit, onClose }: Props) {
 								style={inputStyle}
 							/>
 						</label>
-						<label style={{ ...labelStyle, flex: 1 }}>
+						<label style={labelStyle}>
 							Salary max
 							<input
 								type="number"
@@ -127,35 +141,33 @@ export function ApplicationFormModal({ initial, onSubmit, onClose }: Props) {
 							/>
 						</label>
 					</div>
-					<label style={labelStyle}>
-						Tech stack (comma-separated)
-						<input value={form.techStack ?? ""} onChange={(e) => update("techStack", e.target.value)} style={inputStyle} />
-					</label>
-					<label style={labelStyle}>
-						Application date
-						<input
-							type="date"
-							value={form.applicationDate ?? ""}
-							onChange={(e) => update("applicationDate", e.target.value)}
-							style={inputStyle}
-						/>
-					</label>
-					<label style={labelStyle}>
-						Status
-						<select value={form.status} onChange={(e) => update("status", e.target.value as CreateApplicationRequest["status"])} style={inputStyle}>
-							{statusOptions().map((opt) => (
-								<option key={opt.value} value={opt.value}>
-									{opt.label}
-								</option>
-							))}
-						</select>
-					</label>
+					<div style={fieldRowStyle}>
+						<label style={labelStyle}>
+							Application date
+							<input
+								type="date"
+								value={form.applicationDate ?? ""}
+								onChange={(e) => update("applicationDate", e.target.value)}
+								style={inputStyle}
+							/>
+						</label>
+						<label style={labelStyle}>
+							Status
+							<select value={form.status} onChange={(e) => update("status", e.target.value as CreateApplicationRequest["status"])} style={inputStyle}>
+								{statusOptions().map((opt) => (
+									<option key={opt.value} value={opt.value}>
+										{opt.label}
+									</option>
+								))}
+							</select>
+						</label>
+					</div>
 					<label style={labelStyle}>
 						Notes
 						<textarea
 							value={form.notes ?? ""}
 							onChange={(e) => update("notes", e.target.value)}
-							style={{ ...inputStyle, minHeight: 80, resize: "vertical" }}
+							style={{ ...inputStyle, minHeight: 70, resize: "vertical" }}
 						/>
 					</label>
 					<div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 6 }}>

@@ -4,6 +4,7 @@ import type { Application, CreateApplicationRequest } from "../types/application
 import { AppShell } from "../components/AppShell";
 import { StatusBadge } from "../components/StatusBadge";
 import { ApplicationFormModal } from "../components/ApplicationFormModal";
+import { IconButton, PencilIcon, TrashIcon } from "../components/IconButton";
 
 export function ApplicationsPage() {
 	const [applications, setApplications] = useState<Application[]>([]);
@@ -90,11 +91,12 @@ export function ApplicationsPage() {
 			) : filtered.length === 0 ? (
 				<p style={{ color: "var(--color-text-muted)" }}>No applications yet. Add your first one.</p>
 			) : (
-				<div style={{ background: "#fff", border: "1px solid var(--color-border)", borderRadius: 14, overflow: "hidden" }}>
+				<div style={{ background: "#fff", border: "1px solid var(--color-border)", borderRadius: 14, overflowX: "auto" }}>
+					<div style={{ minWidth: 880 }}>
 					<div
 						style={{
 							display: "grid",
-							gridTemplateColumns: "1.6fr 1.4fr 1fr 1.6fr 1fr 1fr 64px",
+							gridTemplateColumns: "1.6fr 1.4fr 1fr 1.6fr 1fr 1fr 84px",
 							padding: "12px 20px",
 							fontSize: 11.5,
 							fontWeight: 600,
@@ -117,7 +119,7 @@ export function ApplicationsPage() {
 							key={app.id}
 							style={{
 								display: "grid",
-								gridTemplateColumns: "1.6fr 1.4fr 1fr 1.6fr 1fr 1fr 64px",
+								gridTemplateColumns: "1.6fr 1.4fr 1fr 1.6fr 1fr 1fr 84px",
 								padding: "14px 20px",
 								alignItems: "center",
 								borderBottom: "1px solid oklch(95% 0.005 250)",
@@ -156,24 +158,17 @@ export function ApplicationsPage() {
 								<StatusBadge status={app.status} />
 							</div>
 							<div style={{ color: "var(--color-text-muted)" }}>{app.applicationDate ?? "—"}</div>
-							<div style={{ display: "flex", gap: 8 }}>
-								<button
-									onClick={() => setEditing(app)}
-									aria-label={`Edit ${app.company}`}
-									style={{ border: "none", background: "none", cursor: "pointer", color: "var(--color-text-muted)" }}
-								>
-									Edit
-								</button>
-								<button
-									onClick={() => handleDelete(app.id)}
-									aria-label={`Delete ${app.company}`}
-									style={{ border: "none", background: "none", cursor: "pointer", color: "oklch(50% 0.15 30)" }}
-								>
-									Delete
-								</button>
+							<div style={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
+								<IconButton onClick={() => setEditing(app)} label={`Edit ${app.company}`}>
+									<PencilIcon />
+								</IconButton>
+								<IconButton onClick={() => handleDelete(app.id)} label={`Delete ${app.company}`} variant="danger">
+									<TrashIcon />
+								</IconButton>
 							</div>
 						</div>
 					))}
+					</div>
 				</div>
 			)}
 
