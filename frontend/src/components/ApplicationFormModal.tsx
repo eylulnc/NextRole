@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import type { Application, CreateApplicationRequest } from "../types/application";
 import { statusOptions } from "./StatusBadge";
 
@@ -33,6 +34,7 @@ interface Props {
 }
 
 export function ApplicationFormModal({ initial, onSubmit, onClose }: Props) {
+	const { t } = useTranslation();
 	const [form, setForm] = useState<CreateApplicationRequest>({
 		company: initial?.company ?? "",
 		role: initial?.role ?? "",
@@ -93,12 +95,12 @@ export function ApplicationFormModal({ initial, onSubmit, onClose }: Props) {
 				}}
 			>
 				<h2 style={{ font: "700 18px var(--font-heading)", margin: 0 }}>
-					{initial ? "Edit application" : "New application"}
+					{initial ? t("applicationForm.editTitle") : t("applicationForm.newTitle")}
 				</h2>
 				<form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 					<div style={fieldRowStyle}>
 						<label style={labelStyle}>
-							Company
+							{t("applicationForm.company")}
 							<input
 								required
 								value={form.company}
@@ -107,23 +109,23 @@ export function ApplicationFormModal({ initial, onSubmit, onClose }: Props) {
 							/>
 						</label>
 						<label style={labelStyle}>
-							Role
+							{t("applicationForm.role")}
 							<input required value={form.role} onChange={(e) => update("role", e.target.value)} style={inputStyle} />
 						</label>
 					</div>
 					<div style={fieldRowStyle}>
 						<label style={labelStyle}>
-							Location
+							{t("applicationForm.location")}
 							<input value={form.location ?? ""} onChange={(e) => update("location", e.target.value)} style={inputStyle} />
 						</label>
 						<label style={labelStyle}>
-							Tech stack (comma-separated)
+							{t("applicationForm.techStack")}
 							<input value={form.techStack ?? ""} onChange={(e) => update("techStack", e.target.value)} style={inputStyle} />
 						</label>
 					</div>
 					<div style={fieldRowStyle}>
 						<label style={labelStyle}>
-							Salary min
+							{t("applicationForm.salaryMin")}
 							<input
 								type="number"
 								value={form.salaryMin ?? ""}
@@ -132,7 +134,7 @@ export function ApplicationFormModal({ initial, onSubmit, onClose }: Props) {
 							/>
 						</label>
 						<label style={labelStyle}>
-							Salary max
+							{t("applicationForm.salaryMax")}
 							<input
 								type="number"
 								value={form.salaryMax ?? ""}
@@ -143,7 +145,7 @@ export function ApplicationFormModal({ initial, onSubmit, onClose }: Props) {
 					</div>
 					<div style={fieldRowStyle}>
 						<label style={labelStyle}>
-							Application date
+							{t("applicationForm.applicationDate")}
 							<input
 								type="date"
 								value={form.applicationDate ?? ""}
@@ -152,7 +154,7 @@ export function ApplicationFormModal({ initial, onSubmit, onClose }: Props) {
 							/>
 						</label>
 						<label style={labelStyle}>
-							Status
+							{t("applicationForm.status")}
 							<select value={form.status} onChange={(e) => update("status", e.target.value as CreateApplicationRequest["status"])} style={inputStyle}>
 								{statusOptions().map((opt) => (
 									<option key={opt.value} value={opt.value}>
@@ -163,7 +165,7 @@ export function ApplicationFormModal({ initial, onSubmit, onClose }: Props) {
 						</label>
 					</div>
 					<label style={labelStyle}>
-						Notes
+						{t("applicationForm.notes")}
 						<textarea
 							value={form.notes ?? ""}
 							onChange={(e) => update("notes", e.target.value)}
@@ -183,7 +185,7 @@ export function ApplicationFormModal({ initial, onSubmit, onClose }: Props) {
 								cursor: "pointer",
 							}}
 						>
-							Cancel
+							{t("applicationForm.cancel")}
 						</button>
 						<button
 							type="submit"
@@ -199,7 +201,7 @@ export function ApplicationFormModal({ initial, onSubmit, onClose }: Props) {
 								opacity: submitting ? 0.7 : 1,
 							}}
 						>
-							{initial ? "Save changes" : "Create application"}
+							{initial ? t("applicationForm.saveCta") : t("applicationForm.createCta")}
 						</button>
 					</div>
 				</form>

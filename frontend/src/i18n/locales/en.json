@@ -1,0 +1,111 @@
+{
+	"app": {
+		"name": "NextRole"
+	},
+	"nav": {
+		"logOut": "Log out"
+	},
+	"status": {
+		"SAVED": "Saved",
+		"APPLIED": "Applied",
+		"HR_INTERVIEW": "HR Interview",
+		"TECHNICAL": "Technical",
+		"FINAL": "Final Round",
+		"OFFER": "Offer",
+		"REJECTED": "Rejected"
+	},
+	"auth": {
+		"welcomeBackTitle": "Welcome back",
+		"welcomeBackSubtitle": "Sign in to keep tracking your applications.",
+		"createAccountTitle": "Create your account",
+		"createAccountSubtitle": "Start tracking your job search in minutes.",
+		"emailLabel": "Email",
+		"emailPlaceholder": "you@example.com",
+		"passwordLabel": "Password",
+		"signInCta": "Sign in",
+		"createAccountCta": "Create account",
+		"noAccount": "Don't have an account?",
+		"haveAccount": "Already have an account?",
+		"signUpLink": "Sign up",
+		"signInLink": "Sign in",
+		"signupError": "Could not create account. Try a different email.",
+		"loginError": "Invalid email or password."
+	},
+	"applications": {
+		"title": "Applications",
+		"newApplication": "+ New application",
+		"searchPlaceholder": "Search company or role",
+		"loading": "Loading…",
+		"empty": "No applications yet. Add your first one.",
+		"confirmDelete": "Delete this application?",
+		"editAria": "Edit {{company}}",
+		"deleteAria": "Delete {{company}}",
+		"columns": {
+			"companyRole": "Company / Role",
+			"location": "Location",
+			"salary": "Salary",
+			"techStack": "Tech stack",
+			"status": "Status",
+			"applied": "Applied"
+		}
+	},
+	"applicationForm": {
+		"newTitle": "New application",
+		"editTitle": "Edit application",
+		"company": "Company",
+		"role": "Role",
+		"location": "Location",
+		"salaryMin": "Salary min",
+		"salaryMax": "Salary max",
+		"techStack": "Tech stack (comma-separated)",
+		"applicationDate": "Application date",
+		"status": "Status",
+		"notes": "Notes",
+		"cancel": "Cancel",
+		"createCta": "Create application",
+		"saveCta": "Save changes"
+	},
+	"applicationDetail": {
+		"back": "← Back to applications",
+		"edit": "Edit",
+		"changeStage": "Change stage",
+		"tabs": {
+			"overview": "Overview",
+			"history": "Status History",
+			"interviews": "Interviews",
+			"contacts": "Contacts",
+			"notes": "Notes"
+		},
+		"jobDescription": "Job description",
+		"noJobDescription": "No job description saved yet.",
+		"techStack": "Tech stack",
+		"keyDates": "Key dates",
+		"applied": "Applied: {{date}}",
+		"notAppliedYet": "Not applied yet",
+		"lastUpdated": "Last updated: {{date}}",
+		"noInterviews": "No interviews scheduled yet.",
+		"noContacts": "No contacts saved yet.",
+		"noNotes": "No notes yet.",
+		"addInterview": "+ Add interview",
+		"addContact": "+ Add contact",
+		"addNote": "+ Add note",
+		"cancel": "Cancel",
+		"noteForm": {
+			"placeholder": "Add a note…",
+			"submit": "Add note"
+		},
+		"interviewForm": {
+			"roundPlaceholder": "Round (e.g. HR Screen)",
+			"interviewerPlaceholder": "Interviewer",
+			"modePlaceholder": "Mode (e.g. Video call)",
+			"notesPlaceholder": "Notes (optional)",
+			"submit": "Add interview"
+		},
+		"contactForm": {
+			"namePlaceholder": "Name",
+			"rolePlaceholder": "Role",
+			"emailPlaceholder": "Email",
+			"submit": "Add contact"
+		}
+	}
+}

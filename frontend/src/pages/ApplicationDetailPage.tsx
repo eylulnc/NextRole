@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
 	changeApplicationStatus,
 	createContact,
@@ -55,6 +56,7 @@ const addButtonStyle: React.CSSProperties = {
 };
 
 export function ApplicationDetailPage() {
+	const { t } = useTranslation();
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
 	const [application, setApplication] = useState<Application | null>(null);
@@ -133,7 +135,7 @@ export function ApplicationDetailPage() {
 	if (!application) {
 		return (
 			<AppShell>
-				<p style={{ color: "var(--color-text-muted)" }}>Loading…</p>
+				<p style={{ color: "var(--color-text-muted)" }}>{t("applications.loading")}</p>
 			</AppShell>
 		);
 	}
@@ -149,7 +151,7 @@ export function ApplicationDetailPage() {
 					}}
 					style={{ fontSize: 13, textDecoration: "none", fontWeight: 600 }}
 				>
-					← Back to applications
+					{t("applicationDetail.back")}
 				</a>
 			</div>
 
@@ -179,7 +181,7 @@ export function ApplicationDetailPage() {
 							cursor: "pointer",
 						}}
 					>
-						Edit
+						{t("applicationDetail.edit")}
 					</button>
 					<button
 						onClick={() => setChangingStage((v) => !v)}
@@ -193,7 +195,7 @@ export function ApplicationDetailPage() {
 							cursor: "pointer",
 						}}
 					>
-						Change stage
+						{t("applicationDetail.changeStage")}
 					</button>
 					{changingStage && (
 						<div
@@ -245,21 +247,21 @@ export function ApplicationDetailPage() {
 			>
 				<div style={{ display: "flex", gap: 6 }}>
 					{([
-						["overview", "Overview"],
-						["history", "Status History"],
-						["interviews", "Interviews"],
-						["contacts", "Contacts"],
-						["notes", "Notes"],
-					] as [Tab, string][]).map(([t, label]) => (
+						["overview", t("applicationDetail.tabs.overview")],
+						["history", t("applicationDetail.tabs.history")],
+						["interviews", t("applicationDetail.tabs.interviews")],
+						["contacts", t("applicationDetail.tabs.contacts")],
+						["notes", t("applicationDetail.tabs.notes")],
+					] as [Tab, string][]).map(([t2, label]) => (
 						<div
-							key={t}
-							onClick={() => setTab(t)}
+							key={t2}
+							onClick={() => setTab(t2)}
 							style={{
 								padding: "10px 16px",
 								font: "600 13px var(--font-body)",
 								cursor: "pointer",
-								color: tab === t ? "var(--color-text)" : "var(--color-text-faint)",
-								borderBottom: `2px solid ${tab === t ? "var(--color-accent)" : "transparent"}`,
+								color: tab === t2 ? "var(--color-text)" : "var(--color-text-faint)",
+								borderBottom: `2px solid ${tab === t2 ? "var(--color-accent)" : "transparent"}`,
 							}}
 						>
 							{label}
@@ -267,25 +269,39 @@ export function ApplicationDetailPage() {
 					))}
 				</div>
 				{tab === "interviews" && (
-					<ToggleAddButton label="interview" open={showInterviewForm} onToggle={() => setShowInterviewForm((v) => !v)} />
+					<ToggleAddButton
+						addLabel={t("applicationDetail.addInterview")}
+						open={showInterviewForm}
+						onToggle={() => setShowInterviewForm((v) => !v)}
+					/>
 				)}
 				{tab === "contacts" && (
-					<ToggleAddButton label="contact" open={showContactForm} onToggle={() => setShowContactForm((v) => !v)} />
+					<ToggleAddButton
+						addLabel={t("applicationDetail.addContact")}
+						open={showContactForm}
+						onToggle={() => setShowContactForm((v) => !v)}
+					/>
 				)}
-				{tab === "notes" && <ToggleAddButton label="note" open={showNoteForm} onToggle={() => setShowNoteForm((v) => !v)} />}
+				{tab === "notes" && (
+					<ToggleAddButton
+						addLabel={t("applicationDetail.addNote")}
+						open={showNoteForm}
+						onToggle={() => setShowNoteForm((v) => !v)}
+					/>
+				)}
 			</div>
 
 			{tab === "overview" && (
 				<div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 20, alignItems: "start" }}>
 					<div style={cardStyle}>
-						<h3 style={{ font: "700 15px var(--font-heading)", margin: "0 0 12px" }}>Job description</h3>
+						<h3 style={{ font: "700 15px var(--font-heading)", margin: "0 0 12px" }}>{t("applicationDetail.jobDescription")}</h3>
 						<p style={{ fontSize: 13.5, lineHeight: 1.7, color: "oklch(30% 0.012 250)", whiteSpace: "pre-line" }}>
-							{application.jobDescription || "No job description saved yet."}
+							{application.jobDescription || t("applicationDetail.noJobDescription")}
 						</p>
 					</div>
 					<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 						<div style={cardStyle}>
-							<h3 style={{ font: "700 14px var(--font-heading)", margin: "0 0 10px" }}>Tech stack</h3>
+							<h3 style={{ font: "700 14px var(--font-heading)", margin: "0 0 10px" }}>{t("applicationDetail.techStack")}</h3>
 							<div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
 								{(application.techStack ?? "")
 									.split(",")
@@ -307,10 +323,14 @@ export function ApplicationDetailPage() {
 							</div>
 						</div>
 						<div style={cardStyle}>
-							<h3 style={{ font: "700 14px var(--font-heading)", margin: "0 0 8px" }}>Key dates</h3>
+							<h3 style={{ font: "700 14px var(--font-heading)", margin: "0 0 8px" }}>{t("applicationDetail.keyDates")}</h3>
 							<div style={{ fontSize: 13, color: "oklch(40% 0.012 250)", display: "flex", flexDirection: "column", gap: 6 }}>
-								<div>Applied: {application.applicationDate ? formatDate(application.applicationDate) : "Not applied yet"}</div>
-								<div>Last updated: {formatDate(application.updatedAt)}</div>
+								<div>
+									{application.applicationDate
+										? t("applicationDetail.applied", { date: formatDate(application.applicationDate) })
+										: t("applicationDetail.notAppliedYet")}
+								</div>
+								<div>{t("applicationDetail.lastUpdated", { date: formatDate(application.updatedAt) })}</div>
 							</div>
 						</div>
 					</div>
@@ -367,7 +387,7 @@ export function ApplicationDetailPage() {
 							{iv.notes && <div style={{ fontSize: 13, color: "oklch(35% 0.012 250)", marginTop: 4 }}>{iv.notes}</div>}
 						</div>
 					))}
-					{interviews.length === 0 && <p style={{ color: "var(--color-text-muted)" }}>No interviews scheduled yet.</p>}
+					{interviews.length === 0 && <p style={{ color: "var(--color-text-muted)" }}>{t("applicationDetail.noInterviews")}</p>}
 				</div>
 			)}
 
@@ -401,7 +421,7 @@ export function ApplicationDetailPage() {
 							</div>
 						))}
 					</div>
-					{contacts.length === 0 && <p style={{ color: "var(--color-text-muted)" }}>No contacts saved yet.</p>}
+					{contacts.length === 0 && <p style={{ color: "var(--color-text-muted)" }}>{t("applicationDetail.noContacts")}</p>}
 				</div>
 			)}
 
@@ -418,7 +438,7 @@ export function ApplicationDetailPage() {
 							</div>
 						</div>
 					))}
-					{notes.length === 0 && <p style={{ color: "var(--color-text-muted)" }}>No notes yet.</p>}
+					{notes.length === 0 && <p style={{ color: "var(--color-text-muted)" }}>{t("applicationDetail.noNotes")}</p>}
 				</div>
 			)}
 
@@ -428,6 +448,7 @@ export function ApplicationDetailPage() {
 }
 
 function NoteForm({ onSubmit }: { onSubmit: (text: string) => Promise<void> }) {
+	const { t } = useTranslation();
 	const [text, setText] = useState("");
 	const [submitting, setSubmitting] = useState(false);
 
@@ -448,17 +469,18 @@ function NoteForm({ onSubmit }: { onSubmit: (text: string) => Promise<void> }) {
 			<textarea
 				value={text}
 				onChange={(e) => setText(e.target.value)}
-				placeholder="Add a note…"
+				placeholder={t("applicationDetail.noteForm.placeholder")}
 				style={{ ...inputStyle, minHeight: 70, resize: "vertical" }}
 			/>
 			<button type="submit" disabled={submitting} style={addButtonStyle}>
-				Add note
+				{t("applicationDetail.noteForm.submit")}
 			</button>
 		</form>
 	);
 }
 
-function ToggleAddButton({ label, open, onToggle }: { label: string; open: boolean; onToggle: () => void }) {
+function ToggleAddButton({ addLabel, open, onToggle }: { addLabel: string; open: boolean; onToggle: () => void }) {
+	const { t } = useTranslation();
 	return (
 		<button
 			onClick={onToggle}
@@ -472,7 +494,7 @@ function ToggleAddButton({ label, open, onToggle }: { label: string; open: boole
 				cursor: "pointer",
 			}}
 		>
-			{open ? "Cancel" : `+ Add ${label}`}
+			{open ? t("applicationDetail.cancel") : addLabel}
 		</button>
 	);
 }
@@ -482,6 +504,7 @@ function InterviewForm({
 }: {
 	onSubmit: (round: string, interviewer: string, scheduledAt: string, mode: string, notes: string) => Promise<void>;
 }) {
+	const { t } = useTranslation();
 	const [round, setRound] = useState("");
 	const [interviewer, setInterviewer] = useState("");
 	const [scheduledAt, setScheduledAt] = useState("");
@@ -508,8 +531,19 @@ function InterviewForm({
 	return (
 		<form onSubmit={handleSubmit} style={{ ...cardStyle, display: "flex", flexDirection: "column", gap: 10 }}>
 			<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10 }}>
-				<input required placeholder="Round (e.g. HR Screen)" value={round} onChange={(e) => setRound(e.target.value)} style={inputStyle} />
-				<input placeholder="Interviewer" value={interviewer} onChange={(e) => setInterviewer(e.target.value)} style={inputStyle} />
+				<input
+					required
+					placeholder={t("applicationDetail.interviewForm.roundPlaceholder")}
+					value={round}
+					onChange={(e) => setRound(e.target.value)}
+					style={inputStyle}
+				/>
+				<input
+					placeholder={t("applicationDetail.interviewForm.interviewerPlaceholder")}
+					value={interviewer}
+					onChange={(e) => setInterviewer(e.target.value)}
+					style={inputStyle}
+				/>
 				<input
 					required
 					type="datetime-local"
@@ -517,17 +551,28 @@ function InterviewForm({
 					onChange={(e) => setScheduledAt(e.target.value)}
 					style={inputStyle}
 				/>
-				<input placeholder="Mode (e.g. Video call)" value={mode} onChange={(e) => setMode(e.target.value)} style={inputStyle} />
+				<input
+					placeholder={t("applicationDetail.interviewForm.modePlaceholder")}
+					value={mode}
+					onChange={(e) => setMode(e.target.value)}
+					style={inputStyle}
+				/>
 			</div>
-			<input placeholder="Notes (optional)" value={notes} onChange={(e) => setNotes(e.target.value)} style={inputStyle} />
+			<input
+				placeholder={t("applicationDetail.interviewForm.notesPlaceholder")}
+				value={notes}
+				onChange={(e) => setNotes(e.target.value)}
+				style={inputStyle}
+			/>
 			<button type="submit" disabled={submitting} style={addButtonStyle}>
-				Add interview
+				{t("applicationDetail.interviewForm.submit")}
 			</button>
 		</form>
 	);
 }
 
 function ContactForm({ onSubmit }: { onSubmit: (name: string, role: string, email: string) => Promise<void> }) {
+	const { t } = useTranslation();
 	const [name, setName] = useState("");
 	const [role, setRole] = useState("");
 	const [email, setEmail] = useState("");
@@ -550,12 +595,29 @@ function ContactForm({ onSubmit }: { onSubmit: (name: string, role: string, emai
 	return (
 		<form onSubmit={handleSubmit} style={{ ...cardStyle, display: "flex", flexDirection: "column", gap: 10 }}>
 			<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10 }}>
-				<input required placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} style={inputStyle} />
-				<input placeholder="Role" value={role} onChange={(e) => setRole(e.target.value)} style={inputStyle} />
-				<input placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} />
+				<input
+					required
+					placeholder={t("applicationDetail.contactForm.namePlaceholder")}
+					value={name}
+					onChange={(e) => setName(e.target.value)}
+					style={inputStyle}
+				/>
+				<input
+					placeholder={t("applicationDetail.contactForm.rolePlaceholder")}
+					value={role}
+					onChange={(e) => setRole(e.target.value)}
+					style={inputStyle}
+				/>
+				<input
+					placeholder={t("applicationDetail.contactForm.emailPlaceholder")}
+					type="email"
+					value={email}
+					onChange={(e) => setEmail(e.target.value)}
+					style={inputStyle}
+				/>
 			</div>
 			<button type="submit" disabled={submitting} style={addButtonStyle}>
-				Add contact
+				{t("applicationDetail.contactForm.submit")}
 			</button>
 		</form>
 	);

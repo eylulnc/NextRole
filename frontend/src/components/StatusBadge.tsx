@@ -1,17 +1,20 @@
+import { useTranslation } from "react-i18next";
+import i18n from "../i18n/config";
 import type { ApplicationStatus } from "../types/application";
 
-const STAGE_META: Record<ApplicationStatus, { label: string; hue: number }> = {
-	SAVED: { label: "Saved", hue: 230 },
-	APPLIED: { label: "Applied", hue: 200 },
-	HR_INTERVIEW: { label: "HR Interview", hue: 280 },
-	TECHNICAL: { label: "Technical", hue: 310 },
-	FINAL: { label: "Final Round", hue: 20 },
-	OFFER: { label: "Offer", hue: 150 },
-	REJECTED: { label: "Rejected", hue: 0 },
+const STAGE_HUE: Record<ApplicationStatus, number> = {
+	SAVED: 230,
+	APPLIED: 200,
+	HR_INTERVIEW: 280,
+	TECHNICAL: 310,
+	FINAL: 20,
+	OFFER: 150,
+	REJECTED: 0,
 };
 
 export function StatusBadge({ status }: { status: ApplicationStatus }) {
-	const meta = STAGE_META[status];
+	const { t } = useTranslation();
+	const hue = STAGE_HUE[status];
 	return (
 		<span
 			style={{
@@ -19,19 +22,19 @@ export function StatusBadge({ status }: { status: ApplicationStatus }) {
 				fontWeight: 600,
 				padding: "4px 10px",
 				borderRadius: 20,
-				background: `oklch(93% 0.03 ${meta.hue})`,
-				color: `oklch(40% 0.11 ${meta.hue})`,
+				background: `oklch(93% 0.03 ${hue})`,
+				color: `oklch(40% 0.11 ${hue})`,
 				whiteSpace: "nowrap",
 			}}
 		>
-			{meta.label}
+			{t(`status.${status}`)}
 		</span>
 	);
 }
 
 export function statusOptions(): { value: ApplicationStatus; label: string }[] {
-	return (Object.keys(STAGE_META) as ApplicationStatus[]).map((value) => ({
+	return (Object.keys(STAGE_HUE) as ApplicationStatus[]).map((value) => ({
 		value,
-		label: STAGE_META[value].label,
+		label: i18n.t(`status.${value}`),
 	}));
 }

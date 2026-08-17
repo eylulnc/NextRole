@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 
 export function AppShell({ children }: { children: ReactNode }) {
 	const { email, logout } = useAuth();
+	const { t } = useTranslation();
 
 	return (
 		<div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
@@ -18,7 +20,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 			>
 				<div style={{ display: "flex", alignItems: "center", gap: 10 }}>
 					<div style={{ width: 28, height: 28, borderRadius: 8, background: "var(--color-accent)" }} />
-					<span style={{ font: "700 17px var(--font-heading)" }}>NextRole</span>
+					<span style={{ font: "700 17px var(--font-heading)" }}>{t("app.name")}</span>
 				</div>
 				<div style={{ display: "flex", alignItems: "center", gap: 14 }}>
 					<span style={{ fontSize: 13, color: "var(--color-text-muted)" }}>{email}</span>
@@ -33,7 +35,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 							cursor: "pointer",
 						}}
 					>
-						Log out
+						{t("nav.logOut")}
 					</button>
 				</div>
 			</header>
