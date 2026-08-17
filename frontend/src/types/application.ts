@@ -12,8 +12,10 @@ export interface Application {
 	company: string;
 	role: string;
 	location: string | null;
+	workMode: string | null;
 	salaryMin: number | null;
 	salaryMax: number | null;
+	currency: string;
 	techStack: string | null;
 	jobDescription: string | null;
 	applicationDate: string | null;
@@ -27,8 +29,10 @@ export interface CreateApplicationRequest {
 	company: string;
 	role: string;
 	location?: string;
+	workMode?: string;
 	salaryMin?: number;
 	salaryMax?: number;
+	currency?: string;
 	techStack?: string;
 	jobDescription?: string;
 	applicationDate?: string;

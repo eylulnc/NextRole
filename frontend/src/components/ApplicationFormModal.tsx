@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
-import type { Application, CreateApplicationRequest } from "../types/application";
+import type { Application, ApplicationStatus, CreateApplicationRequest } from "../types/application";
 import { statusOptions } from "./StatusBadge";
+import { CURRENCY_OPTIONS } from "../utils/currency";
 
 const inputStyle: React.CSSProperties = {
 	border: "1px solid var(--color-border)",
@@ -10,6 +11,20 @@ const inputStyle: React.CSSProperties = {
 	font: "13px var(--font-body)",
 	background: "var(--color-input-bg)",
 	width: "100%",
+};
+
+const selectStyle: React.CSSProperties = {
+	...inputStyle,
+	appearance: "none",
+	WebkitAppearance: "none",
+	MozAppearance: "none",
+	backgroundImage:
+		"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23767468' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 7.5l5 5 5-5'/%3E%3C/svg%3E\")",
+	backgroundRepeat: "no-repeat",
+	backgroundPosition: "right 12px center",
+	backgroundSize: "14px",
+	paddingRight: 34,
+	cursor: "pointer",
 };
 
 const labelStyle: React.CSSProperties = {
@@ -29,21 +44,24 @@ const fieldRowStyle: React.CSSProperties = {
 
 interface Props {
 	initial?: Application;
+	initialStatus?: ApplicationStatus;
 	onSubmit: (request: CreateApplicationRequest) => Promise<void>;
 	onClose: () => void;
 }
 
-export function ApplicationFormModal({ initial, onSubmit, onClose }: Props) {
+export function ApplicationFormModal({ initial, initialStatus, onSubmit, onClose }: Props) {
 	const { t } = useTranslation();
 	const [form, setForm] = useState<CreateApplicationRequest>({
 		company: initial?.company ?? "",
 		role: initial?.role ?? "",
 		location: initial?.location ?? "",
+		workMode: initial?.workMode ?? undefined,
 		salaryMin: initial?.salaryMin ?? undefined,
 		salaryMax: initial?.salaryMax ?? undefined,
+		currency: initial?.currency ?? "EUR",
 		techStack: initial?.techStack ?? "",
 		applicationDate: initial?.applicationDate ?? "",
-		status: initial?.status ?? "SAVED",
+		status: initial?.status ?? initialStatus ?? "SAVED",
 		notes: initial?.notes ?? "",
 	});
 	const [submitting, setSubmitting] = useState(false);
@@ -119,6 +137,27 @@ export function ApplicationFormModal({ initial, onSubmit, onClose }: Props) {
 							<input value={form.location ?? ""} onChange={(e) => update("location", e.target.value)} style={inputStyle} />
 						</label>
 						<label style={labelStyle}>
+							{t("applicationForm.workMode")}
+							<select value={form.workMode ?? ""} onChange={(e) => update("workMode", e.target.value || undefined)} style={selectStyle}>
+								<option value="">{t("applicationForm.workModeOptions.none")}</option>
+								<option value="REMOTE">{t("applicationForm.workModeOptions.REMOTE")}</option>
+								<option value="HYBRID">{t("applicationForm.workModeOptions.HYBRID")}</option>
+								<option value="ONSITE">{t("applicationForm.workModeOptions.ONSITE")}</option>
+							</select>
+						</label>
+					</div>
+					<div style={fieldRowStyle}>
+						<label style={labelStyle}>
+							{t("applicationForm.currency")}
+							<select value={form.currency} onChange={(e) => update("currency", e.target.value)} style={selectStyle}>
+								{CURRENCY_OPTIONS.map((code) => (
+									<option key={code} value={code}>
+										{code}
+									</option>
+								))}
+							</select>
+						</label>
+						<label style={labelStyle}>
 							{t("applicationForm.techStack")}
 							<input value={form.techStack ?? ""} onChange={(e) => update("techStack", e.target.value)} style={inputStyle} />
 						</label>
@@ -155,7 +194,7 @@ export function ApplicationFormModal({ initial, onSubmit, onClose }: Props) {
 						</label>
 						<label style={labelStyle}>
 							{t("applicationForm.status")}
-							<select value={form.status} onChange={(e) => update("status", e.target.value as CreateApplicationRequest["status"])} style={inputStyle}>
+							<select value={form.status} onChange={(e) => update("status", e.target.value as CreateApplicationRequest["status"])} style={selectStyle}>
 								{statusOptions().map((opt) => (
 									<option key={opt.value} value={opt.value}>
 										{opt.label}
