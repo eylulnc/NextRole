@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AuthPage } from "./pages/AuthPage";
 import { ApplicationsPage } from "./pages/ApplicationsPage";
+import { ApplicationDetailPage } from "./pages/ApplicationDetailPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 export function App() {
@@ -12,6 +13,14 @@ export function App() {
 				element={
 					<ProtectedRoute>
 						<ApplicationsPage />
+					</ProtectedRoute>
+				}
+			/>
+			<Route
+				path="/applications/:id"
+				element={
+					<ProtectedRoute>
+						<ApplicationDetailPage />
 					</ProtectedRoute>
 				}
 			/>

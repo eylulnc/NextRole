@@ -1,13 +1,30 @@
 import { apiClient } from "./client";
 import type {
 	Application,
+	ApplicationStatus,
 	CreateApplicationRequest,
 	Page,
+	StatusHistoryEntry,
 	UpdateApplicationRequest,
 } from "../types/application";
 
 export async function listApplications(): Promise<Page<Application>> {
 	const response = await apiClient.get<Page<Application>>("/api/applications");
+	return response.data;
+}
+
+export async function getApplication(id: string): Promise<Application> {
+	const response = await apiClient.get<Application>(`/api/applications/${id}`);
+	return response.data;
+}
+
+export async function changeApplicationStatus(id: string, status: ApplicationStatus): Promise<Application> {
+	const response = await apiClient.post<Application>(`/api/applications/${id}/status`, { status });
+	return response.data;
+}
+
+export async function getApplicationHistory(id: string): Promise<StatusHistoryEntry[]> {
+	const response = await apiClient.get<StatusHistoryEntry[]>(`/api/applications/${id}/history`);
 	return response.data;
 }
 

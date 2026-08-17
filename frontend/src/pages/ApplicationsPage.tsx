@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { createApplication, deleteApplication, listApplications, updateApplication } from "../api/applications";
 import type { Application, CreateApplicationRequest } from "../types/application";
 import { AppShell } from "../components/AppShell";
@@ -7,6 +8,7 @@ import { ApplicationFormModal } from "../components/ApplicationFormModal";
 import { IconButton, PencilIcon, TrashIcon } from "../components/IconButton";
 
 export function ApplicationsPage() {
+	const navigate = useNavigate();
 	const [applications, setApplications] = useState<Application[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [search, setSearch] = useState("");
@@ -117,6 +119,7 @@ export function ApplicationsPage() {
 					{filtered.map((app) => (
 						<div
 							key={app.id}
+							onClick={() => navigate(`/applications/${app.id}`)}
 							style={{
 								display: "grid",
 								gridTemplateColumns: "1.6fr 1.4fr 1fr 1.6fr 1fr 1fr 84px",
@@ -124,6 +127,7 @@ export function ApplicationsPage() {
 								alignItems: "center",
 								borderBottom: "1px solid oklch(95% 0.005 250)",
 								fontSize: 13,
+								cursor: "pointer",
 							}}
 						>
 							<div>
@@ -158,7 +162,10 @@ export function ApplicationsPage() {
 								<StatusBadge status={app.status} />
 							</div>
 							<div style={{ color: "var(--color-text-muted)" }}>{app.applicationDate ?? "—"}</div>
-							<div style={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
+							<div
+								onClick={(e) => e.stopPropagation()}
+								style={{ display: "flex", gap: 2, justifyContent: "flex-end" }}
+							>
 								<IconButton onClick={() => setEditing(app)} label={`Edit ${app.company}`}>
 									<PencilIcon />
 								</IconButton>
