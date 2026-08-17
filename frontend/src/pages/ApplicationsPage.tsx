@@ -1,13 +1,30 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { createApplication, deleteApplication, listApplications, updateApplication } from "../api/applications";
-import type { Application, CreateApplicationRequest } from "../types/application";
+import {
+	changeApplicationStatus,
+	createApplication,
+	deleteApplication,
+	listApplications,
+	updateApplication,
+} from "../api/applications";
+import type { Application, ApplicationStatus, CreateApplicationRequest } from "../types/application";
 import { AppShell } from "../components/AppShell";
 import { StatusBadge } from "../components/StatusBadge";
 import { ApplicationFormModal } from "../components/ApplicationFormModal";
 import { IconButton, PencilIcon, TrashIcon } from "../components/IconButton";
+import { ApplicationBoard } from "../components/ApplicationBoard";
 import { formatDate } from "../utils/date";
+import { formatSalaryRange } from "../utils/currency";
+import { formatLocation } from "../utils/workMode";
+
+type View = "table" | "board";
+
+const VIEW_KEY = "nextrole_applications_view";
+
+function isView(value: string | null): value is View {
+	return value === "table" || value === "board";
+}
 
 export function ApplicationsPage() {
 	const { t } = useTranslation();
@@ -15,8 +32,13 @@ export function ApplicationsPage() {
 	const [applications, setApplications] = useState<Application[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [search, setSearch] = useState("");
+	const [view, setView] = useState<View>(() => {
+		const stored = localStorage.getItem(VIEW_KEY);
+		return isView(stored) ? stored : "table";
+	});
 	const [editing, setEditing] = useState<Application | null>(null);
 	const [creating, setCreating] = useState(false);
+	const [creatingStatus, setCreatingStatus] = useState<ApplicationStatus | undefined>(undefined);
 
 	async function refresh() {
 		setLoading(true);
@@ -56,12 +78,25 @@ export function ApplicationsPage() {
 		await refresh();
 	}
 
+	async function handleBoardStatusChange(id: string, status: ApplicationStatus) {
+		await changeApplicationStatus(id, status);
+		await refresh();
+	}
+
+	function handleAddToStatus(status: ApplicationStatus) {
+		setCreatingStatus(status);
+		setCreating(true);
+	}
+
 	return (
 		<AppShell>
 			<div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 14 }}>
 				<h1 style={{ font: "700 26px var(--font-heading)", margin: 0 }}>{t("applications.title")}</h1>
 				<button
-					onClick={() => setCreating(true)}
+					onClick={() => {
+						setCreatingStatus(undefined);
+						setCreating(true);
+					}}
 					style={{
 						border: "none",
 						borderRadius: 10,
@@ -76,32 +111,62 @@ export function ApplicationsPage() {
 				</button>
 			</div>
 
-			<input
-				type="text"
-				placeholder={t("applications.searchPlaceholder")}
-				value={search}
-				onChange={(e) => setSearch(e.target.value)}
-				style={{
-					border: "1px solid var(--color-border)",
-					borderRadius: 10,
-					padding: "9px 14px",
-					font: "13px var(--font-body)",
-					minWidth: 260,
-					background: "#fff",
-				}}
-			/>
+			<div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+				<div style={{ display: "flex", background: "oklch(94% 0.006 250)", borderRadius: 10, padding: 3 }}>
+					{(["board", "table"] as View[]).map((v) => (
+						<div
+							key={v}
+							onClick={() => {
+								setView(v);
+								localStorage.setItem(VIEW_KEY, v);
+							}}
+							style={{
+								padding: "7px 16px",
+								borderRadius: 8,
+								font: "600 13px var(--font-body)",
+								cursor: "pointer",
+								background: view === v ? "#fff" : "transparent",
+								color: view === v ? "var(--color-text)" : "var(--color-text-faint)",
+							}}
+						>
+							{v === "board" ? t("applications.boardView") : t("applications.tableView")}
+						</div>
+					))}
+				</div>
+				<input
+					type="text"
+					placeholder={t("applications.searchPlaceholder")}
+					value={search}
+					onChange={(e) => setSearch(e.target.value)}
+					style={{
+						border: "1px solid var(--color-border)",
+						borderRadius: 10,
+						padding: "9px 14px",
+						font: "13px var(--font-body)",
+						minWidth: 260,
+						background: "#fff",
+					}}
+				/>
+			</div>
 
 			{loading ? (
 				<p style={{ color: "var(--color-text-muted)" }}>{t("applications.loading")}</p>
 			) : filtered.length === 0 ? (
 				<p style={{ color: "var(--color-text-muted)" }}>{t("applications.empty")}</p>
+			) : view === "board" ? (
+				<ApplicationBoard
+					applications={filtered}
+					onStatusChange={handleBoardStatusChange}
+					onAddToStatus={handleAddToStatus}
+				/>
 			) : (
 				<div style={{ background: "#fff", border: "1px solid var(--color-border)", borderRadius: 14, overflowX: "auto" }}>
-					<div style={{ minWidth: 880 }}>
+					<div style={{ minWidth: 920 }}>
 					<div
 						style={{
 							display: "grid",
 							gridTemplateColumns: "1.6fr 1.4fr 1fr 1.6fr 1fr 1fr 84px",
+							columnGap: 16,
 							padding: "12px 20px",
 							fontSize: 11.5,
 							fontWeight: 600,
@@ -126,6 +191,7 @@ export function ApplicationsPage() {
 							style={{
 								display: "grid",
 								gridTemplateColumns: "1.6fr 1.4fr 1fr 1.6fr 1fr 1fr 84px",
+								columnGap: 16,
 								padding: "14px 20px",
 								alignItems: "center",
 								borderBottom: "1px solid oklch(95% 0.005 250)",
@@ -137,9 +203,9 @@ export function ApplicationsPage() {
 								<div style={{ fontWeight: 600 }}>{app.company}</div>
 								<div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>{app.role}</div>
 							</div>
-							<div style={{ color: "oklch(40% 0.012 250)" }}>{app.location ?? "—"}</div>
+							<div style={{ color: "oklch(40% 0.012 250)" }}>{formatLocation(app.location, app.workMode) ?? "—"}</div>
 							<div style={{ color: "oklch(40% 0.012 250)" }}>
-								{app.salaryMin && app.salaryMax ? `€${app.salaryMin / 1000}k–${app.salaryMax / 1000}k` : "—"}
+								{formatSalaryRange(app.salaryMin, app.salaryMax, app.currency) ?? "—"}
 							</div>
 							<div style={{ display: "flex", gap: 5, flexWrap: "nowrap", overflow: "hidden" }}>
 								{(() => {
@@ -147,7 +213,7 @@ export function ApplicationsPage() {
 										.split(",")
 										.map((t) => t.trim())
 										.filter(Boolean);
-									const MAX_VISIBLE = 3;
+									const MAX_VISIBLE = 2;
 									const visible = tags.slice(0, MAX_VISIBLE);
 									const hiddenCount = tags.length - visible.length;
 									return (
@@ -211,7 +277,14 @@ export function ApplicationsPage() {
 			)}
 
 			{creating && (
-				<ApplicationFormModal onSubmit={handleCreate} onClose={() => setCreating(false)} />
+				<ApplicationFormModal
+					initialStatus={creatingStatus}
+					onSubmit={handleCreate}
+					onClose={() => {
+						setCreating(false);
+						setCreatingStatus(undefined);
+					}}
+				/>
 			)}
 			{editing && (
 				<ApplicationFormModal
