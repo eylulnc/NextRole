@@ -8,7 +8,7 @@ plugins {
 	kotlin("plugin.jpa") version "1.9.25"
 }
 
-group = "com.jobtracker"
+group = "com.nextrole"
 version = "0.0.1-SNAPSHOT"
 
 java {
@@ -26,6 +26,7 @@ val bucket4jVersion = "8.10.1"
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -39,7 +40,7 @@ dependencies {
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
 
-	implementation("com.bucket4j:bucket4j_jdk17-core:$bucket4jVersion")
+	implementation("com.bucket4j:bucket4j-core:$bucket4jVersion")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
