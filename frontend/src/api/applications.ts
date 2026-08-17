@@ -2,7 +2,13 @@ import { apiClient } from "./client";
 import type {
 	Application,
 	ApplicationStatus,
+	Contact,
 	CreateApplicationRequest,
+	CreateContactRequest,
+	CreateInterviewRequest,
+	CreateNoteRequest,
+	Interview,
+	Note,
 	Page,
 	StatusHistoryEntry,
 	UpdateApplicationRequest,
@@ -25,6 +31,36 @@ export async function changeApplicationStatus(id: string, status: ApplicationSta
 
 export async function getApplicationHistory(id: string): Promise<StatusHistoryEntry[]> {
 	const response = await apiClient.get<StatusHistoryEntry[]>(`/api/applications/${id}/history`);
+	return response.data;
+}
+
+export async function listNotes(applicationId: string): Promise<Note[]> {
+	const response = await apiClient.get<Note[]>(`/api/applications/${applicationId}/notes`);
+	return response.data;
+}
+
+export async function createNote(applicationId: string, request: CreateNoteRequest): Promise<Note> {
+	const response = await apiClient.post<Note>(`/api/applications/${applicationId}/notes`, request);
+	return response.data;
+}
+
+export async function listInterviews(applicationId: string): Promise<Interview[]> {
+	const response = await apiClient.get<Interview[]>(`/api/applications/${applicationId}/interviews`);
+	return response.data;
+}
+
+export async function createInterview(applicationId: string, request: CreateInterviewRequest): Promise<Interview> {
+	const response = await apiClient.post<Interview>(`/api/applications/${applicationId}/interviews`, request);
+	return response.data;
+}
+
+export async function listContacts(applicationId: string): Promise<Contact[]> {
+	const response = await apiClient.get<Contact[]>(`/api/applications/${applicationId}/contacts`);
+	return response.data;
+}
+
+export async function createContact(applicationId: string, request: CreateContactRequest): Promise<Contact> {
+	const response = await apiClient.post<Contact>(`/api/applications/${applicationId}/contacts`, request);
 	return response.data;
 }
 

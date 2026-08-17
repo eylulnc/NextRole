@@ -1,32 +1,88 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
 	changeApplicationStatus,
+	createContact,
+	createInterview,
+	createNote,
 	getApplication,
 	getApplicationHistory,
+	listContacts,
+	listInterviews,
+	listNotes,
 	updateApplication,
 } from "../api/applications";
-import type { Application, ApplicationStatus, CreateApplicationRequest, StatusHistoryEntry } from "../types/application";
+import type {
+	Application,
+	ApplicationStatus,
+	Contact,
+	CreateApplicationRequest,
+	Interview,
+	Note,
+	StatusHistoryEntry,
+} from "../types/application";
 import { AppShell } from "../components/AppShell";
 import { StatusBadge, statusOptions } from "../components/StatusBadge";
 import { ApplicationFormModal } from "../components/ApplicationFormModal";
+import { formatDate, formatDateTime } from "../utils/date";
 
-type Tab = "overview" | "history";
+type Tab = "overview" | "history" | "interviews" | "contacts" | "notes";
+
+const cardStyle: React.CSSProperties = {
+	background: "#fff",
+	border: "1px solid var(--color-border)",
+	borderRadius: 14,
+	padding: 20,
+};
+
+const inputStyle: React.CSSProperties = {
+	border: "1px solid var(--color-border)",
+	borderRadius: 10,
+	padding: "9px 12px",
+	font: "13px var(--font-body)",
+	background: "var(--color-input-bg)",
+};
+
+const addButtonStyle: React.CSSProperties = {
+	border: "none",
+	borderRadius: 10,
+	padding: "9px 16px",
+	background: "var(--color-accent)",
+	color: "#fff",
+	font: "600 13px var(--font-body)",
+	cursor: "pointer",
+	alignSelf: "flex-start",
+};
 
 export function ApplicationDetailPage() {
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
 	const [application, setApplication] = useState<Application | null>(null);
 	const [history, setHistory] = useState<StatusHistoryEntry[]>([]);
+	const [notes, setNotes] = useState<Note[]>([]);
+	const [interviews, setInterviews] = useState<Interview[]>([]);
+	const [contacts, setContacts] = useState<Contact[]>([]);
 	const [tab, setTab] = useState<Tab>("overview");
 	const [editing, setEditing] = useState(false);
 	const [changingStage, setChangingStage] = useState(false);
+	const [showNoteForm, setShowNoteForm] = useState(false);
+	const [showInterviewForm, setShowInterviewForm] = useState(false);
+	const [showContactForm, setShowContactForm] = useState(false);
 
 	async function refresh() {
 		if (!id) return;
-		const [app, hist] = await Promise.all([getApplication(id), getApplicationHistory(id)]);
+		const [app, hist, noteList, interviewList, contactList] = await Promise.all([
+			getApplication(id),
+			getApplicationHistory(id),
+			listNotes(id),
+			listInterviews(id),
+			listContacts(id),
+		]);
 		setApplication(app);
 		setHistory(hist);
+		setNotes(noteList);
+		setInterviews(interviewList);
+		setContacts(contactList);
 	}
 
 	useEffect(() => {
@@ -44,6 +100,33 @@ export function ApplicationDetailPage() {
 		if (!id) return;
 		await changeApplicationStatus(id, status);
 		setChangingStage(false);
+		await refresh();
+	}
+
+	async function handleAddNote(text: string) {
+		if (!id) return;
+		await createNote(id, { text });
+		setShowNoteForm(false);
+		await refresh();
+	}
+
+	async function handleAddInterview(round: string, interviewer: string, scheduledAt: string, mode: string, notesText: string) {
+		if (!id) return;
+		await createInterview(id, {
+			round,
+			interviewer: interviewer || undefined,
+			scheduledAt: new Date(scheduledAt).toISOString(),
+			mode: mode || undefined,
+			notes: notesText || undefined,
+		});
+		setShowInterviewForm(false);
+		await refresh();
+	}
+
+	async function handleAddContact(name: string, role: string, email: string) {
+		if (!id) return;
+		await createContact(id, { name, role: role || undefined, email: email || undefined });
+		setShowContactForm(false);
 		await refresh();
 	}
 
@@ -152,34 +235,56 @@ export function ApplicationDetailPage() {
 				</div>
 			</div>
 
-			<div style={{ display: "flex", gap: 6, borderBottom: "1px solid var(--color-border)" }}>
-				{(["overview", "history"] as Tab[]).map((t) => (
-					<div
-						key={t}
-						onClick={() => setTab(t)}
-						style={{
-							padding: "10px 16px",
-							font: "600 13px var(--font-body)",
-							cursor: "pointer",
-							color: tab === t ? "var(--color-text)" : "var(--color-text-faint)",
-							borderBottom: `2px solid ${tab === t ? "var(--color-accent)" : "transparent"}`,
-						}}
-					>
-						{t === "overview" ? "Overview" : "Status History"}
-					</div>
-				))}
+			<div
+				style={{
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "space-between",
+					borderBottom: "1px solid var(--color-border)",
+				}}
+			>
+				<div style={{ display: "flex", gap: 6 }}>
+					{([
+						["overview", "Overview"],
+						["history", "Status History"],
+						["interviews", "Interviews"],
+						["contacts", "Contacts"],
+						["notes", "Notes"],
+					] as [Tab, string][]).map(([t, label]) => (
+						<div
+							key={t}
+							onClick={() => setTab(t)}
+							style={{
+								padding: "10px 16px",
+								font: "600 13px var(--font-body)",
+								cursor: "pointer",
+								color: tab === t ? "var(--color-text)" : "var(--color-text-faint)",
+								borderBottom: `2px solid ${tab === t ? "var(--color-accent)" : "transparent"}`,
+							}}
+						>
+							{label}
+						</div>
+					))}
+				</div>
+				{tab === "interviews" && (
+					<ToggleAddButton label="interview" open={showInterviewForm} onToggle={() => setShowInterviewForm((v) => !v)} />
+				)}
+				{tab === "contacts" && (
+					<ToggleAddButton label="contact" open={showContactForm} onToggle={() => setShowContactForm((v) => !v)} />
+				)}
+				{tab === "notes" && <ToggleAddButton label="note" open={showNoteForm} onToggle={() => setShowNoteForm((v) => !v)} />}
 			</div>
 
 			{tab === "overview" && (
 				<div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 20, alignItems: "start" }}>
-					<div style={{ background: "#fff", border: "1px solid var(--color-border)", borderRadius: 14, padding: 22 }}>
+					<div style={cardStyle}>
 						<h3 style={{ font: "700 15px var(--font-heading)", margin: "0 0 12px" }}>Job description</h3>
 						<p style={{ fontSize: 13.5, lineHeight: 1.7, color: "oklch(30% 0.012 250)", whiteSpace: "pre-line" }}>
 							{application.jobDescription || "No job description saved yet."}
 						</p>
 					</div>
 					<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-						<div style={{ background: "#fff", border: "1px solid var(--color-border)", borderRadius: 14, padding: 20 }}>
+						<div style={cardStyle}>
 							<h3 style={{ font: "700 14px var(--font-heading)", margin: "0 0 10px" }}>Tech stack</h3>
 							<div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
 								{(application.techStack ?? "")
@@ -201,27 +306,19 @@ export function ApplicationDetailPage() {
 									))}
 							</div>
 						</div>
-						<div style={{ background: "#fff", border: "1px solid var(--color-border)", borderRadius: 14, padding: 20 }}>
+						<div style={cardStyle}>
 							<h3 style={{ font: "700 14px var(--font-heading)", margin: "0 0 8px" }}>Key dates</h3>
 							<div style={{ fontSize: 13, color: "oklch(40% 0.012 250)", display: "flex", flexDirection: "column", gap: 6 }}>
-								<div>Applied: {application.applicationDate ?? "Not applied yet"}</div>
-								<div>Last updated: {new Date(application.updatedAt).toLocaleDateString()}</div>
+								<div>Applied: {application.applicationDate ? formatDate(application.applicationDate) : "Not applied yet"}</div>
+								<div>Last updated: {formatDate(application.updatedAt)}</div>
 							</div>
 						</div>
-						{application.notes && (
-							<div style={{ background: "#fff", border: "1px solid var(--color-border)", borderRadius: 14, padding: 20 }}>
-								<h3 style={{ font: "700 14px var(--font-heading)", margin: "0 0 8px" }}>Notes</h3>
-								<p style={{ fontSize: 13, color: "oklch(35% 0.012 250)", lineHeight: 1.6, margin: 0, whiteSpace: "pre-line" }}>
-									{application.notes}
-								</p>
-							</div>
-						)}
 					</div>
 				</div>
 			)}
 
 			{tab === "history" && (
-				<div style={{ background: "#fff", border: "1px solid var(--color-border)", borderRadius: 14, padding: 24 }}>
+				<div style={cardStyle}>
 					<div style={{ display: "flex", flexDirection: "column" }}>
 						{history.map((h, i) => (
 							<div key={h.id} style={{ display: "flex", gap: 16 }}>
@@ -242,7 +339,7 @@ export function ApplicationDetailPage() {
 										<StatusBadge status={h.status} />
 									</div>
 									<div style={{ fontSize: 12, color: "var(--color-text-faint)", marginTop: 4 }}>
-										{new Date(h.changedAt).toLocaleString()}
+										{formatDateTime(h.changedAt)}
 									</div>
 								</div>
 							</div>
@@ -251,7 +348,215 @@ export function ApplicationDetailPage() {
 				</div>
 			)}
 
+			{tab === "interviews" && (
+				<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+					{showInterviewForm && <InterviewForm onSubmit={handleAddInterview} />}
+					{interviews.map((iv) => (
+						<div key={iv.id} style={{ ...cardStyle, display: "flex", flexDirection: "column", gap: 6 }}>
+							<div style={{ display: "flex", justifyContent: "space-between" }}>
+								<span style={{ fontWeight: 700, fontSize: 14 }}>{iv.round}</span>
+								<span style={{ fontSize: 12.5, color: "var(--color-text-muted)" }}>
+									{formatDateTime(iv.scheduledAt)}
+								</span>
+							</div>
+							{(iv.interviewer || iv.mode) && (
+								<div style={{ fontSize: 12.5, color: "var(--color-text-muted)" }}>
+									{[iv.interviewer, iv.mode].filter(Boolean).join(" · ")}
+								</div>
+							)}
+							{iv.notes && <div style={{ fontSize: 13, color: "oklch(35% 0.012 250)", marginTop: 4 }}>{iv.notes}</div>}
+						</div>
+					))}
+					{interviews.length === 0 && <p style={{ color: "var(--color-text-muted)" }}>No interviews scheduled yet.</p>}
+				</div>
+			)}
+
+			{tab === "contacts" && (
+				<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+					{showContactForm && <ContactForm onSubmit={handleAddContact} />}
+					<div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 14 }}>
+						{contacts.map((c) => (
+							<div key={c.id} style={{ ...cardStyle, display: "flex", gap: 12, alignItems: "center" }}>
+								<div
+									style={{
+										width: 40,
+										height: 40,
+										borderRadius: "50%",
+										background: "oklch(93% 0.03 35)",
+										flex: "none",
+										display: "flex",
+										alignItems: "center",
+										justifyContent: "center",
+										font: "700 14px var(--font-heading)",
+										color: "oklch(45% 0.11 35)",
+									}}
+								>
+									{c.name.charAt(0).toUpperCase()}
+								</div>
+								<div style={{ minWidth: 0 }}>
+									<div style={{ fontWeight: 600, fontSize: 13.5 }}>{c.name}</div>
+									{c.role && <div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>{c.role}</div>}
+									{c.email && <div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>{c.email}</div>}
+								</div>
+							</div>
+						))}
+					</div>
+					{contacts.length === 0 && <p style={{ color: "var(--color-text-muted)" }}>No contacts saved yet.</p>}
+				</div>
+			)}
+
+			{tab === "notes" && (
+				<div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+					{showNoteForm && <NoteForm onSubmit={handleAddNote} />}
+					{notes.map((n) => (
+						<div key={n.id} style={{ ...cardStyle, padding: "16px 18px" }}>
+							<div style={{ fontSize: 11.5, color: "var(--color-text-faint)", marginBottom: 6 }}>
+								{formatDateTime(n.createdAt)}
+							</div>
+							<div style={{ fontSize: 13.5, color: "oklch(30% 0.012 250)", lineHeight: 1.6, whiteSpace: "pre-line" }}>
+								{n.text}
+							</div>
+						</div>
+					))}
+					{notes.length === 0 && <p style={{ color: "var(--color-text-muted)" }}>No notes yet.</p>}
+				</div>
+			)}
+
 			{editing && <ApplicationFormModal initial={application} onSubmit={handleUpdate} onClose={() => setEditing(false)} />}
 		</AppShell>
+	);
+}
+
+function NoteForm({ onSubmit }: { onSubmit: (text: string) => Promise<void> }) {
+	const [text, setText] = useState("");
+	const [submitting, setSubmitting] = useState(false);
+
+	async function handleSubmit(e: FormEvent) {
+		e.preventDefault();
+		if (!text.trim()) return;
+		setSubmitting(true);
+		try {
+			await onSubmit(text);
+			setText("");
+		} finally {
+			setSubmitting(false);
+		}
+	}
+
+	return (
+		<form onSubmit={handleSubmit} style={{ ...cardStyle, display: "flex", flexDirection: "column", gap: 10 }}>
+			<textarea
+				value={text}
+				onChange={(e) => setText(e.target.value)}
+				placeholder="Add a note…"
+				style={{ ...inputStyle, minHeight: 70, resize: "vertical" }}
+			/>
+			<button type="submit" disabled={submitting} style={addButtonStyle}>
+				Add note
+			</button>
+		</form>
+	);
+}
+
+function ToggleAddButton({ label, open, onToggle }: { label: string; open: boolean; onToggle: () => void }) {
+	return (
+		<button
+			onClick={onToggle}
+			style={{
+				border: open ? "1px solid var(--color-border)" : "none",
+				background: open ? "#fff" : "var(--color-accent)",
+				color: open ? "var(--color-text)" : "#fff",
+				borderRadius: 10,
+				padding: "9px 16px",
+				font: "600 13px var(--font-body)",
+				cursor: "pointer",
+			}}
+		>
+			{open ? "Cancel" : `+ Add ${label}`}
+		</button>
+	);
+}
+
+function InterviewForm({
+	onSubmit,
+}: {
+	onSubmit: (round: string, interviewer: string, scheduledAt: string, mode: string, notes: string) => Promise<void>;
+}) {
+	const [round, setRound] = useState("");
+	const [interviewer, setInterviewer] = useState("");
+	const [scheduledAt, setScheduledAt] = useState("");
+	const [mode, setMode] = useState("");
+	const [notes, setNotes] = useState("");
+	const [submitting, setSubmitting] = useState(false);
+
+	async function handleSubmit(e: FormEvent) {
+		e.preventDefault();
+		if (!round.trim() || !scheduledAt) return;
+		setSubmitting(true);
+		try {
+			await onSubmit(round, interviewer, scheduledAt, mode, notes);
+			setRound("");
+			setInterviewer("");
+			setScheduledAt("");
+			setMode("");
+			setNotes("");
+		} finally {
+			setSubmitting(false);
+		}
+	}
+
+	return (
+		<form onSubmit={handleSubmit} style={{ ...cardStyle, display: "flex", flexDirection: "column", gap: 10 }}>
+			<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10 }}>
+				<input required placeholder="Round (e.g. HR Screen)" value={round} onChange={(e) => setRound(e.target.value)} style={inputStyle} />
+				<input placeholder="Interviewer" value={interviewer} onChange={(e) => setInterviewer(e.target.value)} style={inputStyle} />
+				<input
+					required
+					type="datetime-local"
+					value={scheduledAt}
+					onChange={(e) => setScheduledAt(e.target.value)}
+					style={inputStyle}
+				/>
+				<input placeholder="Mode (e.g. Video call)" value={mode} onChange={(e) => setMode(e.target.value)} style={inputStyle} />
+			</div>
+			<input placeholder="Notes (optional)" value={notes} onChange={(e) => setNotes(e.target.value)} style={inputStyle} />
+			<button type="submit" disabled={submitting} style={addButtonStyle}>
+				Add interview
+			</button>
+		</form>
+	);
+}
+
+function ContactForm({ onSubmit }: { onSubmit: (name: string, role: string, email: string) => Promise<void> }) {
+	const [name, setName] = useState("");
+	const [role, setRole] = useState("");
+	const [email, setEmail] = useState("");
+	const [submitting, setSubmitting] = useState(false);
+
+	async function handleSubmit(e: FormEvent) {
+		e.preventDefault();
+		if (!name.trim()) return;
+		setSubmitting(true);
+		try {
+			await onSubmit(name, role, email);
+			setName("");
+			setRole("");
+			setEmail("");
+		} finally {
+			setSubmitting(false);
+		}
+	}
+
+	return (
+		<form onSubmit={handleSubmit} style={{ ...cardStyle, display: "flex", flexDirection: "column", gap: 10 }}>
+			<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10 }}>
+				<input required placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} style={inputStyle} />
+				<input placeholder="Role" value={role} onChange={(e) => setRole(e.target.value)} style={inputStyle} />
+				<input placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} />
+			</div>
+			<button type="submit" disabled={submitting} style={addButtonStyle}>
+				Add contact
+			</button>
+		</form>
 	);
 }

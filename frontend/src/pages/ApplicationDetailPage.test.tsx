@@ -5,7 +5,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { ApplicationDetailPage } from "./ApplicationDetailPage";
 import { AuthProvider } from "../context/AuthContext";
 import * as applicationsApi from "../api/applications";
-import type { Application, StatusHistoryEntry } from "../types/application";
+import type { Application, Contact, Interview, Note, StatusHistoryEntry } from "../types/application";
 
 vi.mock("../api/applications");
 
@@ -50,6 +50,9 @@ describe("ApplicationDetailPage", () => {
 		vi.clearAllMocks();
 		vi.mocked(applicationsApi.getApplication).mockResolvedValue(SAMPLE_APPLICATION);
 		vi.mocked(applicationsApi.getApplicationHistory).mockResolvedValue(SAMPLE_HISTORY);
+		vi.mocked(applicationsApi.listNotes).mockResolvedValue([]);
+		vi.mocked(applicationsApi.listInterviews).mockResolvedValue([]);
+		vi.mocked(applicationsApi.listContacts).mockResolvedValue([]);
 	});
 
 	it("renders the application overview by default", async () => {
@@ -84,5 +87,70 @@ describe("ApplicationDetailPage", () => {
 		await waitFor(() => {
 			expect(applicationsApi.changeApplicationStatus).toHaveBeenCalledWith("app-1", "HR_INTERVIEW");
 		});
+	});
+
+	it("shows notes and adds a new one", async () => {
+		const existingNote: Note = { id: "n1", text: "First call went well.", createdAt: "2026-08-01T00:00:00Z" };
+		vi.mocked(applicationsApi.listNotes).mockResolvedValue([existingNote]);
+		vi.mocked(applicationsApi.createNote).mockResolvedValue({ id: "n2", text: "Second note", createdAt: "2026-08-02T00:00:00Z" });
+		renderDetailPage();
+
+		await screen.findByRole("heading", { name: "Backend Engineer" });
+		await userEvent.click(screen.getByText("Notes"));
+
+		expect(screen.getByText("First call went well.")).toBeInTheDocument();
+
+		await userEvent.click(screen.getByText("+ Add note"));
+		await userEvent.type(screen.getByPlaceholderText("Add a note…"), "Second note");
+		await userEvent.click(screen.getByText("Add note"));
+
+		await waitFor(() => {
+			expect(applicationsApi.createNote).toHaveBeenCalledWith("app-1", { text: "Second note" });
+		});
+	});
+
+	it("shows contacts and adds a new one", async () => {
+		const existingContact: Contact = { id: "c1", name: "Lena Fischer", role: "Talent Partner", email: null, createdAt: "2026-08-01T00:00:00Z" };
+		vi.mocked(applicationsApi.listContacts).mockResolvedValue([existingContact]);
+		vi.mocked(applicationsApi.createContact).mockResolvedValue({
+			id: "c2",
+			name: "Jonas Weber",
+			role: null,
+			email: null,
+			createdAt: "2026-08-02T00:00:00Z",
+		});
+		renderDetailPage();
+
+		await screen.findByRole("heading", { name: "Backend Engineer" });
+		await userEvent.click(screen.getByText("Contacts"));
+
+		expect(screen.getByText("Lena Fischer")).toBeInTheDocument();
+
+		await userEvent.click(screen.getByText("+ Add contact"));
+		await userEvent.type(screen.getByPlaceholderText("Name"), "Jonas Weber");
+		await userEvent.click(screen.getByText("Add contact"));
+
+		await waitFor(() => {
+			expect(applicationsApi.createContact).toHaveBeenCalledWith("app-1", { name: "Jonas Weber", role: undefined, email: undefined });
+		});
+	});
+
+	it("shows interviews", async () => {
+		const existingInterview: Interview = {
+			id: "iv1",
+			round: "HR Screen",
+			interviewer: "Lena Fischer",
+			scheduledAt: "2026-08-05T10:00:00Z",
+			mode: "Video call",
+			notes: null,
+			createdAt: "2026-08-01T00:00:00Z",
+		};
+		vi.mocked(applicationsApi.listInterviews).mockResolvedValue([existingInterview]);
+		renderDetailPage();
+
+		await screen.findByRole("heading", { name: "Backend Engineer" });
+		await userEvent.click(screen.getByText("Interviews"));
+
+		expect(screen.getByText("HR Screen")).toBeInTheDocument();
 	});
 });
