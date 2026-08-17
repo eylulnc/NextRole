@@ -32,6 +32,10 @@ export function StatusBadge({ status }: { status: ApplicationStatus }) {
 	);
 }
 
+export function statusHue(status: ApplicationStatus): number {
+	return STAGE_HUE[status];
+}
+
 export function statusOptions(): { value: ApplicationStatus; label: string }[] {
 	return (Object.keys(STAGE_HUE) as ApplicationStatus[]).map((value) => ({
 		value,

@@ -26,6 +26,8 @@ import { AppShell } from "../components/AppShell";
 import { StatusBadge, statusOptions } from "../components/StatusBadge";
 import { ApplicationFormModal } from "../components/ApplicationFormModal";
 import { formatDate, formatDateTime } from "../utils/date";
+import { formatSalaryRange } from "../utils/currency";
+import { formatLocation } from "../utils/workMode";
 
 type Tab = "overview" | "history" | "interviews" | "contacts" | "notes";
 
@@ -163,9 +165,11 @@ export function ApplicationDetailPage() {
 					</div>
 					<div style={{ color: "var(--color-text-muted)", fontSize: 14 }}>
 						{application.company}
-						{application.location ? ` · ${application.location}` : ""}
-						{application.salaryMin && application.salaryMax
-							? ` · €${application.salaryMin / 1000}k–${application.salaryMax / 1000}k`
+						{formatLocation(application.location, application.workMode)
+							? ` · ${formatLocation(application.location, application.workMode)}`
+							: ""}
+						{formatSalaryRange(application.salaryMin, application.salaryMax, application.currency)
+							? ` · ${formatSalaryRange(application.salaryMin, application.salaryMax, application.currency)}`
 							: ""}
 					</div>
 				</div>

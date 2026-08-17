@@ -16,6 +16,8 @@ const SAMPLE_APPLICATION: Application = {
 	location: "Berlin",
 	salaryMin: 70000,
 	salaryMax: 85000,
+	currency: "EUR",
+	workMode: null,
 	techStack: "Kotlin, Spring Boot",
 	jobDescription: null,
 	applicationDate: "2026-08-01",
@@ -73,6 +75,21 @@ describe("ApplicationsPage", () => {
 
 		expect(screen.queryByText("Acme Corp")).not.toBeInTheDocument();
 		expect(screen.getByText("Globex")).toBeInTheDocument();
+	});
+
+	it("remembers the last selected view across remounts", async () => {
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage());
+		const { unmount } = renderApplicationsPage();
+
+		await screen.findByText("Acme Corp");
+		await userEvent.click(screen.getByText("Board"));
+		expect(await screen.findByText("Saved")).toBeInTheDocument();
+
+		unmount();
+		renderApplicationsPage();
+
+		expect(await screen.findByText("Saved")).toBeInTheDocument();
+		expect(screen.queryByText("Company / Role")).not.toBeInTheDocument();
 	});
 
 	it("deletes an application after confirmation", async () => {

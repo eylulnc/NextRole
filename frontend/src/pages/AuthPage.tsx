@@ -40,7 +40,7 @@ export function AuthPage() {
 			} else {
 				await login(email, password);
 			}
-			navigate("/applications");
+			navigate("/dashboard");
 		} catch {
 			setError(isSignup ? t("auth.signupError") : t("auth.loginError"));
 		} finally {

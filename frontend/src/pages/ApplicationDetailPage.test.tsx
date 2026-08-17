@@ -16,6 +16,8 @@ const SAMPLE_APPLICATION: Application = {
 	location: "Berlin",
 	salaryMin: 70000,
 	salaryMax: 85000,
+	currency: "EUR",
+	workMode: null,
 	techStack: "Kotlin, Spring Boot",
 	jobDescription: "Build great APIs.",
 	applicationDate: "2026-08-01",

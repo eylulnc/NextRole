@@ -26,8 +26,10 @@ class ApplicationService(
 			company = request.company,
 			role = request.role,
 			location = request.location,
+			workMode = request.workMode,
 			salaryMin = request.salaryMin,
 			salaryMax = request.salaryMax,
+			currency = request.currency,
 			techStack = request.techStack,
 			jobDescription = request.jobDescription,
 			applicationDate = request.applicationDate,
@@ -51,8 +53,10 @@ class ApplicationService(
 		request.company?.let { application.company = it }
 		request.role?.let { application.role = it }
 		request.location?.let { application.location = it }
+		request.workMode?.let { application.workMode = it }
 		request.salaryMin?.let { application.salaryMin = it }
 		request.salaryMax?.let { application.salaryMax = it }
+		request.currency?.let { application.currency = it }
 		request.techStack?.let { application.techStack = it }
 		request.jobDescription?.let { application.jobDescription = it }
 		request.applicationDate?.let { application.applicationDate = it }

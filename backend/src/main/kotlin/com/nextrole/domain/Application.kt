@@ -23,11 +23,17 @@ class Application(
 
 	var location: String? = null,
 
+	@Column(name = "work_mode")
+	var workMode: String? = null,
+
 	@Column(name = "salary_min")
 	var salaryMin: Int? = null,
 
 	@Column(name = "salary_max")
 	var salaryMax: Int? = null,
+
+	@Column(nullable = false)
+	var currency: String = "EUR",
 
 	@Column(name = "tech_stack")
 	var techStack: String? = null,
