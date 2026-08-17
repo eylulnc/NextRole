@@ -3,7 +3,9 @@ package com.nextrole.web
 import com.nextrole.security.CurrentUser
 import com.nextrole.service.ApplicationService
 import com.nextrole.web.dto.ApplicationResponse
+import com.nextrole.web.dto.ChangeStatusRequest
 import com.nextrole.web.dto.CreateApplicationRequest
+import com.nextrole.web.dto.StatusHistoryResponse
 import com.nextrole.web.dto.UpdateApplicationRequest
 import com.nextrole.web.dto.toResponse
 import jakarta.validation.Valid
@@ -43,4 +45,12 @@ class ApplicationController(
 		applicationService.delete(CurrentUser.id(), id)
 		return ResponseEntity.noContent().build()
 	}
+
+	@PostMapping("/{id}/status")
+	fun changeStatus(@PathVariable id: UUID, @Valid @RequestBody request: ChangeStatusRequest): ApplicationResponse =
+		applicationService.changeStatus(CurrentUser.id(), id, request.status).toResponse()
+
+	@GetMapping("/{id}/history")
+	fun history(@PathVariable id: UUID): List<StatusHistoryResponse> =
+		applicationService.getHistory(CurrentUser.id(), id).map { it.toResponse() }
 }

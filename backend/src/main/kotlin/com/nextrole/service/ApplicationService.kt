@@ -1,8 +1,11 @@
 package com.nextrole.service
 
 import com.nextrole.domain.Application
+import com.nextrole.domain.ApplicationStatus
+import com.nextrole.domain.ApplicationStatusHistory
 import com.nextrole.exception.ApplicationNotFoundException
 import com.nextrole.repository.ApplicationRepository
+import com.nextrole.repository.ApplicationStatusHistoryRepository
 import com.nextrole.web.dto.CreateApplicationRequest
 import com.nextrole.web.dto.UpdateApplicationRequest
 import org.springframework.data.domain.Page
@@ -13,7 +16,8 @@ import java.util.UUID
 
 @Service
 class ApplicationService(
-	private val applicationRepository: ApplicationRepository
+	private val applicationRepository: ApplicationRepository,
+	private val statusHistoryRepository: ApplicationStatusHistoryRepository
 ) {
 
 	fun create(userId: UUID, request: CreateApplicationRequest): Application {
@@ -30,7 +34,9 @@ class ApplicationService(
 			status = request.status,
 			notes = request.notes
 		)
-		return applicationRepository.save(application)
+		val saved = applicationRepository.save(application)
+		recordStatusChange(saved.id, saved.status)
+		return saved
 	}
 
 	fun list(userId: UUID, pageable: Pageable): Page<Application> =
@@ -50,14 +56,35 @@ class ApplicationService(
 		request.techStack?.let { application.techStack = it }
 		request.jobDescription?.let { application.jobDescription = it }
 		request.applicationDate?.let { application.applicationDate = it }
-		request.status?.let { application.status = it }
 		request.notes?.let { application.notes = it }
+		if (request.status != null && request.status != application.status) {
+			application.status = request.status
+			recordStatusChange(application.id, application.status)
+		}
 		application.updatedAt = Instant.now()
 		return applicationRepository.save(application)
+	}
+
+	fun changeStatus(userId: UUID, id: UUID, status: ApplicationStatus): Application {
+		val application = get(userId, id)
+		application.status = status
+		application.updatedAt = Instant.now()
+		val saved = applicationRepository.save(application)
+		recordStatusChange(saved.id, saved.status)
+		return saved
+	}
+
+	fun getHistory(userId: UUID, id: UUID): List<ApplicationStatusHistory> {
+		get(userId, id)
+		return statusHistoryRepository.findByApplicationIdOrderByChangedAtAsc(id)
 	}
 
 	fun delete(userId: UUID, id: UUID) {
 		val application = get(userId, id)
 		applicationRepository.delete(application)
+	}
+
+	private fun recordStatusChange(applicationId: UUID, status: ApplicationStatus) {
+		statusHistoryRepository.save(ApplicationStatusHistory(applicationId = applicationId, status = status))
 	}
 }
