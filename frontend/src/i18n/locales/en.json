@@ -38,6 +38,22 @@
 		"applications": "Applications",
 		"calendar": "Calendar"
 	},
+	"calendar": {
+		"title": "Calendar",
+		"previousMonth": "Previous month",
+		"nextMonth": "Next month",
+		"viewUpcoming": "View upcoming",
+		"noInterviewsOnDay": "No interviews on this day.",
+		"weekdays": {
+			"sun": "Sun",
+			"mon": "Mon",
+			"tue": "Tue",
+			"wed": "Wed",
+			"thu": "Thu",
+			"fri": "Fri",
+			"sat": "Sat"
+		}
+	},
 	"dashboard": {
 		"title": "Dashboard",
 		"subtitle": "{{count}} active applications",
