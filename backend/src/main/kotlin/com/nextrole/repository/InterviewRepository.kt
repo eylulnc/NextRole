@@ -19,4 +19,13 @@ interface InterviewRepository : JpaRepository<Interview, UUID> {
 		"""
 	)
 	fun findUpcomingByUserId(@Param("userId") userId: UUID, @Param("from") from: Instant): List<Interview>
+
+	@Query(
+		"""
+		SELECT i FROM Interview i
+		WHERE i.applicationId IN (SELECT a.id FROM Application a WHERE a.userId = :userId)
+		ORDER BY i.scheduledAt ASC
+		"""
+	)
+	fun findAllByUserId(@Param("userId") userId: UUID): List<Interview>
 }
