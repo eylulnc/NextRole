@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { Application, ApplicationStatus, CreateApplicationRequest } from "../types/application";
 import { statusOptions } from "./StatusBadge";
 import { CURRENCY_OPTIONS } from "../utils/currency";
+import { CloseButton } from "./CloseButton";
 
 const inputStyle: React.CSSProperties = {
 	border: "1px solid var(--color-border)",
@@ -110,8 +111,10 @@ export function ApplicationFormModal({ initial, initialStatus, onSubmit, onClose
 					gap: 16,
 					maxHeight: "90vh",
 					overflowY: "auto",
+					position: "relative",
 				}}
 			>
+				<CloseButton onClick={onClose} />
 				<h2 style={{ font: "700 18px var(--font-heading)", margin: 0 }}>
 					{initial ? t("applicationForm.editTitle") : t("applicationForm.newTitle")}
 				</h2>
@@ -212,20 +215,6 @@ export function ApplicationFormModal({ initial, initialStatus, onSubmit, onClose
 						/>
 					</label>
 					<div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 6 }}>
-						<button
-							type="button"
-							onClick={onClose}
-							style={{
-								border: "1px solid var(--color-border)",
-								background: "#fff",
-								borderRadius: 10,
-								padding: "10px 16px",
-								font: "600 13px var(--font-body)",
-								cursor: "pointer",
-							}}
-						>
-							{t("applicationForm.cancel")}
-						</button>
 						<button
 							type="submit"
 							disabled={submitting}
