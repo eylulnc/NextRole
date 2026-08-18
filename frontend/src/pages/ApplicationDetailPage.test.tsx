@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { ApplicationDetailPage } from "./ApplicationDetailPage";
 import { AuthProvider } from "../context/AuthContext";
+import { ToastProvider } from "../context/ToastContext";
 import * as applicationsApi from "../api/applications";
 import type { Application, Contact, Interview, Note, StatusHistoryEntry } from "../types/application";
 
@@ -38,9 +39,11 @@ function renderDetailPage() {
 	return render(
 		<MemoryRouter initialEntries={["/applications/app-1"]}>
 			<AuthProvider>
-				<Routes>
-					<Route path="/applications/:id" element={<ApplicationDetailPage />} />
-				</Routes>
+				<ToastProvider>
+					<Routes>
+						<Route path="/applications/:id" element={<ApplicationDetailPage />} />
+					</Routes>
+				</ToastProvider>
 			</AuthProvider>
 		</MemoryRouter>
 	);
@@ -102,9 +105,9 @@ describe("ApplicationDetailPage", () => {
 
 		expect(screen.getByText("First call went well.")).toBeInTheDocument();
 
-		await userEvent.click(screen.getByText("+ Add note"));
+		await userEvent.click(screen.getByLabelText("Add note"));
 		await userEvent.type(screen.getByPlaceholderText("Add a note…"), "Second note");
-		await userEvent.click(screen.getByText("Add note"));
+		await userEvent.click(screen.getByRole("button", { name: "Add note" }));
 
 		await waitFor(() => {
 			expect(applicationsApi.createNote).toHaveBeenCalledWith("app-1", { text: "Second note" });
@@ -128,9 +131,9 @@ describe("ApplicationDetailPage", () => {
 
 		expect(screen.getByText("Lena Fischer")).toBeInTheDocument();
 
-		await userEvent.click(screen.getByText("+ Add contact"));
+		await userEvent.click(screen.getByLabelText("Add contact"));
 		await userEvent.type(screen.getByPlaceholderText("Name"), "Jonas Weber");
-		await userEvent.click(screen.getByText("Add contact"));
+		await userEvent.click(screen.getByRole("button", { name: "Add contact" }));
 
 		await waitFor(() => {
 			expect(applicationsApi.createContact).toHaveBeenCalledWith("app-1", { name: "Jonas Weber", role: undefined, email: undefined });
