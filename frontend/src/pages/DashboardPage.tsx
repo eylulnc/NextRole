@@ -2,10 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { getDashboardStatistics } from "../api/dashboard";
+import { createApplication } from "../api/applications";
 import type { DashboardStatistics } from "../types/dashboard";
+import type { CreateApplicationRequest } from "../types/application";
 import { AppShell } from "../components/AppShell";
+import { ApplicationFormModal } from "../components/ApplicationFormModal";
 import { statusHue } from "../components/StatusBadge";
 import { formatDateTime } from "../utils/date";
+import { useToast } from "../context/ToastContext";
 
 const cardStyle: React.CSSProperties = {
 	background: "#fff",
@@ -17,11 +21,29 @@ const cardStyle: React.CSSProperties = {
 export function DashboardPage() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
+	const { showToast } = useToast();
 	const [stats, setStats] = useState<DashboardStatistics | null>(null);
+	const [creating, setCreating] = useState(false);
+
+	async function refresh() {
+		const data = await getDashboardStatistics();
+		setStats(data);
+	}
 
 	useEffect(() => {
-		getDashboardStatistics().then(setStats);
+		refresh();
 	}, []);
+
+	async function handleCreate(request: CreateApplicationRequest) {
+		try {
+			await createApplication(request);
+			showToast(t("applications.toasts.created"), "success");
+			await refresh();
+		} catch (error) {
+			showToast(t("applications.toasts.error"), "error");
+			throw error;
+		}
+	}
 
 	if (!stats) {
 		return (
@@ -73,7 +95,7 @@ export function DashboardPage() {
 					</p>
 				</div>
 				<button
-					onClick={() => navigate("/applications")}
+					onClick={() => setCreating(true)}
 					style={{
 						border: "none",
 						borderRadius: 10,
@@ -180,6 +202,8 @@ export function DashboardPage() {
 				</div>
 				<div style={{ fontSize: 11.5, color: "var(--color-text-faint)", marginTop: 10 }}>{totalFunnelCount} total</div>
 			</div>
+
+			{creating && <ApplicationFormModal onSubmit={handleCreate} onClose={() => setCreating(false)} />}
 		</AppShell>
 	);
 }

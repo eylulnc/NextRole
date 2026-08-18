@@ -25,6 +25,9 @@ import type {
 import { AppShell } from "../components/AppShell";
 import { StatusBadge, statusOptions } from "../components/StatusBadge";
 import { ApplicationFormModal } from "../components/ApplicationFormModal";
+import { CloseButton } from "../components/CloseButton";
+import { PlusIcon } from "../components/IconButton";
+import { useToast } from "../context/ToastContext";
 import { formatDate, formatDateTime } from "../utils/date";
 import { formatSalaryRange } from "../utils/currency";
 import { formatLocation } from "../utils/workMode";
@@ -36,6 +39,54 @@ const cardStyle: React.CSSProperties = {
 	border: "1px solid var(--color-border)",
 	borderRadius: 14,
 	padding: 20,
+};
+
+const emptyStateStyle: React.CSSProperties = {
+	border: "1px dashed var(--color-border)",
+	borderRadius: 14,
+	padding: "48px 20px",
+	display: "flex",
+	flexDirection: "column",
+	alignItems: "center",
+	justifyContent: "center",
+	gap: 12,
+	color: "var(--color-text-muted)",
+	fontSize: 13.5,
+	cursor: "pointer",
+};
+
+const emptyStateIconStyle: React.CSSProperties = {
+	width: 32,
+	height: 32,
+	borderRadius: "50%",
+	background: "var(--color-accent)",
+	color: "#fff",
+	display: "flex",
+	alignItems: "center",
+	justifyContent: "center",
+};
+
+const addTileStyle: React.CSSProperties = {
+	border: "1px dashed var(--color-border)",
+	borderRadius: 14,
+	padding: "14px 20px",
+	display: "flex",
+	alignItems: "center",
+	justifyContent: "center",
+	color: "var(--color-text-muted)",
+	cursor: "pointer",
+};
+
+const addTileIconStyle: React.CSSProperties = {
+	width: 24,
+	height: 24,
+	borderRadius: "50%",
+	background: "var(--color-accent)",
+	color: "#fff",
+	display: "flex",
+	alignItems: "center",
+	justifyContent: "center",
+	flex: "none",
 };
 
 const inputStyle: React.CSSProperties = {
@@ -54,13 +105,14 @@ const addButtonStyle: React.CSSProperties = {
 	color: "#fff",
 	font: "600 13px var(--font-body)",
 	cursor: "pointer",
-	alignSelf: "flex-start",
+	alignSelf: "flex-end",
 };
 
 export function ApplicationDetailPage() {
 	const { t } = useTranslation();
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
+	const { showToast } = useToast();
 	const [application, setApplication] = useState<Application | null>(null);
 	const [history, setHistory] = useState<StatusHistoryEntry[]>([]);
 	const [notes, setNotes] = useState<Note[]>([]);
@@ -96,42 +148,71 @@ export function ApplicationDetailPage() {
 
 	async function handleUpdate(request: CreateApplicationRequest) {
 		if (!id) return;
-		await updateApplication(id, request);
-		await refresh();
+		try {
+			await updateApplication(id, request);
+			showToast(t("applications.toasts.updated"), "success");
+			await refresh();
+		} catch (error) {
+			showToast(t("applications.toasts.error"), "error");
+			throw error;
+		}
 	}
 
 	async function handleChangeStatus(status: ApplicationStatus) {
 		if (!id) return;
-		await changeApplicationStatus(id, status);
-		setChangingStage(false);
-		await refresh();
+		try {
+			await changeApplicationStatus(id, status);
+			setChangingStage(false);
+			showToast(t("applications.toasts.statusChanged"), "success");
+			await refresh();
+		} catch {
+			showToast(t("applications.toasts.error"), "error");
+		}
 	}
 
 	async function handleAddNote(text: string) {
 		if (!id) return;
-		await createNote(id, { text });
-		setShowNoteForm(false);
-		await refresh();
+		try {
+			await createNote(id, { text });
+			setShowNoteForm(false);
+			showToast(t("applicationDetail.toasts.noteAdded"), "success");
+			await refresh();
+		} catch (error) {
+			showToast(t("applications.toasts.error"), "error");
+			throw error;
+		}
 	}
 
 	async function handleAddInterview(round: string, interviewer: string, scheduledAt: string, mode: string, notesText: string) {
 		if (!id) return;
-		await createInterview(id, {
-			round,
-			interviewer: interviewer || undefined,
-			scheduledAt: new Date(scheduledAt).toISOString(),
-			mode: mode || undefined,
-			notes: notesText || undefined,
-		});
-		setShowInterviewForm(false);
-		await refresh();
+		try {
+			await createInterview(id, {
+				round,
+				interviewer: interviewer || undefined,
+				scheduledAt: new Date(scheduledAt).toISOString(),
+				mode: mode || undefined,
+				notes: notesText || undefined,
+			});
+			setShowInterviewForm(false);
+			showToast(t("applicationDetail.toasts.interviewAdded"), "success");
+			await refresh();
+		} catch (error) {
+			showToast(t("applications.toasts.error"), "error");
+			throw error;
+		}
 	}
 
 	async function handleAddContact(name: string, role: string, email: string) {
 		if (!id) return;
-		await createContact(id, { name, role: role || undefined, email: email || undefined });
-		setShowContactForm(false);
-		await refresh();
+		try {
+			await createContact(id, { name, role: role || undefined, email: email || undefined });
+			setShowContactForm(false);
+			showToast(t("applicationDetail.toasts.contactAdded"), "success");
+			await refresh();
+		} catch (error) {
+			showToast(t("applications.toasts.error"), "error");
+			throw error;
+		}
 	}
 
 	if (!application) {
@@ -272,27 +353,6 @@ export function ApplicationDetailPage() {
 						</div>
 					))}
 				</div>
-				{tab === "interviews" && (
-					<ToggleAddButton
-						addLabel={t("applicationDetail.addInterview")}
-						open={showInterviewForm}
-						onToggle={() => setShowInterviewForm((v) => !v)}
-					/>
-				)}
-				{tab === "contacts" && (
-					<ToggleAddButton
-						addLabel={t("applicationDetail.addContact")}
-						open={showContactForm}
-						onToggle={() => setShowContactForm((v) => !v)}
-					/>
-				)}
-				{tab === "notes" && (
-					<ToggleAddButton
-						addLabel={t("applicationDetail.addNote")}
-						open={showNoteForm}
-						onToggle={() => setShowNoteForm((v) => !v)}
-					/>
-				)}
 			</div>
 
 			{tab === "overview" && (
@@ -347,22 +407,22 @@ export function ApplicationDetailPage() {
 						{history.map((h, i) => (
 							<div key={h.id} style={{ display: "flex", gap: 16 }}>
 								<div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-									<div
-										style={{
-											width: 10,
-											height: 10,
-											borderRadius: "50%",
-											background: i === history.length - 1 ? "var(--color-accent)" : "oklch(80% 0.02 250)",
-											flex: "none",
-										}}
-									/>
-									{i < history.length - 1 && <div style={{ width: 1, flex: 1, background: "oklch(91% 0.007 250)" }} />}
-								</div>
-								<div style={{ paddingBottom: 22 }}>
-									<div style={{ fontWeight: 600, fontSize: 13.5 }}>
-										<StatusBadge status={h.status} />
+									<div style={{ height: 20, display: "flex", alignItems: "center", flex: "none" }}>
+										<div
+											style={{
+												width: 10,
+												height: 10,
+												borderRadius: "50%",
+												background: i === history.length - 1 ? "var(--color-accent)" : "oklch(80% 0.02 250)",
+												flex: "none",
+											}}
+										/>
 									</div>
-									<div style={{ fontSize: 12, color: "var(--color-text-faint)", marginTop: 4 }}>
+									{i < history.length - 1 && <div style={{ width: 1, flex: 1, background: "oklch(88% 0.007 250)" }} />}
+								</div>
+								<div style={{ paddingBottom: i < history.length - 1 ? 26 : 0 }}>
+									<div style={{ fontWeight: 700, fontSize: 14 }}>{t(`status.${h.status}`)}</div>
+									<div style={{ fontSize: 12, color: "var(--color-text-faint)", marginTop: 3 }}>
 										{formatDateTime(h.changedAt)}
 									</div>
 								</div>
@@ -374,7 +434,6 @@ export function ApplicationDetailPage() {
 
 			{tab === "interviews" && (
 				<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-					{showInterviewForm && <InterviewForm onSubmit={handleAddInterview} />}
 					{interviews.map((iv) => (
 						<div key={iv.id} style={{ ...cardStyle, display: "flex", flexDirection: "column", gap: 6 }}>
 							<div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -391,13 +450,36 @@ export function ApplicationDetailPage() {
 							{iv.notes && <div style={{ fontSize: 13, color: "oklch(35% 0.012 250)", marginTop: 4 }}>{iv.notes}</div>}
 						</div>
 					))}
-					{interviews.length === 0 && <p style={{ color: "var(--color-text-muted)" }}>{t("applicationDetail.noInterviews")}</p>}
+					{showInterviewForm && (
+						<InterviewForm onSubmit={handleAddInterview} onClose={() => setShowInterviewForm(false)} />
+					)}
+					{interviews.length > 0 && !showInterviewForm && (
+						<div
+							style={addTileStyle}
+							onClick={() => setShowInterviewForm(true)}
+							role="button"
+							aria-label={t("applicationDetail.addInterview")}
+							title={t("applicationDetail.addInterview")}
+						>
+							<div style={addTileIconStyle}>
+								<PlusIcon />
+							</div>
+						</div>
+					)}
+					{interviews.length === 0 && !showInterviewForm && (
+						<div style={emptyStateStyle} onClick={() => setShowInterviewForm(true)}>
+							<div style={emptyStateIconStyle}>
+								<PlusIcon />
+							</div>
+							{t("applicationDetail.noInterviews")}
+						</div>
+					)}
 				</div>
 			)}
 
 			{tab === "contacts" && (
 				<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-					{showContactForm && <ContactForm onSubmit={handleAddContact} />}
+					{contacts.length > 0 && (
 					<div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 14 }}>
 						{contacts.map((c) => (
 							<div key={c.id} style={{ ...cardStyle, display: "flex", gap: 12, alignItems: "center" }}>
@@ -424,14 +506,39 @@ export function ApplicationDetailPage() {
 								</div>
 							</div>
 						))}
+						{showContactForm ? (
+							<ContactForm onSubmit={handleAddContact} onClose={() => setShowContactForm(false)} />
+						) : (
+							<div
+								style={addTileStyle}
+								onClick={() => setShowContactForm(true)}
+								role="button"
+								aria-label={t("applicationDetail.addContact")}
+								title={t("applicationDetail.addContact")}
+							>
+								<div style={addTileIconStyle}>
+									<PlusIcon />
+								</div>
+							</div>
+						)}
 					</div>
-					{contacts.length === 0 && <p style={{ color: "var(--color-text-muted)" }}>{t("applicationDetail.noContacts")}</p>}
+					)}
+					{contacts.length === 0 && showContactForm && (
+						<ContactForm onSubmit={handleAddContact} onClose={() => setShowContactForm(false)} />
+					)}
+					{contacts.length === 0 && !showContactForm && (
+						<div style={emptyStateStyle} onClick={() => setShowContactForm(true)}>
+							<div style={emptyStateIconStyle}>
+								<PlusIcon />
+							</div>
+							{t("applicationDetail.noContacts")}
+						</div>
+					)}
 				</div>
 			)}
 
 			{tab === "notes" && (
-				<div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-					{showNoteForm && <NoteForm onSubmit={handleAddNote} />}
+				<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 					{notes.map((n) => (
 						<div key={n.id} style={{ ...cardStyle, padding: "16px 18px" }}>
 							<div style={{ fontSize: 11.5, color: "var(--color-text-faint)", marginBottom: 6 }}>
@@ -442,7 +549,28 @@ export function ApplicationDetailPage() {
 							</div>
 						</div>
 					))}
-					{notes.length === 0 && <p style={{ color: "var(--color-text-muted)" }}>{t("applicationDetail.noNotes")}</p>}
+					{showNoteForm && <NoteForm onSubmit={handleAddNote} onClose={() => setShowNoteForm(false)} />}
+					{notes.length > 0 && !showNoteForm && (
+						<div
+							style={addTileStyle}
+							onClick={() => setShowNoteForm(true)}
+							role="button"
+							aria-label={t("applicationDetail.addNote")}
+							title={t("applicationDetail.addNote")}
+						>
+							<div style={addTileIconStyle}>
+								<PlusIcon />
+							</div>
+						</div>
+					)}
+					{notes.length === 0 && !showNoteForm && (
+						<div style={emptyStateStyle} onClick={() => setShowNoteForm(true)}>
+							<div style={emptyStateIconStyle}>
+								<PlusIcon />
+							</div>
+							{t("applicationDetail.noNotes")}
+						</div>
+				)}
 				</div>
 			)}
 
@@ -451,7 +579,7 @@ export function ApplicationDetailPage() {
 	);
 }
 
-function NoteForm({ onSubmit }: { onSubmit: (text: string) => Promise<void> }) {
+function NoteForm({ onSubmit, onClose }: { onSubmit: (text: string) => Promise<void>; onClose: () => void }) {
 	const { t } = useTranslation();
 	const [text, setText] = useState("");
 	const [submitting, setSubmitting] = useState(false);
@@ -469,7 +597,8 @@ function NoteForm({ onSubmit }: { onSubmit: (text: string) => Promise<void> }) {
 	}
 
 	return (
-		<form onSubmit={handleSubmit} style={{ ...cardStyle, display: "flex", flexDirection: "column", gap: 10 }}>
+		<form onSubmit={handleSubmit} style={{ ...cardStyle, position: "relative", paddingTop: 44, display: "flex", flexDirection: "column", gap: 10 }}>
+			<CloseButton onClick={onClose} />
 			<textarea
 				value={text}
 				onChange={(e) => setText(e.target.value)}
@@ -483,30 +612,12 @@ function NoteForm({ onSubmit }: { onSubmit: (text: string) => Promise<void> }) {
 	);
 }
 
-function ToggleAddButton({ addLabel, open, onToggle }: { addLabel: string; open: boolean; onToggle: () => void }) {
-	const { t } = useTranslation();
-	return (
-		<button
-			onClick={onToggle}
-			style={{
-				border: open ? "1px solid var(--color-border)" : "none",
-				background: open ? "#fff" : "var(--color-accent)",
-				color: open ? "var(--color-text)" : "#fff",
-				borderRadius: 10,
-				padding: "9px 16px",
-				font: "600 13px var(--font-body)",
-				cursor: "pointer",
-			}}
-		>
-			{open ? t("applicationDetail.cancel") : addLabel}
-		</button>
-	);
-}
-
 function InterviewForm({
 	onSubmit,
+	onClose,
 }: {
 	onSubmit: (round: string, interviewer: string, scheduledAt: string, mode: string, notes: string) => Promise<void>;
+	onClose: () => void;
 }) {
 	const { t } = useTranslation();
 	const [round, setRound] = useState("");
@@ -533,7 +644,8 @@ function InterviewForm({
 	}
 
 	return (
-		<form onSubmit={handleSubmit} style={{ ...cardStyle, display: "flex", flexDirection: "column", gap: 10 }}>
+		<form onSubmit={handleSubmit} style={{ ...cardStyle, position: "relative", paddingTop: 44, display: "flex", flexDirection: "column", gap: 10 }}>
+			<CloseButton onClick={onClose} />
 			<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10 }}>
 				<input
 					required
@@ -575,7 +687,13 @@ function InterviewForm({
 	);
 }
 
-function ContactForm({ onSubmit }: { onSubmit: (name: string, role: string, email: string) => Promise<void> }) {
+function ContactForm({
+	onSubmit,
+	onClose,
+}: {
+	onSubmit: (name: string, role: string, email: string) => Promise<void>;
+	onClose: () => void;
+}) {
 	const { t } = useTranslation();
 	const [name, setName] = useState("");
 	const [role, setRole] = useState("");
@@ -597,8 +715,9 @@ function ContactForm({ onSubmit }: { onSubmit: (name: string, role: string, emai
 	}
 
 	return (
-		<form onSubmit={handleSubmit} style={{ ...cardStyle, display: "flex", flexDirection: "column", gap: 10 }}>
-			<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10 }}>
+		<form onSubmit={handleSubmit} style={{ ...cardStyle, position: "relative", paddingTop: 44, display: "flex", flexDirection: "column", gap: 10 }}>
+			<CloseButton onClick={onClose} />
+			<div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
 				<input
 					required
 					placeholder={t("applicationDetail.contactForm.namePlaceholder")}

@@ -83,6 +83,13 @@
 		"confirmDelete": "Delete this application?",
 		"editAria": "Edit {{company}}",
 		"deleteAria": "Delete {{company}}",
+		"toasts": {
+			"created": "Application created",
+			"updated": "Application updated",
+			"deleted": "Application deleted",
+			"statusChanged": "Status updated",
+			"error": "Something went wrong. Please try again."
+		},
 		"columns": {
 			"companyRole": "Company / Role",
 			"location": "Location",
@@ -137,10 +144,15 @@
 		"noInterviews": "No interviews scheduled yet.",
 		"noContacts": "No contacts saved yet.",
 		"noNotes": "No notes yet.",
-		"addInterview": "+ Add interview",
-		"addContact": "+ Add contact",
-		"addNote": "+ Add note",
+		"addInterview": "Add interview",
+		"addContact": "Add contact",
+		"addNote": "Add note",
 		"cancel": "Cancel",
+		"toasts": {
+			"noteAdded": "Note added",
+			"interviewAdded": "Interview added",
+			"contactAdded": "Contact added"
+		},
 		"noteForm": {
 			"placeholder": "Add a note…",
 			"submit": "Add note"

@@ -38,6 +38,24 @@ export function PencilIcon() {
 	);
 }
 
+export function PlusIcon() {
+	return (
+		<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+			<path d="M12 5v14" />
+			<path d="M5 12h14" />
+		</svg>
+	);
+}
+
+export function XIcon() {
+	return (
+		<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+			<path d="M18 6 6 18" />
+			<path d="M6 6l12 12" />
+		</svg>
+	);
+}
+
 export function TrashIcon() {
 	return (
 		<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

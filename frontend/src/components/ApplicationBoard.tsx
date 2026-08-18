@@ -4,6 +4,7 @@ import type { Application, ApplicationStatus } from "../types/application";
 import { statusHue, statusOptions } from "./StatusBadge";
 import { formatSalaryRange } from "../utils/currency";
 import { formatLocation } from "../utils/workMode";
+import { PlusIcon } from "./IconButton";
 
 const cardStyle: React.CSSProperties = {
 	background: "#fff",
@@ -88,17 +89,19 @@ export function ApplicationBoard({ applications, onStatusChange, onAddToStatus }
 								onClick={() => onAddToStatus(col.status)}
 								aria-label={`Add application to ${col.label}`}
 								style={{
+									display: "inline-flex",
+									alignItems: "center",
+									justifyContent: "center",
+									width: 24,
+									height: 24,
 									border: "none",
 									background: "transparent",
 									color: "var(--color-text-faint)",
 									cursor: "pointer",
-									font: "600 15px var(--font-body)",
-									lineHeight: 1,
-									padding: "2px 4px",
 									borderRadius: 6,
 								}}
 							>
-								+
+								<PlusIcon />
 							</button>
 						)}
 					</div>
@@ -153,13 +156,26 @@ export function ApplicationBoard({ applications, onStatusChange, onAddToStatus }
 									borderRadius: 12,
 									padding: "18px 14px",
 									background: "transparent",
-									color: "var(--color-text-faint)",
 									cursor: "pointer",
-									font: "600 20px var(--font-body)",
-									lineHeight: 1,
+									display: "flex",
+									alignItems: "center",
+									justifyContent: "center",
 								}}
 							>
-								+
+								<span
+									style={{
+										width: 28,
+										height: 28,
+										borderRadius: "50%",
+										background: "var(--color-accent)",
+										color: "#fff",
+										display: "inline-flex",
+										alignItems: "center",
+										justifyContent: "center",
+									}}
+								>
+									<PlusIcon />
+								</span>
 							</button>
 						)}
 					</div>
