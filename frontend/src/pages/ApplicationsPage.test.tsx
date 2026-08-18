@@ -4,6 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { ApplicationsPage } from "./ApplicationsPage";
 import { AuthProvider } from "../context/AuthContext";
+import { ToastProvider } from "../context/ToastContext";
 import * as applicationsApi from "../api/applications";
 import type { Application, Page } from "../types/application";
 
@@ -31,13 +32,15 @@ function samplePage(content: Application[] = [SAMPLE_APPLICATION]): Page<Applica
 	return { content, totalElements: content.length, totalPages: 1, number: 0, size: 20 };
 }
 
-function renderApplicationsPage() {
+function renderApplicationsPage(initialEntries: Parameters<typeof MemoryRouter>[0]["initialEntries"] = ["/applications"]) {
 	localStorage.setItem("nextrole_email", "user@example.com");
 	localStorage.setItem("nextrole_token", "fake-token");
 	return render(
-		<MemoryRouter>
+		<MemoryRouter initialEntries={initialEntries}>
 			<AuthProvider>
-				<ApplicationsPage />
+				<ToastProvider>
+					<ApplicationsPage />
+				</ToastProvider>
 			</AuthProvider>
 		</MemoryRouter>
 	);
@@ -90,6 +93,16 @@ describe("ApplicationsPage", () => {
 
 		expect(await screen.findByText("Saved")).toBeInTheDocument();
 		expect(screen.queryByText("Company / Role")).not.toBeInTheDocument();
+	});
+
+	it("opens the create modal when clicking + New application", async () => {
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage());
+		renderApplicationsPage();
+
+		await screen.findByText("Acme Corp");
+		await userEvent.click(screen.getByText("+ New application"));
+
+		expect(await screen.findByRole("heading", { name: "New application" })).toBeInTheDocument();
 	});
 
 	it("deletes an application after confirmation", async () => {

@@ -14,6 +14,7 @@ import { StatusBadge } from "../components/StatusBadge";
 import { ApplicationFormModal } from "../components/ApplicationFormModal";
 import { IconButton, PencilIcon, TrashIcon } from "../components/IconButton";
 import { ApplicationBoard } from "../components/ApplicationBoard";
+import { useToast } from "../context/ToastContext";
 import { formatDate } from "../utils/date";
 import { formatSalaryRange } from "../utils/currency";
 import { formatLocation } from "../utils/workMode";
@@ -29,6 +30,7 @@ function isView(value: string | null): value is View {
 export function ApplicationsPage() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
+	const { showToast } = useToast();
 	const [applications, setApplications] = useState<Application[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [search, setSearch] = useState("");
@@ -63,24 +65,46 @@ export function ApplicationsPage() {
 	}, [applications, search]);
 
 	async function handleCreate(request: CreateApplicationRequest) {
-		await createApplication(request);
-		await refresh();
+		try {
+			await createApplication(request);
+			showToast(t("applications.toasts.created"), "success");
+			await refresh();
+		} catch (error) {
+			showToast(t("applications.toasts.error"), "error");
+			throw error;
+		}
 	}
 
 	async function handleUpdate(id: string, request: CreateApplicationRequest) {
-		await updateApplication(id, request);
-		await refresh();
+		try {
+			await updateApplication(id, request);
+			showToast(t("applications.toasts.updated"), "success");
+			await refresh();
+		} catch (error) {
+			showToast(t("applications.toasts.error"), "error");
+			throw error;
+		}
 	}
 
 	async function handleDelete(id: string) {
 		if (!window.confirm(t("applications.confirmDelete"))) return;
-		await deleteApplication(id);
-		await refresh();
+		try {
+			await deleteApplication(id);
+			showToast(t("applications.toasts.deleted"), "success");
+			await refresh();
+		} catch {
+			showToast(t("applications.toasts.error"), "error");
+		}
 	}
 
 	async function handleBoardStatusChange(id: string, status: ApplicationStatus) {
-		await changeApplicationStatus(id, status);
-		await refresh();
+		try {
+			await changeApplicationStatus(id, status);
+			showToast(t("applications.toasts.statusChanged"), "success");
+			await refresh();
+		} catch {
+			showToast(t("applications.toasts.error"), "error");
+		}
 	}
 
 	function handleAddToStatus(status: ApplicationStatus) {
@@ -174,6 +198,10 @@ export function ApplicationsPage() {
 							textTransform: "uppercase",
 							letterSpacing: "0.03em",
 							borderBottom: "1px solid var(--color-border)",
+							position: "sticky",
+							top: 0,
+							background: "#fff",
+							zIndex: 1,
 						}}
 					>
 						<div>{t("applications.columns.companyRole")}</div>
