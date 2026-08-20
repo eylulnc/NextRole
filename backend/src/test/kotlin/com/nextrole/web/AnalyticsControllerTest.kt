@@ -45,7 +45,8 @@ class AnalyticsControllerTest {
 			funnelStages = emptyList(),
 			applicationsOverTime = emptyList(),
 			topTechnologies = emptyList(),
-			stageConversionRates = emptyList()
+			stageConversionRates = emptyList(),
+			applicationsByWorkMode = emptyList()
 		)
 
 		mockMvc.get("/api/analytics").andExpect {

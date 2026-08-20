@@ -8,6 +8,7 @@ import com.nextrole.web.dto.FunnelStageCount
 import com.nextrole.web.dto.MonthlyApplicationCount
 import com.nextrole.web.dto.StageConversionRate
 import com.nextrole.web.dto.TechnologyCount
+import com.nextrole.web.dto.WorkModeCount
 import org.springframework.stereotype.Service
 import java.time.YearMonth
 import java.time.ZoneOffset
@@ -15,6 +16,7 @@ import java.util.UUID
 
 private const val MONTHS_OF_HISTORY = 6L
 private const val TOP_TECHNOLOGIES_LIMIT = 8
+private val WORK_MODES = listOf("REMOTE", "HYBRID", "ONSITE")
 
 @Service
 class AnalyticsService(
@@ -31,10 +33,13 @@ class AnalyticsService(
 
 		val currentMonth = YearMonth.now()
 		val months = (MONTHS_OF_HISTORY - 1 downTo 0).map { currentMonth.minusMonths(it) }
+		val appliedApplications = applications.filter { it.status != ApplicationStatus.SAVED }
+		val appliedMonths = appliedApplications.map { application ->
+			application.applicationDate?.let { YearMonth.from(it) }
+				?: YearMonth.from(application.createdAt.atZone(ZoneOffset.UTC))
+		}
 		val applicationsOverTime = months.map { month ->
-			val start = month.atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant()
-			val end = month.plusMonths(1).atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant()
-			val count = applications.count { it.createdAt >= start && it.createdAt < end }
+			val count = appliedMonths.count { it == month }
 			MonthlyApplicationCount(month = month.toString(), count = count)
 		}
 
@@ -65,11 +70,16 @@ class AnalyticsService(
 			StageConversionRate(status = status, conversionRatePercent = rate)
 		}
 
+		val applicationsByWorkMode = WORK_MODES.map { mode ->
+			WorkModeCount(workMode = mode, count = applications.count { it.workMode == mode })
+		}
+
 		return AnalyticsResponse(
 			funnelStages = funnelStages,
 			applicationsOverTime = applicationsOverTime,
 			topTechnologies = topTechnologies,
-			stageConversionRates = stageConversionRates
+			stageConversionRates = stageConversionRates,
+			applicationsByWorkMode = applicationsByWorkMode
 		)
 	}
 }

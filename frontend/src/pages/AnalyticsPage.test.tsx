@@ -31,6 +31,11 @@ const SAMPLE_ANALYTICS: Analytics = {
 		{ status: "SAVED", conversionRatePercent: 50 },
 		{ status: "APPLIED", conversionRatePercent: 25 },
 	],
+	applicationsByWorkMode: [
+		{ workMode: "REMOTE", count: 2 },
+		{ workMode: "HYBRID", count: 0 },
+		{ workMode: "ONSITE", count: 1 },
+	],
 };
 
 function renderAnalytics() {
@@ -63,6 +68,7 @@ describe("AnalyticsPage", () => {
 		expect(screen.getByText("React")).toBeInTheDocument();
 		expect(screen.getAllByText("Saved").length).toBeGreaterThan(0);
 		expect(screen.getByText("50%")).toBeInTheDocument();
+		expect(screen.getByText("Remote")).toBeInTheDocument();
 	});
 
 	it("shows an empty state when there is no tech stack data", async () => {

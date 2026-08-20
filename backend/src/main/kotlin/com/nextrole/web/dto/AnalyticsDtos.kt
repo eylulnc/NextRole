@@ -17,9 +17,15 @@ data class StageConversionRate(
 	val conversionRatePercent: Int
 )
 
+data class WorkModeCount(
+	val workMode: String,
+	val count: Int
+)
+
 data class AnalyticsResponse(
 	val funnelStages: List<FunnelStageCount>,
 	val applicationsOverTime: List<MonthlyApplicationCount>,
 	val topTechnologies: List<TechnologyCount>,
-	val stageConversionRates: List<StageConversionRate>
+	val stageConversionRates: List<StageConversionRate>,
+	val applicationsByWorkMode: List<WorkModeCount>
 )

@@ -16,9 +16,15 @@ export interface StageConversionRate {
 	conversionRatePercent: number;
 }
 
+export interface WorkModeCount {
+	workMode: string;
+	count: number;
+}
+
 export interface Analytics {
 	funnelStages: FunnelStageCount[];
 	applicationsOverTime: MonthlyApplicationCount[];
 	topTechnologies: TechnologyCount[];
 	stageConversionRates: StageConversionRate[];
+	applicationsByWorkMode: WorkModeCount[];
 }

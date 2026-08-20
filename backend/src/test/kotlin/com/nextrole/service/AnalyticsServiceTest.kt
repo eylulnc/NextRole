@@ -10,6 +10,8 @@ import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.Instant
+import java.time.LocalDate
+import java.time.YearMonth
 import java.time.temporal.ChronoUnit
 import java.util.UUID
 
@@ -20,13 +22,21 @@ class AnalyticsServiceTest {
 	private val analyticsService = AnalyticsService(applicationRepository, statusHistoryRepository)
 	private val userId = UUID.randomUUID()
 
-	private fun application(status: ApplicationStatus, techStack: String? = null, daysOld: Long = 0): Application =
+	private fun application(
+		status: ApplicationStatus,
+		techStack: String? = null,
+		workMode: String? = null,
+		daysOld: Long = 0,
+		applicationDate: LocalDate? = null
+	): Application =
 		Application(
 			userId = userId,
 			company = "Acme",
 			role = "Engineer",
 			status = status,
 			techStack = techStack,
+			workMode = workMode,
+			applicationDate = applicationDate,
 			createdAt = Instant.now().minus(daysOld, ChronoUnit.DAYS)
 		)
 
@@ -43,14 +53,40 @@ class AnalyticsServiceTest {
 	}
 
 	@Test
-	fun `buckets applications into their creation month`() {
-		val applications = listOf(application(ApplicationStatus.APPLIED, daysOld = 0))
+	fun `buckets applications by application date when set`() {
+		val threeMonthsAgo = YearMonth.now().minusMonths(3)
+		val applications = listOf(application(ApplicationStatus.APPLIED, applicationDate = threeMonthsAgo.atDay(15)))
 		every { applicationRepository.findByUserId(userId) } returns applications
 		every { statusHistoryRepository.findAllByUserIdOrderByApplicationAndTime(userId) } returns emptyList()
 
 		val result = analyticsService.getAnalytics(userId)
 
 		assertEquals(6, result.applicationsOverTime.size)
+		assertEquals(1, result.applicationsOverTime.first { it.month == threeMonthsAgo.toString() }.count)
+	}
+
+	@Test
+	fun `falls back to creation month when application date is not set`() {
+		val applications = listOf(application(ApplicationStatus.APPLIED, daysOld = 0))
+		every { applicationRepository.findByUserId(userId) } returns applications
+		every { statusHistoryRepository.findAllByUserIdOrderByApplicationAndTime(userId) } returns emptyList()
+
+		val result = analyticsService.getAnalytics(userId)
+
+		assertEquals(1, result.applicationsOverTime.last().count)
+	}
+
+	@Test
+	fun `excludes applications still in the saved stage from applications over time`() {
+		val applications = listOf(
+			application(ApplicationStatus.SAVED, daysOld = 0),
+			application(ApplicationStatus.HR_INTERVIEW, daysOld = 0)
+		)
+		every { applicationRepository.findByUserId(userId) } returns applications
+		every { statusHistoryRepository.findAllByUserIdOrderByApplicationAndTime(userId) } returns emptyList()
+
+		val result = analyticsService.getAnalytics(userId)
+
 		assertEquals(1, result.applicationsOverTime.last().count)
 	}
 
@@ -97,5 +133,23 @@ class AnalyticsServiceTest {
 		val result = analyticsService.getAnalytics(userId)
 
 		assertEquals(0, result.stageConversionRates.first { it.status == ApplicationStatus.OFFER }.conversionRatePercent)
+	}
+
+	@Test
+	fun `counts applications by work mode`() {
+		val applications = listOf(
+			application(ApplicationStatus.APPLIED, workMode = "REMOTE"),
+			application(ApplicationStatus.APPLIED, workMode = "REMOTE"),
+			application(ApplicationStatus.APPLIED, workMode = "ONSITE"),
+			application(ApplicationStatus.APPLIED, workMode = null)
+		)
+		every { applicationRepository.findByUserId(userId) } returns applications
+		every { statusHistoryRepository.findAllByUserIdOrderByApplicationAndTime(userId) } returns emptyList()
+
+		val result = analyticsService.getAnalytics(userId)
+
+		assertEquals(2, result.applicationsByWorkMode.first { it.workMode == "REMOTE" }.count)
+		assertEquals(1, result.applicationsByWorkMode.first { it.workMode == "ONSITE" }.count)
+		assertEquals(0, result.applicationsByWorkMode.first { it.workMode == "HYBRID" }.count)
 	}
 }
