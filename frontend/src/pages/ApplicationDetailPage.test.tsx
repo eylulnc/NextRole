@@ -78,6 +78,30 @@ describe("ApplicationDetailPage", () => {
 		expect(screen.queryByText("Applied: Aug 1, 2026")).not.toBeInTheDocument();
 	});
 
+	it("edits the job description inline from the overview tab", async () => {
+		const updated = { ...SAMPLE_APPLICATION, jobDescription: "Build great APIs, remotely." };
+		vi.mocked(applicationsApi.updateApplication).mockResolvedValue(updated);
+		vi.mocked(applicationsApi.getApplication)
+			.mockResolvedValueOnce(SAMPLE_APPLICATION)
+			.mockResolvedValueOnce(updated);
+		renderDetailPage();
+
+		await screen.findByRole("heading", { name: "Backend Engineer" });
+		await userEvent.click(screen.getByLabelText("Edit"));
+
+		const textarea = screen.getByDisplayValue("Build great APIs.");
+		await userEvent.clear(textarea);
+		await userEvent.type(textarea, "Build great APIs, remotely.");
+		await userEvent.click(screen.getByRole("button", { name: "Save changes" }));
+
+		await waitFor(() => {
+			expect(applicationsApi.updateApplication).toHaveBeenCalledWith("app-1", {
+				jobDescription: "Build great APIs, remotely.",
+			});
+		});
+		expect(await screen.findByText("Build great APIs, remotely.")).toBeInTheDocument();
+	});
+
 	it("switches to the status history tab", async () => {
 		renderDetailPage();
 
@@ -195,17 +219,40 @@ describe("ApplicationDetailPage", () => {
 		const existingNote: Note = { id: "n1", text: "First call went well.", createdAt: "2026-08-01T00:00:00Z" };
 		vi.mocked(applicationsApi.listNotes).mockResolvedValue([existingNote]);
 		vi.mocked(applicationsApi.deleteNote).mockResolvedValue(undefined);
-		vi.spyOn(window, "confirm").mockReturnValue(true);
 		renderDetailPage();
 
 		await screen.findByRole("heading", { name: "Backend Engineer" });
 		await userEvent.click(screen.getByText("Notes"));
 		await userEvent.click(screen.getByLabelText("Note actions"));
 		await userEvent.click(screen.getByRole("menuitem", { name: "Delete" }));
+		await userEvent.click(await screen.findByRole("button", { name: "Delete" }));
 
 		await waitFor(() => {
 			expect(applicationsApi.deleteNote).toHaveBeenCalledWith("app-1", "n1");
 		});
+	});
+
+	it("toggles note sort order between newest and oldest first", async () => {
+		const notes: Note[] = [
+			{ id: "n1", text: "Newest note", createdAt: "2026-08-03T00:00:00Z" },
+			{ id: "n2", text: "Oldest note", createdAt: "2026-08-01T00:00:00Z" },
+		];
+		vi.mocked(applicationsApi.listNotes).mockResolvedValue(notes);
+		renderDetailPage();
+
+		await screen.findByRole("heading", { name: "Backend Engineer" });
+		await userEvent.click(screen.getByText("Notes"));
+
+		const getNoteOrder = () => screen.getAllByText(/Newest note|Oldest note/).map((el) => el.textContent);
+		expect(getNoteOrder()).toEqual(["Newest note", "Oldest note"]);
+		expect(screen.getByRole("button", { name: /Newest first/ })).toBeInTheDocument();
+
+		await userEvent.click(screen.getByRole("button", { name: /Newest first/ }));
+		expect(getNoteOrder()).toEqual(["Oldest note", "Newest note"]);
+		expect(screen.getByRole("button", { name: /Oldest first/ })).toBeInTheDocument();
+
+		await userEvent.click(screen.getByRole("button", { name: /Oldest first/ }));
+		expect(getNoteOrder()).toEqual(["Newest note", "Oldest note"]);
 	});
 
 	it("edits an existing contact", async () => {
@@ -245,13 +292,13 @@ describe("ApplicationDetailPage", () => {
 		};
 		vi.mocked(applicationsApi.listInterviews).mockResolvedValue([existingInterview]);
 		vi.mocked(applicationsApi.deleteInterview).mockResolvedValue(undefined);
-		vi.spyOn(window, "confirm").mockReturnValue(true);
 		renderDetailPage();
 
 		await screen.findByRole("heading", { name: "Backend Engineer" });
 		await userEvent.click(screen.getByText("Interviews"));
 		await userEvent.click(screen.getByLabelText("Actions for HR Screen"));
 		await userEvent.click(screen.getByRole("menuitem", { name: "Delete" }));
+		await userEvent.click(await screen.findByRole("button", { name: "Delete" }));
 
 		await waitFor(() => {
 			expect(applicationsApi.deleteInterview).toHaveBeenCalledWith("app-1", "iv1");

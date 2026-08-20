@@ -12,6 +12,7 @@ import type { Application, ApplicationStatus, CreateApplicationRequest } from ".
 import { AppShell } from "../components/AppShell";
 import { StatusBadge } from "../components/StatusBadge";
 import { ApplicationFormModal } from "../components/ApplicationFormModal";
+import { useConfirm } from "../components/ConfirmDialog";
 import { KebabMenu } from "../components/KebabMenu";
 import { ApplicationBoard } from "../components/ApplicationBoard";
 import { useToast } from "../context/ToastContext";
@@ -31,6 +32,7 @@ export function ApplicationsPage() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { showToast } = useToast();
+	const { confirm, dialog: confirmDialog } = useConfirm();
 	const [applications, setApplications] = useState<Application[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [search, setSearch] = useState("");
@@ -87,7 +89,7 @@ export function ApplicationsPage() {
 	}
 
 	async function handleDelete(id: string) {
-		if (!window.confirm(t("applications.confirmDelete"))) return;
+		if (!(await confirm(t("applications.confirmDelete")))) return;
 		try {
 			await deleteApplication(id);
 			showToast(t("applications.toasts.deleted"), "success");
@@ -324,6 +326,7 @@ export function ApplicationsPage() {
 					onClose={() => setEditing(null)}
 				/>
 			)}
+			{confirmDialog}
 		</AppShell>
 	);
 }

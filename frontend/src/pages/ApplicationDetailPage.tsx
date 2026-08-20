@@ -24,16 +24,19 @@ import type {
 	Application,
 	ApplicationStatus,
 	Contact,
-	CreateApplicationRequest,
 	Interview,
 	Note,
 	StatusHistoryEntry,
+	UpdateApplicationRequest,
 } from "../types/application";
 import { AppShell } from "../components/AppShell";
 import { StatusBadge, statusOptions } from "../components/StatusBadge";
 import { ApplicationFormModal } from "../components/ApplicationFormModal";
+import { AutoGrowTextarea } from "../components/AutoGrowTextarea";
 import { CloseButton } from "../components/CloseButton";
-import { PlusIcon } from "../components/IconButton";
+import { useConfirm } from "../components/ConfirmDialog";
+import { FormattedText } from "../components/FormattedText";
+import { IconButton, PencilIcon, PlusIcon } from "../components/IconButton";
 import { KebabMenu } from "../components/KebabMenu";
 import { useToast } from "../context/ToastContext";
 import { formatDate, formatDateTime } from "../utils/date";
@@ -141,6 +144,9 @@ export function ApplicationDetailPage() {
 	const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
 	const [editingInterviewId, setEditingInterviewId] = useState<string | null>(null);
 	const [editingContactId, setEditingContactId] = useState<string | null>(null);
+	const [editingJobDescription, setEditingJobDescription] = useState(false);
+	const [noteSortOrder, setNoteSortOrder] = useState<"newest" | "oldest">("newest");
+	const { confirm, dialog: confirmDialog } = useConfirm();
 
 	async function refresh() {
 		if (!id) return;
@@ -163,7 +169,7 @@ export function ApplicationDetailPage() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [id]);
 
-	async function handleUpdate(request: CreateApplicationRequest) {
+	async function handleUpdate(request: UpdateApplicationRequest) {
 		if (!id) return;
 		try {
 			await updateApplication(id, request);
@@ -175,9 +181,14 @@ export function ApplicationDetailPage() {
 		}
 	}
 
+	async function handleUpdateJobDescription(jobDescription: string) {
+		await handleUpdate({ jobDescription });
+		setEditingJobDescription(false);
+	}
+
 	async function handleDeleteApplication() {
 		if (!id) return;
-		if (!window.confirm(t("applications.confirmDelete"))) return;
+		if (!(await confirm(t("applications.confirmDelete")))) return;
 		try {
 			await deleteApplication(id);
 			showToast(t("applications.toasts.deleted"), "success");
@@ -259,7 +270,7 @@ export function ApplicationDetailPage() {
 
 	async function handleDeleteNote(noteId: string) {
 		if (!id) return;
-		if (!window.confirm(t("applicationDetail.confirmDeleteNote"))) return;
+		if (!(await confirm(t("applicationDetail.confirmDeleteNote")))) return;
 		try {
 			await deleteNote(id, noteId);
 			showToast(t("applicationDetail.toasts.noteDeleted"), "success");
@@ -297,7 +308,7 @@ export function ApplicationDetailPage() {
 
 	async function handleDeleteInterview(interviewId: string) {
 		if (!id) return;
-		if (!window.confirm(t("applicationDetail.confirmDeleteInterview"))) return;
+		if (!(await confirm(t("applicationDetail.confirmDeleteInterview")))) return;
 		try {
 			await deleteInterview(id, interviewId);
 			showToast(t("applicationDetail.toasts.interviewDeleted"), "success");
@@ -322,7 +333,7 @@ export function ApplicationDetailPage() {
 
 	async function handleDeleteContact(contactId: string) {
 		if (!id) return;
-		if (!window.confirm(t("applicationDetail.confirmDeleteContact"))) return;
+		if (!(await confirm(t("applicationDetail.confirmDeleteContact")))) return;
 		try {
 			await deleteContact(id, contactId);
 			showToast(t("applicationDetail.toasts.contactDeleted"), "success");
@@ -474,12 +485,25 @@ export function ApplicationDetailPage() {
 
 			{tab === "overview" && (
 				<div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 20, alignItems: "start" }}>
-					<div style={cardStyle}>
-						<h3 style={{ font: "700 15px var(--font-heading)", margin: "0 0 12px" }}>{t("applicationDetail.jobDescription")}</h3>
-						<p style={{ fontSize: 13.5, lineHeight: 1.7, color: "oklch(30% 0.012 250)", whiteSpace: "pre-line" }}>
-							{application.jobDescription || t("applicationDetail.noJobDescription")}
-						</p>
-					</div>
+					{editingJobDescription ? (
+						<JobDescriptionForm
+							initial={application.jobDescription ?? ""}
+							onSubmit={handleUpdateJobDescription}
+							onClose={() => setEditingJobDescription(false)}
+						/>
+					) : (
+						<div style={cardStyle}>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+								<h3 style={{ font: "700 15px var(--font-heading)", margin: 0 }}>{t("applicationDetail.jobDescription")}</h3>
+								<IconButton onClick={() => setEditingJobDescription(true)} label={t("common.edit")}>
+									<PencilIcon />
+								</IconButton>
+							</div>
+							<div style={{ fontSize: 13.5, lineHeight: 1.7, color: "oklch(30% 0.012 250)" }}>
+								{application.jobDescription ? <FormattedText text={application.jobDescription} /> : t("applicationDetail.noJobDescription")}
+							</div>
+						</div>
+					)}
 					<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 						<div style={cardStyle}>
 							<h3 style={{ font: "700 14px var(--font-heading)", margin: "0 0 10px" }}>{t("applicationDetail.techStack")}</h3>
@@ -708,7 +732,28 @@ export function ApplicationDetailPage() {
 
 			{tab === "notes" && (
 				<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-					{notes.map((n) =>
+					{notes.length > 0 && (
+						<button
+							type="button"
+							onClick={() => setNoteSortOrder((order) => (order === "newest" ? "oldest" : "newest"))}
+							style={{
+								alignSelf: "flex-end",
+								display: "flex",
+								alignItems: "center",
+								gap: 5,
+								border: "none",
+								background: "transparent",
+								color: "var(--color-text-muted)",
+								font: "600 12px var(--font-body)",
+								cursor: "pointer",
+								padding: 0,
+							}}
+						>
+							<span aria-hidden="true">⇅</span>
+							{noteSortOrder === "newest" ? t("applicationDetail.notesSort.newestFirst") : t("applicationDetail.notesSort.oldestFirst")}
+						</button>
+					)}
+					{(noteSortOrder === "newest" ? notes : [...notes].reverse()).map((n) =>
 						editingNoteId === n.id ? (
 							<NoteForm
 								key={n.id}
@@ -736,8 +781,8 @@ export function ApplicationDetailPage() {
 										]}
 									/>
 								</div>
-								<div style={{ fontSize: 13.5, color: "oklch(30% 0.012 250)", lineHeight: 1.6, whiteSpace: "pre-line" }}>
-									{n.text}
+								<div style={{ fontSize: 13.5, color: "oklch(30% 0.012 250)", lineHeight: 1.6 }}>
+									<FormattedText text={n.text} />
 								</div>
 							</div>
 						)
@@ -778,7 +823,48 @@ export function ApplicationDetailPage() {
 					onDelete={handleDeleteApplication}
 				/>
 			)}
+			{confirmDialog}
 		</AppShell>
+	);
+}
+
+function JobDescriptionForm({
+	initial,
+	onSubmit,
+	onClose,
+}: {
+	initial: string;
+	onSubmit: (text: string) => Promise<void>;
+	onClose: () => void;
+}) {
+	const { t } = useTranslation();
+	const [text, setText] = useState(initial);
+	const [submitting, setSubmitting] = useState(false);
+
+	async function handleSubmit(e: FormEvent) {
+		e.preventDefault();
+		setSubmitting(true);
+		try {
+			await onSubmit(text);
+		} finally {
+			setSubmitting(false);
+		}
+	}
+
+	return (
+		<form onSubmit={handleSubmit} style={{ ...cardStyle, position: "relative", display: "flex", flexDirection: "column", gap: 10 }}>
+			<CloseButton onClick={onClose} />
+			<h3 style={{ font: "700 15px var(--font-heading)", margin: "0 24px 0 0" }}>{t("applicationDetail.jobDescription")}</h3>
+			<AutoGrowTextarea
+				value={text}
+				onChange={(e) => setText(e.target.value)}
+				style={{ ...inputStyle, minHeight: 160, resize: "vertical" }}
+				autoFocus
+			/>
+			<button type="submit" disabled={submitting} style={addButtonStyle}>
+				{t("applicationForm.saveCta")}
+			</button>
+		</form>
 	);
 }
 
@@ -810,7 +896,7 @@ function NoteForm({
 	return (
 		<form onSubmit={handleSubmit} style={{ ...cardStyle, position: "relative", paddingTop: 44, display: "flex", flexDirection: "column", gap: 10 }}>
 			<CloseButton onClick={onClose} />
-			<textarea
+			<AutoGrowTextarea
 				value={text}
 				onChange={(e) => setText(e.target.value)}
 				placeholder={t("applicationDetail.noteForm.placeholder")}
