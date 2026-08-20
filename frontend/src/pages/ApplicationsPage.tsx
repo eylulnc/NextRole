@@ -175,8 +175,15 @@ export function ApplicationsPage() {
 
 			{loading ? (
 				<p style={{ color: "var(--color-text-muted)" }}>{t("applications.loading")}</p>
-			) : filtered.length === 0 ? (
+			) : applications.length === 0 ? (
 				<p style={{ color: "var(--color-text-muted)" }}>{t("applications.empty")}</p>
+			) : filtered.length === 0 ? (
+				<p style={{ color: "var(--color-text-muted)" }}>
+					{t("applications.emptySearch")}{" "}
+					<a href="#" onClick={(e) => { e.preventDefault(); setSearch(""); }}>
+						{t("applications.clearSearch")}
+					</a>
+				</p>
 			) : view === "board" ? (
 				<ApplicationBoard
 					applications={filtered}

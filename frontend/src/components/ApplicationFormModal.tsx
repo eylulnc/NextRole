@@ -64,7 +64,7 @@ export function ApplicationFormModal({ initial, initialStatus, onSubmit, onClose
 		techStack: initial?.techStack ?? "",
 		applicationDate: initial?.applicationDate ?? "",
 		status: initial?.status ?? initialStatus ?? "SAVED",
-		notes: initial?.notes ?? "",
+		jobDescription: initial?.jobDescription ?? "",
 	});
 	const [submitting, setSubmitting] = useState(false);
 
@@ -187,18 +187,28 @@ export function ApplicationFormModal({ initial, initialStatus, onSubmit, onClose
 						</label>
 					</div>
 					<div style={fieldRowStyle}>
-						<label style={labelStyle}>
-							{t("applicationForm.applicationDate")}
-							<input
-								type="date"
-								value={form.applicationDate ?? ""}
-								onChange={(e) => update("applicationDate", e.target.value)}
-								style={inputStyle}
-							/>
-						</label>
+						{form.status !== "SAVED" && (
+							<label style={labelStyle}>
+								{t("applicationForm.applicationDate")}
+								<input
+									type="date"
+									value={form.applicationDate ?? ""}
+									onChange={(e) => update("applicationDate", e.target.value)}
+									style={inputStyle}
+								/>
+							</label>
+						)}
 						<label style={labelStyle}>
 							{t("applicationForm.status")}
-							<select value={form.status} onChange={(e) => update("status", e.target.value as CreateApplicationRequest["status"])} style={selectStyle}>
+							<select
+								value={form.status}
+								onChange={(e) => {
+									const status = e.target.value as CreateApplicationRequest["status"];
+									update("status", status);
+									if (status === "SAVED") update("applicationDate", "");
+								}}
+								style={selectStyle}
+							>
 								{statusOptions().map((opt) => (
 									<option key={opt.value} value={opt.value}>
 										{opt.label}
@@ -208,10 +218,10 @@ export function ApplicationFormModal({ initial, initialStatus, onSubmit, onClose
 						</label>
 					</div>
 					<label style={labelStyle}>
-						{t("applicationForm.notes")}
+						{t("applicationForm.jobDescription")}
 						<textarea
-							value={form.notes ?? ""}
-							onChange={(e) => update("notes", e.target.value)}
+							value={form.jobDescription ?? ""}
+							onChange={(e) => update("jobDescription", e.target.value)}
 							style={{ ...inputStyle, minHeight: 70, resize: "vertical" }}
 						/>
 					</label>

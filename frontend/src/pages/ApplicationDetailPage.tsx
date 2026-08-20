@@ -507,7 +507,7 @@ export function ApplicationDetailPage() {
 							<h3 style={{ font: "700 14px var(--font-heading)", margin: "0 0 8px" }}>{t("applicationDetail.keyDates")}</h3>
 							<div style={{ fontSize: 13, color: "oklch(40% 0.012 250)", display: "flex", flexDirection: "column", gap: 6 }}>
 								<div>
-									{application.applicationDate
+									{application.status !== "SAVED" && application.applicationDate
 										? t("applicationDetail.applied", { date: formatDate(application.applicationDate) })
 										: t("applicationDetail.notAppliedYet")}
 								</div>
