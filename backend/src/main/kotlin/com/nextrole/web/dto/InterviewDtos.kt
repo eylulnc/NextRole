@@ -14,6 +14,14 @@ data class CreateInterviewRequest(
 	val notes: String? = null
 )
 
+data class UpdateInterviewRequest(
+	val round: String? = null,
+	val interviewer: String? = null,
+	val scheduledAt: Instant? = null,
+	val mode: String? = null,
+	val notes: String? = null
+)
+
 data class InterviewResponse(
 	val id: UUID,
 	val round: String,

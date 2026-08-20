@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import com.nextrole.domain.Note
 import com.nextrole.service.NoteService
+import com.nextrole.exception.ResourceNotFoundException
 import com.nextrole.web.dto.CreateNoteRequest
+import com.nextrole.web.dto.UpdateNoteRequest
 import io.mockk.every
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -16,7 +18,9 @@ import org.springframework.http.MediaType
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.patch
 import org.springframework.test.web.servlet.post
 import java.util.UUID
 
@@ -80,6 +84,46 @@ class NoteControllerTest {
 		mockMvc.get("/api/applications/$applicationId/notes").andExpect {
 			status { isOk() }
 			jsonPath("$[0].text") { value("First note") }
+		}
+	}
+
+	@Test
+	fun `update returns 200 with the updated note`() {
+		val noteId = UUID.randomUUID()
+		val request = UpdateNoteRequest("Updated note")
+		val updated = Note(applicationId = applicationId, text = "Updated note")
+		every { noteService.update(userId, applicationId, noteId, request) } returns updated
+
+		mockMvc.patch("/api/applications/$applicationId/notes/$noteId") {
+			contentType = MediaType.APPLICATION_JSON
+			content = objectMapper.writeValueAsString(request)
+		}.andExpect {
+			status { isOk() }
+			jsonPath("$.text") { value("Updated note") }
+		}
+	}
+
+	@Test
+	fun `update returns 404 when the note is not found`() {
+		val noteId = UUID.randomUUID()
+		val request = UpdateNoteRequest("Updated note")
+		every { noteService.update(userId, applicationId, noteId, request) } throws ResourceNotFoundException("Note", noteId)
+
+		mockMvc.patch("/api/applications/$applicationId/notes/$noteId") {
+			contentType = MediaType.APPLICATION_JSON
+			content = objectMapper.writeValueAsString(request)
+		}.andExpect {
+			status { isNotFound() }
+		}
+	}
+
+	@Test
+	fun `delete returns 204`() {
+		val noteId = UUID.randomUUID()
+		every { noteService.delete(userId, applicationId, noteId) } returns Unit
+
+		mockMvc.delete("/api/applications/$applicationId/notes/$noteId").andExpect {
+			status { isNoContent() }
 		}
 	}
 }

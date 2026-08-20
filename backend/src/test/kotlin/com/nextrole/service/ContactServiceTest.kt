@@ -3,8 +3,10 @@ package com.nextrole.service
 import com.nextrole.domain.Application
 import com.nextrole.domain.Contact
 import com.nextrole.exception.ApplicationNotFoundException
+import com.nextrole.exception.ResourceNotFoundException
 import com.nextrole.repository.ContactRepository
 import com.nextrole.web.dto.CreateContactRequest
+import com.nextrole.web.dto.UpdateContactRequest
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -12,6 +14,7 @@ import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
+import java.util.Optional
 import java.util.UUID
 
 class ContactServiceTest {
@@ -57,5 +60,44 @@ class ContactServiceTest {
 
 		assertEquals(1, result.size)
 		assertEquals("Lena Fischer", result[0].name)
+	}
+
+	@Test
+	fun `update changes only the provided fields`() {
+		val contactId = UUID.randomUUID()
+		val contact = Contact(id = contactId, applicationId = applicationId, name = "Lena Fischer")
+		every { applicationService.get(userId, applicationId) } returns mockk<Application>()
+		every { contactRepository.findById(contactId) } returns Optional.of(contact)
+		every { contactRepository.save(contact) } returns contact
+
+		val result = contactService.update(userId, applicationId, contactId, UpdateContactRequest(role = "Recruiter"))
+
+		assertEquals("Recruiter", result.role)
+		assertEquals("Lena Fischer", result.name)
+	}
+
+	@Test
+	fun `update throws when the contact belongs to a different application`() {
+		val contactId = UUID.randomUUID()
+		val contact = Contact(id = contactId, applicationId = UUID.randomUUID(), name = "Lena Fischer")
+		every { applicationService.get(userId, applicationId) } returns mockk<Application>()
+		every { contactRepository.findById(contactId) } returns Optional.of(contact)
+
+		assertThrows(ResourceNotFoundException::class.java) {
+			contactService.update(userId, applicationId, contactId, UpdateContactRequest(role = "Recruiter"))
+		}
+	}
+
+	@Test
+	fun `delete removes an owned contact`() {
+		val contactId = UUID.randomUUID()
+		val contact = Contact(id = contactId, applicationId = applicationId, name = "Lena Fischer")
+		every { applicationService.get(userId, applicationId) } returns mockk<Application>()
+		every { contactRepository.findById(contactId) } returns Optional.of(contact)
+		every { contactRepository.delete(contact) } returns Unit
+
+		contactService.delete(userId, applicationId, contactId)
+
+		verify(exactly = 1) { contactRepository.delete(contact) }
 	}
 }

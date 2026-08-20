@@ -3,8 +3,10 @@ package com.nextrole.service
 import com.nextrole.domain.Application
 import com.nextrole.domain.Note
 import com.nextrole.exception.ApplicationNotFoundException
+import com.nextrole.exception.ResourceNotFoundException
 import com.nextrole.repository.NoteRepository
 import com.nextrole.web.dto.CreateNoteRequest
+import com.nextrole.web.dto.UpdateNoteRequest
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -12,6 +14,7 @@ import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
+import java.util.Optional
 import java.util.UUID
 
 class NoteServiceTest {
@@ -63,5 +66,43 @@ class NoteServiceTest {
 		assertThrows(ApplicationNotFoundException::class.java) {
 			noteService.list(userId, applicationId)
 		}
+	}
+
+	@Test
+	fun `update changes the note text`() {
+		val noteId = UUID.randomUUID()
+		val note = Note(id = noteId, applicationId = applicationId, text = "First note")
+		every { applicationService.get(userId, applicationId) } returns mockk<Application>()
+		every { noteRepository.findById(noteId) } returns Optional.of(note)
+		every { noteRepository.save(note) } returns note
+
+		val result = noteService.update(userId, applicationId, noteId, UpdateNoteRequest("Updated note"))
+
+		assertEquals("Updated note", result.text)
+	}
+
+	@Test
+	fun `update throws when the note belongs to a different application`() {
+		val noteId = UUID.randomUUID()
+		val note = Note(id = noteId, applicationId = UUID.randomUUID(), text = "First note")
+		every { applicationService.get(userId, applicationId) } returns mockk<Application>()
+		every { noteRepository.findById(noteId) } returns Optional.of(note)
+
+		assertThrows(ResourceNotFoundException::class.java) {
+			noteService.update(userId, applicationId, noteId, UpdateNoteRequest("Updated note"))
+		}
+	}
+
+	@Test
+	fun `delete removes an owned note`() {
+		val noteId = UUID.randomUUID()
+		val note = Note(id = noteId, applicationId = applicationId, text = "First note")
+		every { applicationService.get(userId, applicationId) } returns mockk<Application>()
+		every { noteRepository.findById(noteId) } returns Optional.of(note)
+		every { noteRepository.delete(note) } returns Unit
+
+		noteService.delete(userId, applicationId, noteId)
+
+		verify(exactly = 1) { noteRepository.delete(note) }
 	}
 }

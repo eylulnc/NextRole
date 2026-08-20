@@ -11,6 +11,12 @@ data class CreateContactRequest(
 	val email: String? = null
 )
 
+data class UpdateContactRequest(
+	val name: String? = null,
+	val role: String? = null,
+	val email: String? = null
+)
+
 data class ContactResponse(
 	val id: UUID,
 	val name: String,
