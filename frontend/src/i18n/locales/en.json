@@ -5,7 +5,8 @@
 	"common": {
 		"actions": "Actions",
 		"edit": "Edit",
-		"delete": "Delete"
+		"delete": "Delete",
+		"cancel": "Cancel"
 	},
 	"nav": {
 		"logOut": "Log out",
@@ -162,6 +163,10 @@
 		"noInterviews": "No interviews scheduled yet.",
 		"noContacts": "No contacts saved yet.",
 		"noNotes": "No notes yet.",
+		"notesSort": {
+			"newestFirst": "Newest first",
+			"oldestFirst": "Oldest first"
+		},
 		"addInterview": "Add interview",
 		"addContact": "Add contact",
 		"addNote": "Add note",

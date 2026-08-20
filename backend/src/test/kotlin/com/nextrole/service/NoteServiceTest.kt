@@ -51,7 +51,7 @@ class NoteServiceTest {
 	fun `list returns notes for an owned application`() {
 		every { applicationService.get(userId, applicationId) } returns mockk<Application>()
 		val notes = listOf(Note(applicationId = applicationId, text = "First note"))
-		every { noteRepository.findByApplicationIdOrderByCreatedAtAsc(applicationId) } returns notes
+		every { noteRepository.findByApplicationIdOrderByCreatedAtDesc(applicationId) } returns notes
 
 		val result = noteService.list(userId, applicationId)
 

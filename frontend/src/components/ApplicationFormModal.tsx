@@ -97,7 +97,6 @@ export function ApplicationFormModal({ initial, initialStatus, onSubmit, onClose
 				padding: 24,
 				zIndex: 10,
 			}}
-			onClick={onClose}
 		>
 			<div
 				onClick={(e) => e.stopPropagation()}

@@ -108,16 +108,29 @@ describe("ApplicationsPage", () => {
 	it("deletes an application after confirmation", async () => {
 		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage());
 		vi.mocked(applicationsApi.deleteApplication).mockResolvedValue(undefined);
-		vi.spyOn(window, "confirm").mockReturnValue(true);
 		renderApplicationsPage();
 
 		await screen.findByText("Acme Corp");
 		await userEvent.click(screen.getByLabelText("Actions for Acme Corp"));
 		await userEvent.click(screen.getByRole("menuitem", { name: "Delete" }));
+		await userEvent.click(await screen.findByRole("button", { name: "Delete" }));
 
 		await waitFor(() => {
 			expect(applicationsApi.deleteApplication).toHaveBeenCalledWith("app-1");
 		});
+	});
+
+	it("does not delete when the confirm dialog is cancelled", async () => {
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage());
+		vi.mocked(applicationsApi.deleteApplication).mockResolvedValue(undefined);
+		renderApplicationsPage();
+
+		await screen.findByText("Acme Corp");
+		await userEvent.click(screen.getByLabelText("Actions for Acme Corp"));
+		await userEvent.click(screen.getByRole("menuitem", { name: "Delete" }));
+		await userEvent.click(await screen.findByRole("button", { name: "Cancel" }));
+
+		expect(applicationsApi.deleteApplication).not.toHaveBeenCalled();
 	});
 
 	it("shows a search-specific empty state, not the generic one, when a search filter has no matches after a delete", async () => {
@@ -126,13 +139,13 @@ describe("ApplicationsPage", () => {
 			.mockResolvedValueOnce(samplePage([SAMPLE_APPLICATION, other]))
 			.mockResolvedValueOnce(samplePage([other]));
 		vi.mocked(applicationsApi.deleteApplication).mockResolvedValue(undefined);
-		vi.spyOn(window, "confirm").mockReturnValue(true);
 		renderApplicationsPage();
 
 		await screen.findByText("Acme Corp");
 		await userEvent.type(screen.getByPlaceholderText("Search company or role"), "Acme");
 		await userEvent.click(screen.getByLabelText("Actions for Acme Corp"));
 		await userEvent.click(screen.getByRole("menuitem", { name: "Delete" }));
+		await userEvent.click(await screen.findByRole("button", { name: "Delete" }));
 
 		expect(await screen.findByText("No applications match your search.", { exact: false })).toBeInTheDocument();
 		expect(screen.queryByText("No applications yet. Add your first one.")).not.toBeInTheDocument();
