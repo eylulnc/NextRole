@@ -17,4 +17,13 @@ interface ApplicationStatusHistoryRepository : JpaRepository<ApplicationStatusHi
 		"""
 	)
 	fun findRecentByUserId(@Param("userId") userId: UUID): List<ApplicationStatusHistory>
+
+	@Query(
+		"""
+		SELECT h FROM ApplicationStatusHistory h
+		WHERE h.applicationId IN (SELECT a.id FROM Application a WHERE a.userId = :userId)
+		ORDER BY h.applicationId ASC, h.changedAt ASC
+		"""
+	)
+	fun findAllByUserIdOrderByApplicationAndTime(@Param("userId") userId: UUID): List<ApplicationStatusHistory>
 }

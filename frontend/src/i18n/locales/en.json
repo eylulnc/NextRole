@@ -41,7 +41,8 @@
 	"nav_links": {
 		"dashboard": "Dashboard",
 		"applications": "Applications",
-		"calendar": "Calendar"
+		"calendar": "Calendar",
+		"analytics": "Analytics"
 	},
 	"calendar": {
 		"title": "Calendar",
@@ -76,6 +77,15 @@
 		"noUpcomingInterviews": "No interviews scheduled.",
 		"noRecentActivity": "No recent activity yet.",
 		"movedTo": "{{company}} moved to {{status}}"
+	},
+	"analytics": {
+		"title": "Analytics",
+		"subtitle": "Trends across your applications",
+		"funnel": "Pipeline funnel",
+		"applicationsOverTime": "Applications over time",
+		"topTechnologies": "Top technologies",
+		"noTechnologies": "No tech stack data yet.",
+		"stageConversionRate": "Stage conversion rate"
 	},
 	"applications": {
 		"title": "Applications",
