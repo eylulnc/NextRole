@@ -2,31 +2,51 @@
 
 A job application tracker built as a proper full-stack project — not just a CRUD dashboard.
 Track applications through a real pipeline (Saved → Applied → HR Interview → Technical →
-Final → Offer / Rejected), with status history, interview notes, contacts, dashboard
-statistics, and a job-description analyzer that extracts required skills, experience level,
-and language requirements from a pasted posting.
+Final → Offer / Rejected), with status history, interviews, contacts, notes, a dashboard,
+a calendar, and analytics.
+
+## Screenshots
+
+| | |
+|---|---|
+| ![Login](docs/screenshots/login.png) | ![Application overview](docs/screenshots/application-overview.png) |
+| Login | Application detail — Overview (job description, tech stack, key dates) |
+| ![Status history](docs/screenshots/status-history.png) | ![Interviews](docs/screenshots/interviews.png) |
+| Status History | Interviews |
+| ![Contacts](docs/screenshots/contacts.png) | ![Notes](docs/screenshots/notes.png) |
+| Contacts | Notes (markdown-lite formatting, newest/oldest sort) |
+| ![Calendar](docs/screenshots/calendar.png) | ![Analytics](docs/screenshots/analytics.png) |
+| Calendar | Analytics — funnel, conversion rate, top technologies, applications over time |
 
 ## Stack
 
 | Layer     | Tech |
 |-----------|------|
-| Frontend  | React + TypeScript (Vite) |
+| Frontend  | React + TypeScript (Vite), react-router-dom, react-i18next |
 | Backend   | Kotlin + Spring Boot |
 | Database  | PostgreSQL (Flyway migrations) |
-| Auth      | JWT (Spring Security, BCrypt) |
+| Auth      | JWT (Spring Security, BCrypt), rate-limited via bucket4j |
 | Infra     | Docker / Docker Compose |
 | Testing   | JUnit + MockK (backend), Vitest + React Testing Library (frontend) |
 
 ## Current features
 
 - User registration & login (JWT-based, rate-limited)
-- Application CRUD (company, role, location, salary range, tech stack, job description,
-  application date, status, notes)
-- Table view with search
+- Applications: full CRUD (company, role, location, work mode, salary range + currency, tech
+  stack, job description, application date, status), board (kanban) and table views with
+  search
+- Application detail page: Overview (inline-editable job description with lightweight markdown
+  rendering for `**bold**` and lists), Status History, Interviews, Contacts, and Notes (full
+  CRUD, newest/oldest sort toggle) — all with edit/delete and toast feedback
+- Dashboard: stat tiles, upcoming interviews, recent activity, pipeline overview
+- Calendar: month grid with upcoming interviews
+- Analytics: pipeline funnel, stage conversion rate, top technologies, applications over time,
+  applications by work mode
+- Custom confirm dialogs for all delete actions (no native browser popups)
+- i18n infrastructure (react-i18next)
 
-This is an actively growing project — status history, interviews, contacts, notes, a
-dashboard, analytics, calendar view, and the job-description analyzer are built in
-subsequent phases on top of this foundation.
+Not yet built: the job-description analyzer (paste a posting, extract required
+languages/frameworks/experience/skill-match)
 
 ## Getting started
 
@@ -75,5 +95,6 @@ cd frontend && npm test
 NextRole/
   backend/    Kotlin/Spring Boot API
   frontend/   React/TypeScript app (Vite)
+  docs/       Screenshots and other documentation assets
   docker-compose.yml
 ```
