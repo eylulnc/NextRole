@@ -85,7 +85,8 @@
 		"applicationsOverTime": "Applications over time",
 		"topTechnologies": "Top technologies",
 		"noTechnologies": "No tech stack data yet.",
-		"stageConversionRate": "Stage conversion rate"
+		"stageConversionRate": "Stage conversion rate",
+		"applicationsByWorkMode": "Applications by work mode"
 	},
 	"applications": {
 		"title": "Applications",
@@ -95,6 +96,8 @@
 		"tableView": "Table",
 		"loading": "Loading…",
 		"empty": "No applications yet. Add your first one.",
+		"emptySearch": "No applications match your search.",
+		"clearSearch": "Clear search",
 		"confirmDelete": "Delete this application?",
 		"actionsAria": "Actions for {{company}}",
 		"toasts": {
@@ -132,7 +135,7 @@
 		"techStack": "Tech stack (comma-separated)",
 		"applicationDate": "Application date",
 		"status": "Status",
-		"notes": "Notes",
+		"jobDescription": "Job description",
 		"cancel": "Cancel",
 		"createCta": "Create application",
 		"saveCta": "Save changes",

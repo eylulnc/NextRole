@@ -66,6 +66,16 @@ describe("ApplicationDetailPage", () => {
 		expect(await screen.findByRole("heading", { name: "Backend Engineer" })).toBeInTheDocument();
 		expect(screen.getByText("Build great APIs.")).toBeInTheDocument();
 		expect(screen.getByText("Kotlin")).toBeInTheDocument();
+		expect(screen.getByText("Applied: Aug 1, 2026")).toBeInTheDocument();
+	});
+
+	it("shows 'Not applied yet' when still in the saved stage, even if an application date is set", async () => {
+		vi.mocked(applicationsApi.getApplication).mockResolvedValue({ ...SAMPLE_APPLICATION, status: "SAVED" });
+		renderDetailPage();
+
+		expect(await screen.findByRole("heading", { name: "Backend Engineer" })).toBeInTheDocument();
+		expect(screen.getByText("Not applied yet")).toBeInTheDocument();
+		expect(screen.queryByText("Applied: Aug 1, 2026")).not.toBeInTheDocument();
 	});
 
 	it("switches to the status history tab", async () => {

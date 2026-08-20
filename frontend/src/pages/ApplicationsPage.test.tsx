@@ -119,4 +119,26 @@ describe("ApplicationsPage", () => {
 			expect(applicationsApi.deleteApplication).toHaveBeenCalledWith("app-1");
 		});
 	});
+
+	it("shows a search-specific empty state, not the generic one, when a search filter has no matches after a delete", async () => {
+		const other: Application = { ...SAMPLE_APPLICATION, id: "app-2", company: "Globex", role: "Frontend Engineer" };
+		vi.mocked(applicationsApi.listApplications)
+			.mockResolvedValueOnce(samplePage([SAMPLE_APPLICATION, other]))
+			.mockResolvedValueOnce(samplePage([other]));
+		vi.mocked(applicationsApi.deleteApplication).mockResolvedValue(undefined);
+		vi.spyOn(window, "confirm").mockReturnValue(true);
+		renderApplicationsPage();
+
+		await screen.findByText("Acme Corp");
+		await userEvent.type(screen.getByPlaceholderText("Search company or role"), "Acme");
+		await userEvent.click(screen.getByLabelText("Actions for Acme Corp"));
+		await userEvent.click(screen.getByRole("menuitem", { name: "Delete" }));
+
+		expect(await screen.findByText("No applications match your search.", { exact: false })).toBeInTheDocument();
+		expect(screen.queryByText("No applications yet. Add your first one.")).not.toBeInTheDocument();
+
+		await userEvent.click(screen.getByText("Clear search"));
+
+		expect(await screen.findByText("Globex")).toBeInTheDocument();
+	});
 });
