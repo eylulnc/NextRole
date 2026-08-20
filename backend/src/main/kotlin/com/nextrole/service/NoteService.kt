@@ -22,7 +22,7 @@ class NoteService(
 
     fun list(userId: UUID, applicationId: UUID): List<Note> {
         applicationService.get(userId, applicationId)
-        return noteRepository.findByApplicationIdOrderByCreatedAtAsc(applicationId)
+        return noteRepository.findByApplicationIdOrderByCreatedAtDesc(applicationId)
     }
 
     fun update(userId: UUID, applicationId: UUID, noteId: UUID, request: UpdateNoteRequest): Note {
