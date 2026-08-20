@@ -158,4 +158,93 @@ describe("ApplicationDetailPage", () => {
 
 		expect(screen.getByText("HR Screen")).toBeInTheDocument();
 	});
+
+	it("edits an existing note", async () => {
+		const existingNote: Note = { id: "n1", text: "First call went well.", createdAt: "2026-08-01T00:00:00Z" };
+		vi.mocked(applicationsApi.listNotes).mockResolvedValue([existingNote]);
+		vi.mocked(applicationsApi.updateNote).mockResolvedValue({ ...existingNote, text: "Updated note" });
+		renderDetailPage();
+
+		await screen.findByRole("heading", { name: "Backend Engineer" });
+		await userEvent.click(screen.getByText("Notes"));
+		await userEvent.click(screen.getByLabelText("Note actions"));
+		await userEvent.click(screen.getByRole("menuitem", { name: "Edit" }));
+
+		const textarea = screen.getByPlaceholderText("Add a note…");
+		expect(textarea).toHaveValue("First call went well.");
+		await userEvent.clear(textarea);
+		await userEvent.type(textarea, "Updated note");
+		await userEvent.click(screen.getByRole("button", { name: "Save changes" }));
+
+		await waitFor(() => {
+			expect(applicationsApi.updateNote).toHaveBeenCalledWith("app-1", "n1", { text: "Updated note" });
+		});
+	});
+
+	it("deletes a note after confirmation", async () => {
+		const existingNote: Note = { id: "n1", text: "First call went well.", createdAt: "2026-08-01T00:00:00Z" };
+		vi.mocked(applicationsApi.listNotes).mockResolvedValue([existingNote]);
+		vi.mocked(applicationsApi.deleteNote).mockResolvedValue(undefined);
+		vi.spyOn(window, "confirm").mockReturnValue(true);
+		renderDetailPage();
+
+		await screen.findByRole("heading", { name: "Backend Engineer" });
+		await userEvent.click(screen.getByText("Notes"));
+		await userEvent.click(screen.getByLabelText("Note actions"));
+		await userEvent.click(screen.getByRole("menuitem", { name: "Delete" }));
+
+		await waitFor(() => {
+			expect(applicationsApi.deleteNote).toHaveBeenCalledWith("app-1", "n1");
+		});
+	});
+
+	it("edits an existing contact", async () => {
+		const existingContact: Contact = { id: "c1", name: "Lena Fischer", role: "Talent Partner", email: null, createdAt: "2026-08-01T00:00:00Z" };
+		vi.mocked(applicationsApi.listContacts).mockResolvedValue([existingContact]);
+		vi.mocked(applicationsApi.updateContact).mockResolvedValue({ ...existingContact, role: "Recruiter" });
+		renderDetailPage();
+
+		await screen.findByRole("heading", { name: "Backend Engineer" });
+		await userEvent.click(screen.getByText("Contacts"));
+		await userEvent.click(screen.getByLabelText("Actions for Lena Fischer"));
+		await userEvent.click(screen.getByRole("menuitem", { name: "Edit" }));
+
+		const roleInput = screen.getByPlaceholderText("Role");
+		await userEvent.clear(roleInput);
+		await userEvent.type(roleInput, "Recruiter");
+		await userEvent.click(screen.getByRole("button", { name: "Save changes" }));
+
+		await waitFor(() => {
+			expect(applicationsApi.updateContact).toHaveBeenCalledWith("app-1", "c1", {
+				name: "Lena Fischer",
+				role: "Recruiter",
+				email: undefined,
+			});
+		});
+	});
+
+	it("deletes an interview after confirmation", async () => {
+		const existingInterview: Interview = {
+			id: "iv1",
+			round: "HR Screen",
+			interviewer: "Lena Fischer",
+			scheduledAt: "2026-08-05T10:00:00Z",
+			mode: "Video call",
+			notes: null,
+			createdAt: "2026-08-01T00:00:00Z",
+		};
+		vi.mocked(applicationsApi.listInterviews).mockResolvedValue([existingInterview]);
+		vi.mocked(applicationsApi.deleteInterview).mockResolvedValue(undefined);
+		vi.spyOn(window, "confirm").mockReturnValue(true);
+		renderDetailPage();
+
+		await screen.findByRole("heading", { name: "Backend Engineer" });
+		await userEvent.click(screen.getByText("Interviews"));
+		await userEvent.click(screen.getByLabelText("Actions for HR Screen"));
+		await userEvent.click(screen.getByRole("menuitem", { name: "Delete" }));
+
+		await waitFor(() => {
+			expect(applicationsApi.deleteInterview).toHaveBeenCalledWith("app-1", "iv1");
+		});
+	});
 });
