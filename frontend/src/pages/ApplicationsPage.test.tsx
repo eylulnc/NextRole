@@ -112,7 +112,8 @@ describe("ApplicationsPage", () => {
 		renderApplicationsPage();
 
 		await screen.findByText("Acme Corp");
-		await userEvent.click(screen.getByLabelText("Delete Acme Corp"));
+		await userEvent.click(screen.getByLabelText("Actions for Acme Corp"));
+		await userEvent.click(screen.getByRole("menuitem", { name: "Delete" }));
 
 		await waitFor(() => {
 			expect(applicationsApi.deleteApplication).toHaveBeenCalledWith("app-1");

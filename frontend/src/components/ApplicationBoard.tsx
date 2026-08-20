@@ -1,10 +1,12 @@
 import { useState, type DragEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import type { Application, ApplicationStatus } from "../types/application";
 import { statusHue, statusOptions } from "./StatusBadge";
 import { formatSalaryRange } from "../utils/currency";
 import { formatLocation } from "../utils/workMode";
 import { PlusIcon } from "./IconButton";
+import { KebabMenu } from "./KebabMenu";
 
 const cardStyle: React.CSSProperties = {
 	background: "#fff",
@@ -21,10 +23,13 @@ interface Props {
 	applications: Application[];
 	onStatusChange: (applicationId: string, status: ApplicationStatus) => void;
 	onAddToStatus: (status: ApplicationStatus) => void;
+	onEdit: (application: Application) => void;
+	onDelete: (applicationId: string) => void;
 }
 
-export function ApplicationBoard({ applications, onStatusChange, onAddToStatus }: Props) {
+export function ApplicationBoard({ applications, onStatusChange, onAddToStatus, onEdit, onDelete }: Props) {
 	const navigate = useNavigate();
+	const { t } = useTranslation();
 	const [dragOverStatus, setDragOverStatus] = useState<ApplicationStatus | null>(null);
 
 	const columns = statusOptions().map((opt) => ({
@@ -114,9 +119,18 @@ export function ApplicationBoard({ applications, onStatusChange, onAddToStatus }
 								onClick={() => navigate(`/applications/${app.id}`)}
 								style={cardStyle}
 							>
-								<div>
-									<div style={{ fontWeight: 600, fontSize: 13.5 }}>{app.company}</div>
-									<div style={{ fontSize: 12.5, color: "var(--color-text-muted)" }}>{app.role}</div>
+								<div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 6 }}>
+									<div style={{ minWidth: 0 }}>
+										<div style={{ fontWeight: 600, fontSize: 13.5 }}>{app.company}</div>
+										<div style={{ fontSize: 12.5, color: "var(--color-text-muted)" }}>{app.role}</div>
+									</div>
+									<KebabMenu
+										ariaLabel={t("applications.actionsAria", { company: app.company })}
+										items={[
+											{ label: t("common.edit"), onClick: () => onEdit(app) },
+											{ label: t("common.delete"), onClick: () => onDelete(app.id), variant: "danger" },
+										]}
+									/>
 								</div>
 								<div style={{ fontSize: 11.5, color: "var(--color-text-faint)" }}>
 									{[formatLocation(app.location, app.workMode), formatSalaryRange(app.salaryMin, app.salaryMax, app.currency)]

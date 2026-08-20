@@ -48,9 +48,10 @@ interface Props {
 	initialStatus?: ApplicationStatus;
 	onSubmit: (request: CreateApplicationRequest) => Promise<void>;
 	onClose: () => void;
+	onDelete?: () => void;
 }
 
-export function ApplicationFormModal({ initial, initialStatus, onSubmit, onClose }: Props) {
+export function ApplicationFormModal({ initial, initialStatus, onSubmit, onClose, onDelete }: Props) {
 	const { t } = useTranslation();
 	const [form, setForm] = useState<CreateApplicationRequest>({
 		company: initial?.company ?? "",
@@ -214,7 +215,24 @@ export function ApplicationFormModal({ initial, initialStatus, onSubmit, onClose
 							style={{ ...inputStyle, minHeight: 70, resize: "vertical" }}
 						/>
 					</label>
-					<div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 6 }}>
+					<div style={{ display: "flex", gap: 10, justifyContent: onDelete ? "space-between" : "flex-end", marginTop: 6 }}>
+						{onDelete && (
+							<button
+								type="button"
+								onClick={onDelete}
+								style={{
+									border: "1px solid oklch(50% 0.15 30)",
+									borderRadius: 10,
+									padding: "10px 16px",
+									background: "#fff",
+									color: "oklch(50% 0.15 30)",
+									font: "600 13px var(--font-body)",
+									cursor: "pointer",
+								}}
+							>
+								{t("applicationForm.deleteCta")}
+							</button>
+						)}
 						<button
 							type="submit"
 							disabled={submitting}
