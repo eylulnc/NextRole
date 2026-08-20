@@ -12,6 +12,7 @@ const NAV_ITEMS: NavItem[] = [
 	{ path: "/dashboard", labelKey: "nav_links.dashboard" },
 	{ path: "/applications", labelKey: "nav_links.applications" },
 	{ path: "/calendar", labelKey: "nav_links.calendar" },
+	{ path: "/analytics", labelKey: "nav_links.analytics" },
 ];
 
 const COLLAPSED_KEY = "nextrole_sidebar_collapsed";

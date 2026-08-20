@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { AuthPage } from "./pages/AuthPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { CalendarPage } from "./pages/CalendarPage";
+import { AnalyticsPage } from "./pages/AnalyticsPage";
 import { ApplicationsPage } from "./pages/ApplicationsPage";
 import { ApplicationDetailPage } from "./pages/ApplicationDetailPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -23,6 +24,14 @@ export function App() {
 				element={
 					<ProtectedRoute>
 						<CalendarPage />
+					</ProtectedRoute>
+				}
+			/>
+			<Route
+				path="/analytics"
+				element={
+					<ProtectedRoute>
+						<AnalyticsPage />
 					</ProtectedRoute>
 				}
 			/>
