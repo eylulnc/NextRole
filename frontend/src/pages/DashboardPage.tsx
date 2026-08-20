@@ -120,10 +120,10 @@ export function DashboardPage() {
 				))}
 			</div>
 
-			<div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 20, alignItems: "start" }}>
-				<div style={cardStyle}>
+			<div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 20, alignItems: "stretch" }}>
+				<div style={{ ...cardStyle, display: "flex", flexDirection: "column", height: 340 }}>
 					<h3 style={{ font: "700 15px var(--font-heading)", margin: "0 0 16px" }}>{t("dashboard.upcomingInterviews")}</h3>
-					<div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+					<div style={{ display: "flex", flexDirection: "column", gap: 2, overflowY: "auto", flex: 1 }}>
 						{stats.upcomingInterviews.map((iv) => (
 							<div
 								key={`${iv.applicationId}-${iv.scheduledAt}`}
@@ -150,9 +150,9 @@ export function DashboardPage() {
 					</div>
 				</div>
 
-				<div style={cardStyle}>
+				<div style={{ ...cardStyle, display: "flex", flexDirection: "column", height: 340 }}>
 					<h3 style={{ font: "700 15px var(--font-heading)", margin: "0 0 16px" }}>{t("dashboard.recentActivity")}</h3>
-					<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+					<div style={{ display: "flex", flexDirection: "column", gap: 16, overflowY: "auto", flex: 1 }}>
 						{stats.recentActivity.map((activity) => (
 							<div key={`${activity.applicationId}-${activity.changedAt}`} style={{ display: "flex", gap: 12 }}>
 								<div

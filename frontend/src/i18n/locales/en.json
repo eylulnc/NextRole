@@ -2,6 +2,11 @@
 	"app": {
 		"name": "NextRole"
 	},
+	"common": {
+		"actions": "Actions",
+		"edit": "Edit",
+		"delete": "Delete"
+	},
 	"nav": {
 		"logOut": "Log out",
 		"collapseSidebar": "Collapse sidebar",
@@ -81,8 +86,7 @@
 		"loading": "Loading…",
 		"empty": "No applications yet. Add your first one.",
 		"confirmDelete": "Delete this application?",
-		"editAria": "Edit {{company}}",
-		"deleteAria": "Delete {{company}}",
+		"actionsAria": "Actions for {{company}}",
 		"toasts": {
 			"created": "Application created",
 			"updated": "Application updated",
@@ -121,7 +125,8 @@
 		"notes": "Notes",
 		"cancel": "Cancel",
 		"createCta": "Create application",
-		"saveCta": "Save changes"
+		"saveCta": "Save changes",
+		"deleteCta": "Delete application"
 	},
 	"applicationDetail": {
 		"back": "← Back to applications",
@@ -148,27 +153,42 @@
 		"addContact": "Add contact",
 		"addNote": "Add note",
 		"cancel": "Cancel",
+		"noteActionsAria": "Note actions",
+		"interviewActionsAria": "Actions for {{round}}",
+		"contactActionsAria": "Actions for {{name}}",
+		"confirmDeleteNote": "Delete this note?",
+		"confirmDeleteInterview": "Delete this interview?",
+		"confirmDeleteContact": "Delete this contact?",
 		"toasts": {
 			"noteAdded": "Note added",
+			"noteUpdated": "Note updated",
+			"noteDeleted": "Note deleted",
 			"interviewAdded": "Interview added",
-			"contactAdded": "Contact added"
+			"interviewUpdated": "Interview updated",
+			"interviewDeleted": "Interview deleted",
+			"contactAdded": "Contact added",
+			"contactUpdated": "Contact updated",
+			"contactDeleted": "Contact deleted"
 		},
 		"noteForm": {
 			"placeholder": "Add a note…",
-			"submit": "Add note"
+			"submit": "Add note",
+			"saveCta": "Save changes"
 		},
 		"interviewForm": {
 			"roundPlaceholder": "Round (e.g. HR Screen)",
 			"interviewerPlaceholder": "Interviewer",
 			"modePlaceholder": "Mode (e.g. Video call)",
 			"notesPlaceholder": "Notes (optional)",
-			"submit": "Add interview"
+			"submit": "Add interview",
+			"saveCta": "Save changes"
 		},
 		"contactForm": {
 			"namePlaceholder": "Name",
 			"rolePlaceholder": "Role",
 			"emailPlaceholder": "Email",
-			"submit": "Add contact"
+			"submit": "Add contact",
+			"saveCta": "Save changes"
 		}
 	}
 }
