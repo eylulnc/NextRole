@@ -58,6 +58,8 @@ export interface CreateNoteRequest {
 	text: string;
 }
 
+export type UpdateNoteRequest = Partial<CreateNoteRequest>;
+
 export interface Interview {
 	id: string;
 	round: string;
@@ -76,6 +78,8 @@ export interface CreateInterviewRequest {
 	notes?: string;
 }
 
+export type UpdateInterviewRequest = Partial<CreateInterviewRequest>;
+
 export interface Contact {
 	id: string;
 	name: string;
@@ -89,6 +93,8 @@ export interface CreateContactRequest {
 	role?: string;
 	email?: string;
 }
+
+export type UpdateContactRequest = Partial<CreateContactRequest>;
 
 export interface Page<T> {
 	content: T[];

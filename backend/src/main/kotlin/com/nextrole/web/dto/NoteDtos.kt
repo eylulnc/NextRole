@@ -9,6 +9,10 @@ data class CreateNoteRequest(
     @field:NotBlank val text: String
 )
 
+data class UpdateNoteRequest(
+    val text: String? = null
+)
+
 data class NoteResponse(
     val id: UUID,
     val text: String,

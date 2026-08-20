@@ -12,7 +12,7 @@ import type { Application, ApplicationStatus, CreateApplicationRequest } from ".
 import { AppShell } from "../components/AppShell";
 import { StatusBadge } from "../components/StatusBadge";
 import { ApplicationFormModal } from "../components/ApplicationFormModal";
-import { IconButton, PencilIcon, TrashIcon } from "../components/IconButton";
+import { KebabMenu } from "../components/KebabMenu";
 import { ApplicationBoard } from "../components/ApplicationBoard";
 import { useToast } from "../context/ToastContext";
 import { formatDate } from "../utils/date";
@@ -182,6 +182,8 @@ export function ApplicationsPage() {
 					applications={filtered}
 					onStatusChange={handleBoardStatusChange}
 					onAddToStatus={handleAddToStatus}
+					onEdit={setEditing}
+					onDelete={handleDelete}
 				/>
 			) : (
 				<div style={{ background: "#fff", border: "1px solid var(--color-border)", borderRadius: 14, overflowX: "auto" }}>
@@ -283,20 +285,14 @@ export function ApplicationsPage() {
 							<div style={{ color: "var(--color-text-muted)" }}>
 							{app.applicationDate ? formatDate(app.applicationDate) : "—"}
 						</div>
-							<div
-								onClick={(e) => e.stopPropagation()}
-								style={{ display: "flex", gap: 2, justifyContent: "flex-end" }}
-							>
-								<IconButton onClick={() => setEditing(app)} label={t("applications.editAria", { company: app.company })}>
-									<PencilIcon />
-								</IconButton>
-								<IconButton
-									onClick={() => handleDelete(app.id)}
-									label={t("applications.deleteAria", { company: app.company })}
-									variant="danger"
-								>
-									<TrashIcon />
-								</IconButton>
+							<div onClick={(e) => e.stopPropagation()} style={{ display: "flex", justifyContent: "flex-end" }}>
+								<KebabMenu
+									ariaLabel={t("applications.actionsAria", { company: app.company })}
+									items={[
+										{ label: t("common.edit"), onClick: () => setEditing(app) },
+										{ label: t("common.delete"), onClick: () => handleDelete(app.id), variant: "danger" },
+									]}
+								/>
 							</div>
 						</div>
 					))}

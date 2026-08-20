@@ -34,19 +34,33 @@ const APP_APPLIED: Application = {
 	updatedAt: "2026-08-01T00:00:00Z",
 };
 
-function renderBoard(applications: Application[], onStatusChange = vi.fn(), onAddToStatus = vi.fn()) {
+function renderBoard(
+	applications: Application[],
+	onStatusChange = vi.fn(),
+	onAddToStatus = vi.fn(),
+	onEdit = vi.fn(),
+	onDelete = vi.fn()
+) {
 	render(
 		<MemoryRouter initialEntries={["/applications"]}>
 			<Routes>
 				<Route
 					path="/applications"
-					element={<ApplicationBoard applications={applications} onStatusChange={onStatusChange} onAddToStatus={onAddToStatus} />}
+					element={
+						<ApplicationBoard
+							applications={applications}
+							onStatusChange={onStatusChange}
+							onAddToStatus={onAddToStatus}
+							onEdit={onEdit}
+							onDelete={onDelete}
+						/>
+					}
 				/>
 				<Route path="/applications/:id" element={<div>Application detail</div>} />
 			</Routes>
 		</MemoryRouter>
 	);
-	return { onStatusChange, onAddToStatus };
+	return { onStatusChange, onAddToStatus, onEdit, onDelete };
 }
 
 describe("ApplicationBoard", () => {
@@ -86,7 +100,19 @@ describe("ApplicationBoard", () => {
 		expect(onAddToStatus).toHaveBeenCalledWith("SAVED");
 
 		const appliedColumn = screen.getByTestId("board-column-APPLIED");
-		expect(appliedColumn.querySelectorAll("button")).toHaveLength(1);
+		expect(appliedColumn.querySelectorAll("button")).toHaveLength(2);
+	});
+
+	it("opens the kebab menu and triggers edit/delete", async () => {
+		const { onEdit, onDelete } = renderBoard([APP_APPLIED]);
+
+		await userEvent.click(screen.getByLabelText("Actions for Acme Corp"));
+		await userEvent.click(screen.getByRole("menuitem", { name: "Edit" }));
+		expect(onEdit).toHaveBeenCalledWith(APP_APPLIED);
+
+		await userEvent.click(screen.getByLabelText("Actions for Acme Corp"));
+		await userEvent.click(screen.getByRole("menuitem", { name: "Delete" }));
+		expect(onDelete).toHaveBeenCalledWith("app-1");
 	});
 
 	it("calls onStatusChange with the target column when a card is dropped", () => {

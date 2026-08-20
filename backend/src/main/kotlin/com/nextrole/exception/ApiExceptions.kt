@@ -5,3 +5,5 @@ class EmailAlreadyRegisteredException(email: String) : RuntimeException("Email a
 class InvalidCredentialsException : RuntimeException("Invalid email or password")
 
 class ApplicationNotFoundException(id: Any) : RuntimeException("Application not found: $id")
+
+class ResourceNotFoundException(resource: String, id: Any) : RuntimeException("$resource not found: $id")

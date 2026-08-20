@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import com.nextrole.domain.Interview
 import com.nextrole.service.InterviewService
+import com.nextrole.exception.ResourceNotFoundException
 import com.nextrole.web.dto.CreateInterviewRequest
+import com.nextrole.web.dto.UpdateInterviewRequest
 import io.mockk.every
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -16,7 +18,9 @@ import org.springframework.http.MediaType
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.patch
 import org.springframework.test.web.servlet.post
 import java.time.Instant
 import java.util.UUID
@@ -82,6 +86,46 @@ class InterviewControllerTest {
 		mockMvc.get("/api/applications/$applicationId/interviews").andExpect {
 			status { isOk() }
 			jsonPath("$[0].round") { value("HR Screen") }
+		}
+	}
+
+	@Test
+	fun `update returns 200 with the updated interview`() {
+		val interviewId = UUID.randomUUID()
+		val request = UpdateInterviewRequest(round = "Technical Interview")
+		val updated = Interview(applicationId = applicationId, round = "Technical Interview", scheduledAt = Instant.now())
+		every { interviewService.update(userId, applicationId, interviewId, request) } returns updated
+
+		mockMvc.patch("/api/applications/$applicationId/interviews/$interviewId") {
+			contentType = MediaType.APPLICATION_JSON
+			content = objectMapper.writeValueAsString(request)
+		}.andExpect {
+			status { isOk() }
+			jsonPath("$.round") { value("Technical Interview") }
+		}
+	}
+
+	@Test
+	fun `update returns 404 when the interview is not found`() {
+		val interviewId = UUID.randomUUID()
+		val request = UpdateInterviewRequest(round = "Technical Interview")
+		every { interviewService.update(userId, applicationId, interviewId, request) } throws ResourceNotFoundException("Interview", interviewId)
+
+		mockMvc.patch("/api/applications/$applicationId/interviews/$interviewId") {
+			contentType = MediaType.APPLICATION_JSON
+			content = objectMapper.writeValueAsString(request)
+		}.andExpect {
+			status { isNotFound() }
+		}
+	}
+
+	@Test
+	fun `delete returns 204`() {
+		val interviewId = UUID.randomUUID()
+		every { interviewService.delete(userId, applicationId, interviewId) } returns Unit
+
+		mockMvc.delete("/api/applications/$applicationId/interviews/$interviewId").andExpect {
+			status { isNoContent() }
 		}
 	}
 }

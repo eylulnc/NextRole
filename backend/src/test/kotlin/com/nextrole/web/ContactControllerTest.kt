@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import com.nextrole.domain.Contact
 import com.nextrole.service.ContactService
+import com.nextrole.exception.ResourceNotFoundException
 import com.nextrole.web.dto.CreateContactRequest
+import com.nextrole.web.dto.UpdateContactRequest
 import io.mockk.every
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -16,7 +18,9 @@ import org.springframework.http.MediaType
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.delete
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.patch
 import org.springframework.test.web.servlet.post
 import java.util.UUID
 
@@ -80,6 +84,46 @@ class ContactControllerTest {
 		mockMvc.get("/api/applications/$applicationId/contacts").andExpect {
 			status { isOk() }
 			jsonPath("$[0].name") { value("Lena Fischer") }
+		}
+	}
+
+	@Test
+	fun `update returns 200 with the updated contact`() {
+		val contactId = UUID.randomUUID()
+		val request = UpdateContactRequest(role = "Recruiter")
+		val updated = Contact(applicationId = applicationId, name = "Lena Fischer", role = "Recruiter")
+		every { contactService.update(userId, applicationId, contactId, request) } returns updated
+
+		mockMvc.patch("/api/applications/$applicationId/contacts/$contactId") {
+			contentType = MediaType.APPLICATION_JSON
+			content = objectMapper.writeValueAsString(request)
+		}.andExpect {
+			status { isOk() }
+			jsonPath("$.role") { value("Recruiter") }
+		}
+	}
+
+	@Test
+	fun `update returns 404 when the contact is not found`() {
+		val contactId = UUID.randomUUID()
+		val request = UpdateContactRequest(role = "Recruiter")
+		every { contactService.update(userId, applicationId, contactId, request) } throws ResourceNotFoundException("Contact", contactId)
+
+		mockMvc.patch("/api/applications/$applicationId/contacts/$contactId") {
+			contentType = MediaType.APPLICATION_JSON
+			content = objectMapper.writeValueAsString(request)
+		}.andExpect {
+			status { isNotFound() }
+		}
+	}
+
+	@Test
+	fun `delete returns 204`() {
+		val contactId = UUID.randomUUID()
+		every { contactService.delete(userId, applicationId, contactId) } returns Unit
+
+		mockMvc.delete("/api/applications/$applicationId/contacts/$contactId").andExpect {
+			status { isNoContent() }
 		}
 	}
 }

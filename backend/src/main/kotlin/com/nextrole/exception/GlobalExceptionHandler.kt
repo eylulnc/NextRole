@@ -23,6 +23,10 @@ class GlobalExceptionHandler {
 	fun handleApplicationNotFound(ex: ApplicationNotFoundException): ResponseEntity<ErrorResponse> =
 		ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse(ex.message ?: "Not found"))
 
+	@ExceptionHandler(ResourceNotFoundException::class)
+	fun handleResourceNotFound(ex: ResourceNotFoundException): ResponseEntity<ErrorResponse> =
+		ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse(ex.message ?: "Not found"))
+
 	@ExceptionHandler(MethodArgumentNotValidException::class)
 	fun handleValidation(ex: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
 		val message = ex.bindingResult.fieldErrors

@@ -4,11 +4,14 @@ import com.nextrole.security.CurrentUser
 import com.nextrole.service.InterviewService
 import com.nextrole.web.dto.CreateInterviewRequest
 import com.nextrole.web.dto.InterviewResponse
+import com.nextrole.web.dto.UpdateInterviewRequest
 import com.nextrole.web.dto.toResponse
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -34,4 +37,18 @@ class InterviewController(
 	@GetMapping
 	fun list(@PathVariable applicationId: UUID): List<InterviewResponse> =
 		interviewService.list(CurrentUser.id(), applicationId).map { it.toResponse() }
+
+	@PatchMapping("/{interviewId}")
+	fun update(
+		@PathVariable applicationId: UUID,
+		@PathVariable interviewId: UUID,
+		@RequestBody request: UpdateInterviewRequest
+	): InterviewResponse =
+		interviewService.update(CurrentUser.id(), applicationId, interviewId, request).toResponse()
+
+	@DeleteMapping("/{interviewId}")
+	fun delete(@PathVariable applicationId: UUID, @PathVariable interviewId: UUID): ResponseEntity<Void> {
+		interviewService.delete(CurrentUser.id(), applicationId, interviewId)
+		return ResponseEntity.noContent().build()
+	}
 }
