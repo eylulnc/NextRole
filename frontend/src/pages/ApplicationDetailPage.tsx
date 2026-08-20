@@ -562,34 +562,32 @@ export function ApplicationDetailPage() {
 								onClose={() => setEditingInterviewId(null)}
 							/>
 						) : (
-							<div key={iv.id} style={{ ...cardStyle, display: "flex", flexDirection: "column", gap: 6 }}>
+							<div key={iv.id} style={{ ...cardStyle, display: "flex", flexDirection: "column", gap: 2 }}>
 								<div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
 									<span style={{ fontWeight: 700, fontSize: 14 }}>{iv.round}</span>
-									<div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-										<span style={{ fontSize: 12.5, color: "var(--color-text-muted)" }}>
-											{formatDateTime(iv.scheduledAt)}
-										</span>
-										<KebabMenu
-											ariaLabel={t("applicationDetail.interviewActionsAria", { round: iv.round })}
-											items={[
-												{
-													label: t("common.edit"),
-													onClick: () => {
-														setShowInterviewForm(false);
-														setEditingInterviewId(iv.id);
-													},
+									<KebabMenu
+										ariaLabel={t("applicationDetail.interviewActionsAria", { round: iv.round })}
+										items={[
+											{
+												label: t("common.edit"),
+												onClick: () => {
+													setShowInterviewForm(false);
+													setEditingInterviewId(iv.id);
 												},
-												{ label: t("common.delete"), onClick: () => handleDeleteInterview(iv.id), variant: "danger" },
-											]}
-										/>
-									</div>
+											},
+											{ label: t("common.delete"), onClick: () => handleDeleteInterview(iv.id), variant: "danger" },
+										]}
+									/>
 								</div>
-								{(iv.interviewer || iv.mode) && (
-									<div style={{ fontSize: 12.5, color: "var(--color-text-muted)" }}>
+								<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+									<div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>
 										{[iv.interviewer, iv.mode].filter(Boolean).join(" · ")}
 									</div>
-								)}
-								{iv.notes && <div style={{ fontSize: 13, color: "oklch(35% 0.012 250)", marginTop: 4 }}>{iv.notes}</div>}
+									<span style={{ fontSize: 12, color: "var(--color-text-faint)" }}>
+										{formatDateTime(iv.scheduledAt)}
+									</span>
+								</div>
+								{iv.notes && <div style={{ fontSize: 13, color: "oklch(35% 0.012 250)" }}>{iv.notes}</div>}
 							</div>
 						)
 					)}
@@ -654,7 +652,7 @@ export function ApplicationDetailPage() {
 										{c.name.charAt(0).toUpperCase()}
 									</div>
 									<div style={{ minWidth: 0, flex: 1 }}>
-										<div style={{ fontWeight: 600, fontSize: 13.5 }}>{c.name}</div>
+										<div style={{ fontWeight: 700, fontSize: 14 }}>{c.name}</div>
 										{c.role && <div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>{c.role}</div>}
 										{c.email && <div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>{c.email}</div>}
 									</div>
@@ -720,8 +718,8 @@ export function ApplicationDetailPage() {
 							/>
 						) : (
 							<div key={n.id} style={{ ...cardStyle, padding: "16px 18px" }}>
-								<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-									<div style={{ fontSize: 11.5, color: "var(--color-text-faint)" }}>
+								<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
+									<div style={{ fontSize: 12, color: "var(--color-text-faint)" }}>
 										{formatDateTime(n.createdAt)}
 									</div>
 									<KebabMenu
@@ -863,7 +861,7 @@ function InterviewForm({
 	return (
 		<form onSubmit={handleSubmit} style={{ ...cardStyle, position: "relative", paddingTop: 44, display: "flex", flexDirection: "column", gap: 10 }}>
 			<CloseButton onClick={onClose} />
-			<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10 }}>
+			<div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
 				<input
 					required
 					placeholder={t("applicationDetail.interviewForm.roundPlaceholder")}
