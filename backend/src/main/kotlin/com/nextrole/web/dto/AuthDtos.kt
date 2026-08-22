@@ -14,4 +14,4 @@ data class LoginRequest(
 	@field:NotBlank val password: String
 )
 
-data class AuthResponse(val token: String, val email: String)
+data class AuthResponse(val token: String, val email: String, val language: String, val defaultCurrency: String)
