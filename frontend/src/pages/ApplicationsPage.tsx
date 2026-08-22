@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -10,10 +10,11 @@ import {
 } from "../api/applications";
 import type { Application, ApplicationStatus, CreateApplicationRequest } from "../types/application";
 import { AppShell } from "../components/AppShell";
-import { StatusBadge } from "../components/StatusBadge";
+import { StatusBadge, statusOptions } from "../components/StatusBadge";
 import { ApplicationFormModal } from "../components/ApplicationFormModal";
 import { useConfirm } from "../components/ConfirmDialog";
 import { KebabMenu } from "../components/KebabMenu";
+import { FilterIcon } from "../components/IconButton";
 import { ApplicationBoard } from "../components/ApplicationBoard";
 import { useToast } from "../context/ToastContext";
 import { formatDate } from "../utils/date";
@@ -27,6 +28,31 @@ const VIEW_KEY = "nextrole_applications_view";
 function isView(value: string | null): value is View {
 	return value === "table" || value === "board";
 }
+
+const WORK_MODES = ["REMOTE", "HYBRID", "ONSITE"] as const;
+
+const filterInputStyle: React.CSSProperties = {
+	border: "1px solid var(--color-border)",
+	borderRadius: 10,
+	padding: "9px 14px",
+	font: "13px var(--font-body)",
+	background: "var(--color-surface)",
+	color: "var(--color-text)",
+};
+
+const filterSelectStyle: React.CSSProperties = {
+	...filterInputStyle,
+	appearance: "none",
+	WebkitAppearance: "none",
+	MozAppearance: "none",
+	backgroundImage:
+		"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23767468' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 7.5l5 5 5-5'/%3E%3C/svg%3E\")",
+	backgroundRepeat: "no-repeat",
+	backgroundPosition: "right 12px center",
+	backgroundSize: "14px",
+	paddingRight: 34,
+	cursor: "pointer",
+};
 
 export function ApplicationsPage() {
 	const { t } = useTranslation();
@@ -43,6 +69,34 @@ export function ApplicationsPage() {
 	const [editing, setEditing] = useState<Application | null>(null);
 	const [creating, setCreating] = useState(false);
 	const [creatingStatus, setCreatingStatus] = useState<ApplicationStatus | undefined>(undefined);
+	const [statusFilter, setStatusFilter] = useState<ApplicationStatus | "">("");
+	const [workModeFilter, setWorkModeFilter] = useState("");
+	const [techStackFilter, setTechStackFilter] = useState("");
+	const [locationFilter, setLocationFilter] = useState("");
+	const [dateFromFilter, setDateFromFilter] = useState("");
+	const [dateToFilter, setDateToFilter] = useState("");
+	const [minSalaryFilter, setMinSalaryFilter] = useState("");
+	const [maxSalaryFilter, setMaxSalaryFilter] = useState("");
+	const [filtersOpen, setFiltersOpen] = useState(false);
+	const filtersRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		if (!filtersOpen) return;
+		function handleOutsideClick(e: MouseEvent) {
+			if (filtersRef.current && !filtersRef.current.contains(e.target as Node)) {
+				setFiltersOpen(false);
+			}
+		}
+		function handleEscape(e: KeyboardEvent) {
+			if (e.key === "Escape") setFiltersOpen(false);
+		}
+		document.addEventListener("mousedown", handleOutsideClick);
+		document.addEventListener("keydown", handleEscape);
+		return () => {
+			document.removeEventListener("mousedown", handleOutsideClick);
+			document.removeEventListener("keydown", handleEscape);
+		};
+	}, [filtersOpen]);
 
 	async function refresh() {
 		setLoading(true);
@@ -60,11 +114,63 @@ export function ApplicationsPage() {
 
 	const filtered = useMemo(() => {
 		const query = search.trim().toLowerCase();
-		if (!query) return applications;
-		return applications.filter(
-			(a) => a.company.toLowerCase().includes(query) || a.role.toLowerCase().includes(query)
-		);
-	}, [applications, search]);
+		const techQuery = techStackFilter.trim().toLowerCase();
+		const locationQuery = locationFilter.trim().toLowerCase();
+		const minSalary = minSalaryFilter.trim() ? Number(minSalaryFilter) : null;
+		const maxSalary = maxSalaryFilter.trim() ? Number(maxSalaryFilter) : null;
+		return applications.filter((a) => {
+			if (query && !(a.company.toLowerCase().includes(query) || a.role.toLowerCase().includes(query))) return false;
+			if (statusFilter && a.status !== statusFilter) return false;
+			if (workModeFilter && a.workMode !== workModeFilter) return false;
+			if (techQuery && !(a.techStack ?? "").toLowerCase().includes(techQuery)) return false;
+			if (locationQuery && !(a.location ?? "").toLowerCase().includes(locationQuery)) return false;
+			if (dateFromFilter && (!a.applicationDate || a.applicationDate < dateFromFilter)) return false;
+			if (dateToFilter && (!a.applicationDate || a.applicationDate > dateToFilter)) return false;
+			if (minSalary !== null) {
+				const salary = a.salaryMin ?? a.salaryMax;
+				if (salary === null || salary < minSalary) return false;
+			}
+			if (maxSalary !== null) {
+				const salary = a.salaryMax ?? a.salaryMin;
+				if (salary === null || salary > maxSalary) return false;
+			}
+			return true;
+		});
+	}, [
+		applications,
+		search,
+		statusFilter,
+		workModeFilter,
+		techStackFilter,
+		locationFilter,
+		dateFromFilter,
+		dateToFilter,
+		minSalaryFilter,
+		maxSalaryFilter,
+	]);
+
+	const activeFilterCount = [
+		statusFilter,
+		workModeFilter,
+		techStackFilter,
+		locationFilter,
+		dateFromFilter,
+		dateToFilter,
+		minSalaryFilter,
+		maxSalaryFilter,
+	].filter((v) => v !== "").length;
+
+	function clearFilters() {
+		setSearch("");
+		setStatusFilter("");
+		setWorkModeFilter("");
+		setTechStackFilter("");
+		setLocationFilter("");
+		setDateFromFilter("");
+		setDateToFilter("");
+		setMinSalaryFilter("");
+		setMaxSalaryFilter("");
+	}
 
 	async function handleCreate(request: CreateApplicationRequest) {
 		try {
@@ -137,7 +243,7 @@ export function ApplicationsPage() {
 				</button>
 			</div>
 
-			<div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+			<div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
 				<div style={{ display: "flex", background: "var(--color-border)", borderRadius: 10, padding: 3 }}>
 					{(["board", "table"] as View[]).map((v) => (
 						<div
@@ -164,16 +270,164 @@ export function ApplicationsPage() {
 					placeholder={t("applications.searchPlaceholder")}
 					value={search}
 					onChange={(e) => setSearch(e.target.value)}
-					style={{
-						border: "1px solid var(--color-border)",
-						borderRadius: 10,
-						padding: "9px 14px",
-						font: "13px var(--font-body)",
-						minWidth: 260,
-						background: "var(--color-surface)",
-						color: "var(--color-text)",
-					}}
+					style={{ ...filterInputStyle, width: 190 }}
 				/>
+				{view === "table" && (
+					<div ref={filtersRef} style={{ position: "relative" }}>
+						<button
+							type="button"
+							onClick={() => setFiltersOpen((v) => !v)}
+							aria-haspopup="dialog"
+							aria-expanded={filtersOpen}
+							style={{
+								...filterInputStyle,
+								display: "inline-flex",
+								alignItems: "center",
+								gap: 7,
+								cursor: "pointer",
+							}}
+						>
+							<FilterIcon />
+							{t("applications.filters.button")}
+							{activeFilterCount > 0 && (
+								<span
+									style={{
+										display: "inline-flex",
+										alignItems: "center",
+										justifyContent: "center",
+										minWidth: 18,
+										height: 18,
+										padding: "0 5px",
+										borderRadius: 9,
+										background: "var(--color-accent)",
+										color: "var(--color-on-accent)",
+										fontSize: 11,
+										fontWeight: 700,
+									}}
+								>
+									{activeFilterCount}
+								</span>
+							)}
+						</button>
+						{filtersOpen && (
+							<div
+								role="dialog"
+								onClick={(e) => e.stopPropagation()}
+								style={{
+									position: "absolute",
+									top: "calc(100% + 8px)",
+									left: 0,
+									background: "var(--color-surface)",
+									border: "1px solid var(--color-border)",
+									borderRadius: 12,
+									boxShadow: "0 12px 32px var(--color-shadow-md)",
+									padding: 16,
+									zIndex: 5,
+									minWidth: 380,
+								}}
+							>
+								<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+									<select
+										value={statusFilter}
+										onChange={(e) => setStatusFilter(e.target.value as ApplicationStatus | "")}
+										style={filterSelectStyle}
+									>
+										<option value="">{t("applications.filters.allStatuses")}</option>
+										{statusOptions().map((opt) => (
+											<option key={opt.value} value={opt.value}>
+												{opt.label}
+											</option>
+										))}
+									</select>
+									<select
+										value={workModeFilter}
+										onChange={(e) => setWorkModeFilter(e.target.value)}
+										style={filterSelectStyle}
+									>
+										<option value="">{t("applications.filters.allWorkModes")}</option>
+										{WORK_MODES.map((mode) => (
+											<option key={mode} value={mode}>
+												{t(`applicationForm.workModeOptions.${mode}`)}
+											</option>
+										))}
+									</select>
+									<input
+										type="text"
+										placeholder={t("applications.filters.techStackPlaceholder")}
+										value={techStackFilter}
+										onChange={(e) => setTechStackFilter(e.target.value)}
+										style={filterInputStyle}
+									/>
+									<input
+										type="text"
+										placeholder={t("applications.filters.locationPlaceholder")}
+										value={locationFilter}
+										onChange={(e) => setLocationFilter(e.target.value)}
+										style={filterInputStyle}
+									/>
+									<label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+										<span style={{ fontSize: 12, color: "var(--color-text-faint)" }}>{t("applications.filters.dateFrom")}</span>
+										<input
+											type="date"
+											value={dateFromFilter}
+											onChange={(e) => setDateFromFilter(e.target.value)}
+											style={filterInputStyle}
+										/>
+									</label>
+									<label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+										<span style={{ fontSize: 12, color: "var(--color-text-faint)" }}>{t("applications.filters.dateTo")}</span>
+										<input
+											type="date"
+											value={dateToFilter}
+											onChange={(e) => setDateToFilter(e.target.value)}
+											style={filterInputStyle}
+										/>
+									</label>
+									<input
+										type="number"
+										placeholder={t("applications.filters.minSalaryPlaceholder")}
+										value={minSalaryFilter}
+										onChange={(e) => setMinSalaryFilter(e.target.value)}
+										style={filterInputStyle}
+									/>
+									<input
+										type="number"
+										placeholder={t("applications.filters.maxSalaryPlaceholder")}
+										value={maxSalaryFilter}
+										onChange={(e) => setMaxSalaryFilter(e.target.value)}
+										style={filterInputStyle}
+									/>
+								</div>
+								<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14 }}>
+									<a
+										href="#"
+										onClick={(e) => {
+											e.preventDefault();
+											clearFilters();
+										}}
+									>
+										{t("applications.filters.clearAll")}
+									</a>
+									<button
+										type="button"
+										onClick={() => setFiltersOpen(false)}
+										style={{
+											border: "none",
+											borderRadius: 10,
+											padding: "8px 16px",
+											background: "var(--color-accent)",
+											color: "var(--color-on-accent)",
+											font: "600 13px var(--font-body)",
+											cursor: "pointer",
+										}}
+									>
+										{t("applications.filters.done")}
+									</button>
+								</div>
+							</div>
+						)}
+					</div>
+				)}
 			</div>
 
 			{loading ? (
@@ -183,7 +437,7 @@ export function ApplicationsPage() {
 			) : filtered.length === 0 ? (
 				<p style={{ color: "var(--color-text-muted)" }}>
 					{t("applications.emptySearch")}{" "}
-					<a href="#" onClick={(e) => { e.preventDefault(); setSearch(""); }}>
+					<a href="#" onClick={(e) => { e.preventDefault(); clearFilters(); }}>
 						{t("applications.clearSearch")}
 					</a>
 				</p>

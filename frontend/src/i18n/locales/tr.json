@@ -102,6 +102,19 @@
 		"clearSearch": "Aramayı temizle",
 		"confirmDelete": "Bu başvuru silinsin mi?",
 		"actionsAria": "{{company}} için işlemler",
+		"filters": {
+			"button": "Filtreler",
+			"clearAll": "Tümünü temizle",
+			"done": "Tamam",
+			"allStatuses": "Tüm durumlar",
+			"allWorkModes": "Tüm çalışma şekilleri",
+			"techStackPlaceholder": "Teknolojiler",
+			"locationPlaceholder": "Konum",
+			"dateFrom": "Başlangıç",
+			"dateTo": "Bitiş",
+			"minSalaryPlaceholder": "Min. maaş",
+			"maxSalaryPlaceholder": "Maks. maaş"
+		},
 		"toasts": {
 			"created": "Başvuru oluşturuldu",
 			"updated": "Başvuru güncellendi",
