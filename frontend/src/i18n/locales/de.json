@@ -102,6 +102,19 @@
 		"clearSearch": "Suche zurücksetzen",
 		"confirmDelete": "Diese Bewerbung löschen?",
 		"actionsAria": "Aktionen für {{company}}",
+		"filters": {
+			"button": "Filter",
+			"clearAll": "Alle zurücksetzen",
+			"done": "Fertig",
+			"allStatuses": "Alle Status",
+			"allWorkModes": "Alle Arbeitsmodelle",
+			"techStackPlaceholder": "Technologien",
+			"locationPlaceholder": "Standort",
+			"dateFrom": "Von",
+			"dateTo": "Bis",
+			"minSalaryPlaceholder": "Mindestgehalt",
+			"maxSalaryPlaceholder": "Höchstgehalt"
+		},
 		"toasts": {
 			"created": "Bewerbung erstellt",
 			"updated": "Bewerbung aktualisiert",

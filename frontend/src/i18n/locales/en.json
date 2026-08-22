@@ -102,6 +102,19 @@
 		"clearSearch": "Clear search",
 		"confirmDelete": "Delete this application?",
 		"actionsAria": "Actions for {{company}}",
+		"filters": {
+			"button": "Filters",
+			"clearAll": "Clear all",
+			"done": "Done",
+			"allStatuses": "Statuses",
+			"allWorkModes": "Work Modes",
+			"techStackPlaceholder": "Tech stack",
+			"locationPlaceholder": "Location",
+			"dateFrom": "From",
+			"dateTo": "To",
+			"minSalaryPlaceholder": "Min salary",
+			"maxSalaryPlaceholder": "Max salary"
+		},
 		"toasts": {
 			"created": "Application created",
 			"updated": "Application updated",

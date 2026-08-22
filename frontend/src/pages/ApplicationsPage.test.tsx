@@ -157,4 +157,128 @@ describe("ApplicationsPage", () => {
 
 		expect(await screen.findByText("Globex")).toBeInTheDocument();
 	});
+
+	it("filters applications by status", async () => {
+		const other: Application = { ...SAMPLE_APPLICATION, id: "app-2", company: "Globex", status: "OFFER" };
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage([SAMPLE_APPLICATION, other]));
+		renderApplicationsPage();
+
+		await screen.findByText("Acme Corp");
+		await userEvent.click(screen.getByRole("button", { name: "Filters" }));
+		await userEvent.selectOptions(screen.getByDisplayValue("Statuses"), "OFFER");
+
+		expect(screen.queryByText("Acme Corp")).not.toBeInTheDocument();
+		expect(screen.getByText("Globex")).toBeInTheDocument();
+	});
+
+	it("filters applications by work mode", async () => {
+		const other: Application = { ...SAMPLE_APPLICATION, id: "app-2", company: "Globex", workMode: "REMOTE" };
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage([SAMPLE_APPLICATION, other]));
+		renderApplicationsPage();
+
+		await screen.findByText("Acme Corp");
+		await userEvent.click(screen.getByRole("button", { name: "Filters" }));
+		await userEvent.selectOptions(screen.getByDisplayValue("Work Modes"), "REMOTE");
+
+		expect(screen.queryByText("Acme Corp")).not.toBeInTheDocument();
+		expect(screen.getByText("Globex")).toBeInTheDocument();
+	});
+
+	it("filters applications by tech stack", async () => {
+		const other: Application = { ...SAMPLE_APPLICATION, id: "app-2", company: "Globex", techStack: "React, TypeScript" };
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage([SAMPLE_APPLICATION, other]));
+		renderApplicationsPage();
+
+		await screen.findByText("Acme Corp");
+		await userEvent.click(screen.getByRole("button", { name: "Filters" }));
+		await userEvent.type(screen.getByPlaceholderText("Tech stack"), "React");
+
+		expect(screen.queryByText("Acme Corp")).not.toBeInTheDocument();
+		expect(screen.getByText("Globex")).toBeInTheDocument();
+	});
+
+	it("filters applications by location", async () => {
+		const other: Application = { ...SAMPLE_APPLICATION, id: "app-2", company: "Globex", location: "Munich" };
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage([SAMPLE_APPLICATION, other]));
+		renderApplicationsPage();
+
+		await screen.findByText("Acme Corp");
+		await userEvent.click(screen.getByRole("button", { name: "Filters" }));
+		await userEvent.type(screen.getByPlaceholderText("Location"), "Munich");
+
+		expect(screen.queryByText("Acme Corp")).not.toBeInTheDocument();
+		expect(screen.getByText("Globex")).toBeInTheDocument();
+	});
+
+	it("filters applications by application date range", async () => {
+		const other: Application = { ...SAMPLE_APPLICATION, id: "app-2", company: "Globex", applicationDate: "2026-06-01" };
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage([SAMPLE_APPLICATION, other]));
+		renderApplicationsPage();
+
+		await screen.findByText("Acme Corp");
+		await userEvent.click(screen.getByRole("button", { name: "Filters" }));
+		await userEvent.type(screen.getByLabelText("From"), "2026-07-01");
+
+		expect(screen.queryByText("Globex")).not.toBeInTheDocument();
+		expect(screen.getByText("Acme Corp")).toBeInTheDocument();
+	});
+
+	it("filters applications by salary range", async () => {
+		const cheap: Application = { ...SAMPLE_APPLICATION, id: "app-2", company: "Globex", salaryMin: 40000, salaryMax: 50000 };
+		const expensive: Application = { ...SAMPLE_APPLICATION, id: "app-3", company: "Initrode", salaryMin: 120000, salaryMax: 140000 };
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage([SAMPLE_APPLICATION, cheap, expensive]));
+		renderApplicationsPage();
+
+		await screen.findByText("Acme Corp");
+		await userEvent.click(screen.getByRole("button", { name: "Filters" }));
+		await userEvent.type(screen.getByPlaceholderText("Min salary"), "60000");
+		await userEvent.type(screen.getByPlaceholderText("Max salary"), "100000");
+
+		expect(screen.queryByText("Globex")).not.toBeInTheDocument();
+		expect(screen.queryByText("Initrode")).not.toBeInTheDocument();
+		expect(screen.getByText("Acme Corp")).toBeInTheDocument();
+	});
+
+	it("excludes applications whose salary range only overlaps the filter, not fully contains it", async () => {
+		const wideRange: Application = { ...SAMPLE_APPLICATION, id: "app-2", company: "Globex", salaryMin: 50000, salaryMax: 150000 };
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage([SAMPLE_APPLICATION, wideRange]));
+		renderApplicationsPage();
+
+		await screen.findByText("Acme Corp");
+		await userEvent.click(screen.getByRole("button", { name: "Filters" }));
+		await userEvent.type(screen.getByPlaceholderText("Min salary"), "70000");
+		await userEvent.type(screen.getByPlaceholderText("Max salary"), "100000");
+
+		// Globex's range (50k-150k) overlaps 70k-100k but isn't contained by it, so it should be excluded.
+		expect(screen.queryByText("Globex")).not.toBeInTheDocument();
+		expect(screen.getByText("Acme Corp")).toBeInTheDocument();
+	});
+
+	it("shows an active filter count badge and clears all filters", async () => {
+		const other: Application = { ...SAMPLE_APPLICATION, id: "app-2", company: "Globex", status: "OFFER" };
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage([SAMPLE_APPLICATION, other]));
+		renderApplicationsPage();
+
+		await screen.findByText("Acme Corp");
+		await userEvent.click(screen.getByRole("button", { name: "Filters" }));
+		await userEvent.selectOptions(screen.getByDisplayValue("Statuses"), "OFFER");
+
+		expect(await screen.findByText("1")).toBeInTheDocument();
+
+		await userEvent.click(screen.getByText("Clear all"));
+
+		expect(await screen.findByText("Acme Corp")).toBeInTheDocument();
+		expect(screen.getByText("Globex")).toBeInTheDocument();
+	});
+
+	it("does not show the filters button in board view", async () => {
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage());
+		renderApplicationsPage();
+
+		await screen.findByText("Acme Corp");
+		await userEvent.click(screen.getByText("Board"));
+
+		expect(await screen.findByText("Saved")).toBeInTheDocument();
+		expect(screen.queryByRole("button", { name: "Filters" })).not.toBeInTheDocument();
+	});
 });
