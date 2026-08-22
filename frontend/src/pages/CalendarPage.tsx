@@ -7,7 +7,7 @@ import { AppShell } from "../components/AppShell";
 import { formatDateTime } from "../utils/date";
 
 const cardStyle: React.CSSProperties = {
-	background: "#fff",
+	background: "var(--color-surface)",
 	border: "1px solid var(--color-border)",
 	borderRadius: 14,
 	padding: 22,
@@ -20,7 +20,7 @@ function dateKey(d: Date): string {
 }
 
 export function CalendarPage() {
-	const { t } = useTranslation();
+	const { t, i18n } = useTranslation();
 	const navigate = useNavigate();
 	const [interviews, setInterviews] = useState<UpcomingInterview[]>([]);
 	const [viewDate, setViewDate] = useState(() => {
@@ -66,7 +66,7 @@ export function CalendarPage() {
 	const daysInMonth = new Date(year, month + 1, 0).getDate();
 	const leadingBlanks = firstOfMonth.getDay();
 
-	const monthLabel = viewDate.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+	const monthLabel = viewDate.toLocaleDateString(i18n.language, { month: "long", year: "numeric" });
 
 	function changeMonth(delta: number) {
 		setViewDate(new Date(year, month + delta, 1));
@@ -135,7 +135,7 @@ export function CalendarPage() {
 										aspectRatio: "1",
 										borderRadius: 10,
 										border: isSelected ? "2px solid var(--color-accent)" : "1px solid var(--color-border)",
-										background: cell.isToday ? "oklch(93% 0.03 35)" : "#fff",
+										background: cell.isToday ? "var(--color-highlight-bg)" : "var(--color-surface)",
 										padding: 6,
 										display: "flex",
 										flexDirection: "column",
@@ -148,7 +148,7 @@ export function CalendarPage() {
 										style={{
 											fontSize: 12,
 											fontWeight: 600,
-											color: cell.isToday ? "oklch(42% 0.11 35)" : "var(--color-text)",
+											color: cell.isToday ? "var(--color-highlight-text-strong)" : "var(--color-text)",
 										}}
 									>
 										{cell.num}
@@ -166,7 +166,7 @@ export function CalendarPage() {
 					<div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
 						<h3 style={{ font: "700 15px var(--font-heading)", margin: 0 }}>
 							{selectedDateKey
-								? new Date(`${selectedDateKey}T00:00:00`).toLocaleDateString("en-US", {
+								? new Date(`${selectedDateKey}T00:00:00`).toLocaleDateString(i18n.language, {
 										month: "short",
 										day: "numeric",
 										year: "numeric",
@@ -196,7 +196,7 @@ export function CalendarPage() {
 									alignItems: "center",
 									gap: 14,
 									padding: "12px 4px",
-									borderBottom: "1px solid oklch(94% 0.005 250)",
+									borderBottom: "1px solid var(--color-border)",
 									cursor: "pointer",
 								}}
 							>
@@ -226,7 +226,7 @@ const navButtonStyle: React.CSSProperties = {
 	height: 28,
 	borderRadius: 8,
 	border: "1px solid var(--color-border)",
-	background: "#fff",
+	background: "var(--color-surface)",
 	color: "var(--color-text-muted)",
 	cursor: "pointer",
 	fontSize: 14,

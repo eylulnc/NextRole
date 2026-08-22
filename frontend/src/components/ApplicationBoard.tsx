@@ -2,14 +2,14 @@ import { useState, type DragEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { Application, ApplicationStatus } from "../types/application";
-import { statusHue, statusOptions } from "./StatusBadge";
+import { statusDotColor, statusOptions } from "./StatusBadge";
 import { formatSalaryRange } from "../utils/currency";
 import { formatLocation } from "../utils/workMode";
 import { PlusIcon } from "./IconButton";
 import { KebabMenu } from "./KebabMenu";
 
 const cardStyle: React.CSSProperties = {
-	background: "#fff",
+	background: "var(--color-surface)",
 	border: "1px solid var(--color-border)",
 	borderRadius: 12,
 	padding: 14,
@@ -70,7 +70,7 @@ export function ApplicationBoard({ applications, onStatusChange, onAddToStatus, 
 						flexDirection: "column",
 						gap: 12,
 						borderRadius: 12,
-						background: dragOverStatus === col.status ? "oklch(95% 0.02 60)" : "transparent",
+						background: dragOverStatus === col.status ? "var(--color-drag-over)" : "transparent",
 						padding: dragOverStatus === col.status ? 6 : 0,
 						transition: "background 0.1s ease",
 					}}
@@ -82,7 +82,7 @@ export function ApplicationBoard({ applications, onStatusChange, onAddToStatus, 
 									width: 8,
 									height: 8,
 									borderRadius: 2,
-									background: `oklch(60% 0.13 ${statusHue(col.status)})`,
+									background: statusDotColor(col.status),
 									flex: "none",
 								}}
 							/>
@@ -149,10 +149,10 @@ export function ApplicationBoard({ applications, onStatusChange, onAddToStatus, 
 													key={tag}
 													style={{
 														font: "500 10.5px var(--font-mono)",
-														background: "oklch(95% 0.006 250)",
+														background: "var(--color-sidebar-bg)",
 														padding: "3px 7px",
 														borderRadius: 6,
-														color: "oklch(38% 0.012 250)",
+														color: "var(--color-text-muted)",
 													}}
 												>
 													{tag}
@@ -182,7 +182,7 @@ export function ApplicationBoard({ applications, onStatusChange, onAddToStatus, 
 										height: 28,
 										borderRadius: "50%",
 										background: "var(--color-accent)",
-										color: "#fff",
+										color: "var(--color-on-accent)",
 										display: "inline-flex",
 										alignItems: "center",
 										justifyContent: "center",

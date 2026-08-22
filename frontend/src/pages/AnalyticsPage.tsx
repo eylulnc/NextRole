@@ -3,20 +3,17 @@ import { useTranslation } from "react-i18next";
 import { getAnalytics } from "../api/analytics";
 import type { Analytics } from "../types/analytics";
 import { AppShell } from "../components/AppShell";
-import { statusHue } from "../components/StatusBadge";
+import { statusDotColor } from "../components/StatusBadge";
 
 const cardStyle: React.CSSProperties = {
-	background: "#fff",
+	background: "var(--color-surface)",
 	border: "1px solid var(--color-border)",
 	borderRadius: 14,
 	padding: 16,
 };
 
-const ACCENT = "oklch(65% 0.11 35)";
-const TIME_SERIES_COLOR = "oklch(62% 0.14 255)";
-
 export function AnalyticsPage() {
-	const { t } = useTranslation();
+	const { t, i18n } = useTranslation();
 	const [analytics, setAnalytics] = useState<Analytics | null>(null);
 
 	useEffect(() => {
@@ -35,7 +32,7 @@ export function AnalyticsPage() {
 	const maxMonthlyCount = Math.max(1, ...analytics.applicationsOverTime.map((m) => m.count));
 	const maxTechCount = Math.max(1, ...analytics.topTechnologies.map((tc) => tc.count));
 	const maxWorkModeCount = Math.max(1, ...analytics.applicationsByWorkMode.map((w) => w.count));
-	const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "short", timeZone: "UTC" });
+	const monthFormatter = new Intl.DateTimeFormat(i18n.language, { month: "short", timeZone: "UTC" });
 	const formatMonth = (month: string) => monthFormatter.format(new Date(`${month}-01T00:00:00Z`));
 
 	return (
@@ -55,13 +52,13 @@ export function AnalyticsPage() {
 									<span style={{ fontWeight: 700, fontSize: 12.5 }}>{t(`status.${f.status}`)}</span>
 									<span style={{ fontSize: 12.5 }}>{f.count}</span>
 								</div>
-								<div style={{ height: 8, borderRadius: 4, background: "oklch(94% 0.005 250)", overflow: "hidden" }}>
+								<div style={{ height: 8, borderRadius: 4, background: "var(--color-border)", overflow: "hidden" }}>
 									<div
 										style={{
 											width: `${(f.count / maxFunnelCount) * 100}%`,
 											height: "100%",
 											borderRadius: 4,
-											background: `oklch(60% 0.13 ${statusHue(f.status)})`,
+											background: statusDotColor(f.status),
 										}}
 									/>
 								</div>
@@ -81,7 +78,7 @@ export function AnalyticsPage() {
 									justifyContent: "space-between",
 									alignItems: "center",
 									padding: "10px 0",
-									borderBottom: i < analytics.stageConversionRates.length - 1 ? "1px solid oklch(94% 0.005 250)" : "none",
+									borderBottom: i < analytics.stageConversionRates.length - 1 ? "1px solid var(--color-border)" : "none",
 								}}
 							>
 								<span style={{ fontSize: 12.5 }}>{t(`status.${s.status}`)}</span>
@@ -100,8 +97,8 @@ export function AnalyticsPage() {
 									<span style={{ fontWeight: 700, fontSize: 12.5 }}>{tc.technology}</span>
 									<span style={{ fontSize: 12.5 }}>{tc.count}</span>
 								</div>
-								<div style={{ height: 8, borderRadius: 4, background: "oklch(94% 0.005 250)", overflow: "hidden" }}>
-									<div style={{ width: `${(tc.count / maxTechCount) * 100}%`, height: "100%", borderRadius: 4, background: ACCENT }} />
+								<div style={{ height: 8, borderRadius: 4, background: "var(--color-border)", overflow: "hidden" }}>
+									<div style={{ width: `${(tc.count / maxTechCount) * 100}%`, height: "100%", borderRadius: 4, background: "var(--color-accent)" }} />
 								</div>
 							</div>
 						))}
@@ -125,7 +122,7 @@ export function AnalyticsPage() {
 											height: `${(m.count / maxMonthlyCount) * 100}%`,
 											minHeight: m.count > 0 ? 4 : 0,
 											borderRadius: "3px 3px 0 0",
-											background: TIME_SERIES_COLOR,
+											background: "var(--color-timeseries)",
 										}}
 									/>
 									<div style={{ fontSize: 10, color: "var(--color-text-muted)" }}>{formatMonth(m.month)}</div>
@@ -143,8 +140,8 @@ export function AnalyticsPage() {
 										<span style={{ fontWeight: 700, fontSize: 12.5 }}>{t(`applicationForm.workModeOptions.${w.workMode}`)}</span>
 										<span style={{ fontSize: 12.5 }}>{w.count}</span>
 									</div>
-									<div style={{ height: 8, borderRadius: 4, background: "oklch(94% 0.005 250)", overflow: "hidden" }}>
-										<div style={{ width: `${(w.count / maxWorkModeCount) * 100}%`, height: "100%", borderRadius: 4, background: TIME_SERIES_COLOR }} />
+									<div style={{ height: 8, borderRadius: 4, background: "var(--color-border)", overflow: "hidden" }}>
+										<div style={{ width: `${(w.count / maxWorkModeCount) * 100}%`, height: "100%", borderRadius: 4, background: "var(--color-timeseries)" }} />
 									</div>
 								</div>
 							))}

@@ -46,7 +46,7 @@ import { formatLocation } from "../utils/workMode";
 type Tab = "overview" | "history" | "interviews" | "contacts" | "notes";
 
 const cardStyle: React.CSSProperties = {
-	background: "#fff",
+	background: "var(--color-surface)",
 	border: "1px solid var(--color-border)",
 	borderRadius: 14,
 	padding: 20,
@@ -71,7 +71,7 @@ const emptyStateIconStyle: React.CSSProperties = {
 	height: 32,
 	borderRadius: "50%",
 	background: "var(--color-accent)",
-	color: "#fff",
+	color: "var(--color-on-accent)",
 	display: "flex",
 	alignItems: "center",
 	justifyContent: "center",
@@ -93,7 +93,7 @@ const addTileIconStyle: React.CSSProperties = {
 	height: 24,
 	borderRadius: "50%",
 	background: "var(--color-accent)",
-	color: "#fff",
+	color: "var(--color-on-accent)",
 	display: "flex",
 	alignItems: "center",
 	justifyContent: "center",
@@ -106,6 +106,7 @@ const inputStyle: React.CSSProperties = {
 	padding: "9px 12px",
 	font: "13px var(--font-body)",
 	background: "var(--color-input-bg)",
+	color: "var(--color-text)",
 };
 
 const addButtonStyle: React.CSSProperties = {
@@ -113,7 +114,7 @@ const addButtonStyle: React.CSSProperties = {
 	borderRadius: 10,
 	padding: "9px 16px",
 	background: "var(--color-accent)",
-	color: "#fff",
+	color: "var(--color-on-accent)",
 	font: "600 13px var(--font-body)",
 	cursor: "pointer",
 	alignSelf: "flex-end",
@@ -387,7 +388,8 @@ export function ApplicationDetailPage() {
 						onClick={() => setEditing(true)}
 						style={{
 							border: "1px solid var(--color-border)",
-							background: "#fff",
+							background: "var(--color-surface)",
+							color: "var(--color-text)",
 							borderRadius: 10,
 							padding: "10px 16px",
 							font: "600 13px var(--font-body)",
@@ -401,7 +403,7 @@ export function ApplicationDetailPage() {
 						style={{
 							border: "none",
 							background: "var(--color-accent)",
-							color: "#fff",
+							color: "var(--color-on-accent)",
 							borderRadius: 10,
 							padding: "10px 16px",
 							font: "600 13px var(--font-body)",
@@ -416,10 +418,10 @@ export function ApplicationDetailPage() {
 								position: "absolute",
 								top: "calc(100% + 8px)",
 								right: 0,
-								background: "#fff",
+								background: "var(--color-surface)",
 								border: "1px solid var(--color-border)",
 								borderRadius: 12,
-								boxShadow: "0 12px 32px oklch(22% 0.014 250 / 0.12)",
+								boxShadow: "0 12px 32px var(--color-shadow-md)",
 								padding: 8,
 								display: "flex",
 								flexDirection: "column",
@@ -434,7 +436,8 @@ export function ApplicationDetailPage() {
 									onClick={() => handleChangeStatus(opt.value)}
 									style={{
 										border: "none",
-										background: opt.value === application.status ? "oklch(96% 0.006 250)" : "transparent",
+										background: opt.value === application.status ? "var(--color-sidebar-bg)" : "transparent",
+										color: "var(--color-text)",
 										borderRadius: 8,
 										padding: "8px 10px",
 										font: "500 13px var(--font-body)",
@@ -499,7 +502,7 @@ export function ApplicationDetailPage() {
 									<PencilIcon />
 								</IconButton>
 							</div>
-							<div style={{ fontSize: 13.5, lineHeight: 1.7, color: "oklch(30% 0.012 250)" }}>
+							<div style={{ fontSize: 13.5, lineHeight: 1.7, color: "var(--color-text)" }}>
 								{application.jobDescription ? <FormattedText text={application.jobDescription} /> : t("applicationDetail.noJobDescription")}
 							</div>
 						</div>
@@ -517,7 +520,7 @@ export function ApplicationDetailPage() {
 											key={t}
 											style={{
 												font: "500 11px var(--font-mono)",
-												background: "oklch(95% 0.006 250)",
+												background: "var(--color-sidebar-bg)",
 												padding: "4px 9px",
 												borderRadius: 6,
 											}}
@@ -529,7 +532,7 @@ export function ApplicationDetailPage() {
 						</div>
 						<div style={cardStyle}>
 							<h3 style={{ font: "700 14px var(--font-heading)", margin: "0 0 8px" }}>{t("applicationDetail.keyDates")}</h3>
-							<div style={{ fontSize: 13, color: "oklch(40% 0.012 250)", display: "flex", flexDirection: "column", gap: 6 }}>
+							<div style={{ fontSize: 13, color: "var(--color-text-muted)", display: "flex", flexDirection: "column", gap: 6 }}>
 								<div>
 									{application.status !== "SAVED" && application.applicationDate
 										? t("applicationDetail.applied", { date: formatDate(application.applicationDate) })
@@ -554,12 +557,12 @@ export function ApplicationDetailPage() {
 												width: 10,
 												height: 10,
 												borderRadius: "50%",
-												background: i === history.length - 1 ? "var(--color-accent)" : "oklch(80% 0.02 250)",
+												background: i === history.length - 1 ? "var(--color-accent)" : "var(--color-sidebar-dot-inactive)",
 												flex: "none",
 											}}
 										/>
 									</div>
-									{i < history.length - 1 && <div style={{ width: 1, flex: 1, background: "oklch(88% 0.007 250)" }} />}
+									{i < history.length - 1 && <div style={{ width: 1, flex: 1, background: "var(--color-border)" }} />}
 								</div>
 								<div style={{ paddingBottom: i < history.length - 1 ? 26 : 0 }}>
 									<div style={{ fontWeight: 700, fontSize: 14 }}>{t(`status.${h.status}`)}</div>
@@ -611,7 +614,7 @@ export function ApplicationDetailPage() {
 										{formatDateTime(iv.scheduledAt)}
 									</span>
 								</div>
-								{iv.notes && <div style={{ fontSize: 13, color: "oklch(35% 0.012 250)" }}>{iv.notes}</div>}
+								{iv.notes && <div style={{ fontSize: 13, color: "var(--color-text)" }}>{iv.notes}</div>}
 							</div>
 						)
 					)}
@@ -664,13 +667,13 @@ export function ApplicationDetailPage() {
 											width: 40,
 											height: 40,
 											borderRadius: "50%",
-											background: "oklch(93% 0.03 35)",
+											background: "var(--color-highlight-bg)",
 											flex: "none",
 											display: "flex",
 											alignItems: "center",
 											justifyContent: "center",
 											font: "700 14px var(--font-heading)",
-											color: "oklch(45% 0.11 35)",
+											color: "var(--color-highlight-text-strong)",
 										}}
 									>
 										{c.name.charAt(0).toUpperCase()}
@@ -781,7 +784,7 @@ export function ApplicationDetailPage() {
 										]}
 									/>
 								</div>
-								<div style={{ fontSize: 13.5, color: "oklch(30% 0.012 250)", lineHeight: 1.6 }}>
+								<div style={{ fontSize: 13.5, color: "var(--color-text)", lineHeight: 1.6 }}>
 									<FormattedText text={n.text} />
 								</div>
 							</div>

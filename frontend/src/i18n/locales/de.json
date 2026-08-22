@@ -1,0 +1,235 @@
+{
+	"app": {
+		"name": "NextRole"
+	},
+	"common": {
+		"actions": "Aktionen",
+		"edit": "Bearbeiten",
+		"delete": "Löschen",
+		"cancel": "Abbrechen"
+	},
+	"nav": {
+		"logOut": "Abmelden",
+		"collapseSidebar": "Seitenleiste einklappen",
+		"expandSidebar": "Seitenleiste ausklappen",
+		"settings": "Einstellungen"
+	},
+	"status": {
+		"SAVED": "Gespeichert",
+		"APPLIED": "Beworben",
+		"HR_INTERVIEW": "HR-Interview",
+		"TECHNICAL": "Technisch",
+		"FINAL": "Finale Runde",
+		"OFFER": "Angebot",
+		"REJECTED": "Abgelehnt"
+	},
+	"auth": {
+		"welcomeBackTitle": "Willkommen zurück",
+		"welcomeBackSubtitle": "Melde dich an, um deine Bewerbungen weiter zu verfolgen.",
+		"createAccountTitle": "Konto erstellen",
+		"createAccountSubtitle": "Starte in wenigen Minuten mit deiner Jobsuche.",
+		"emailLabel": "E-Mail",
+		"emailPlaceholder": "du@beispiel.de",
+		"passwordLabel": "Passwort",
+		"signInCta": "Anmelden",
+		"createAccountCta": "Konto erstellen",
+		"noAccount": "Noch kein Konto?",
+		"haveAccount": "Bereits ein Konto?",
+		"signUpLink": "Registrieren",
+		"signInLink": "Anmelden",
+		"signupError": "Konto konnte nicht erstellt werden. Versuche eine andere E-Mail-Adresse.",
+		"loginError": "Ungültige E-Mail-Adresse oder falsches Passwort."
+	},
+	"nav_links": {
+		"dashboard": "Dashboard",
+		"applications": "Bewerbungen",
+		"calendar": "Kalender",
+		"analytics": "Analyse"
+	},
+	"calendar": {
+		"title": "Kalender",
+		"previousMonth": "Vorheriger Monat",
+		"nextMonth": "Nächster Monat",
+		"viewUpcoming": "Anstehende ansehen",
+		"noInterviewsOnDay": "Keine Interviews an diesem Tag.",
+		"weekdays": {
+			"sun": "So",
+			"mon": "Mo",
+			"tue": "Di",
+			"wed": "Mi",
+			"thu": "Do",
+			"fri": "Fr",
+			"sat": "Sa"
+		}
+	},
+	"dashboard": {
+		"title": "Dashboard",
+		"subtitle": "{{count}} aktive Bewerbungen",
+		"stats": {
+			"activeApplications": "Aktive Bewerbungen",
+			"interviewsThisWeek": "Interviews diese Woche",
+			"responseRate": "Rückmeldequote",
+			"avgDaysInPipeline": "Ø Tage in der Pipeline"
+		},
+		"addedThisMonth": "+{{count}} diesen Monat",
+		"acrossPipeline": "Über die gesamte Pipeline",
+		"upcomingInterviews": "Anstehende Interviews",
+		"recentActivity": "Letzte Aktivität",
+		"pipelineOverview": "Pipeline-Übersicht",
+		"noUpcomingInterviews": "Keine Interviews geplant.",
+		"noRecentActivity": "Noch keine Aktivität.",
+		"movedTo": "{{company}} wechselte zu {{status}}"
+	},
+	"analytics": {
+		"title": "Analyse",
+		"subtitle": "Trends über deine Bewerbungen",
+		"funnel": "Pipeline-Funnel",
+		"applicationsOverTime": "Bewerbungen im Zeitverlauf",
+		"topTechnologies": "Top-Technologien",
+		"noTechnologies": "Noch keine Tech-Stack-Daten.",
+		"stageConversionRate": "Konversionsrate je Phase",
+		"applicationsByWorkMode": "Bewerbungen nach Arbeitsmodell"
+	},
+	"applications": {
+		"title": "Bewerbungen",
+		"newApplication": "+ Neue Bewerbung",
+		"searchPlaceholder": "Firma oder Rolle suchen",
+		"boardView": "Board",
+		"tableView": "Tabelle",
+		"loading": "Wird geladen…",
+		"empty": "Noch keine Bewerbungen. Füge deine erste hinzu.",
+		"emptySearch": "Keine Bewerbungen entsprechen deiner Suche.",
+		"clearSearch": "Suche zurücksetzen",
+		"confirmDelete": "Diese Bewerbung löschen?",
+		"actionsAria": "Aktionen für {{company}}",
+		"toasts": {
+			"created": "Bewerbung erstellt",
+			"updated": "Bewerbung aktualisiert",
+			"deleted": "Bewerbung gelöscht",
+			"statusChanged": "Status aktualisiert",
+			"error": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
+		},
+		"columns": {
+			"companyRole": "Firma / Rolle",
+			"location": "Standort",
+			"salary": "Gehalt",
+			"techStack": "Tech-Stack",
+			"status": "Status",
+			"applied": "Beworben"
+		}
+	},
+	"settingsModal": {
+		"title": "Einstellungen",
+		"language": "Sprache",
+		"defaultCurrency": "Standardwährung",
+		"theme": "Design",
+		"languageOptions": {
+			"en": "English",
+			"de": "Deutsch",
+			"tr": "Türkçe"
+		},
+		"themeOptions": {
+			"system": "System",
+			"light": "Hell",
+			"dark": "Dunkel"
+		},
+		"saveCta": "Änderungen speichern",
+		"cancel": "Abbrechen",
+		"toasts": {
+			"updated": "Einstellungen aktualisiert",
+			"error": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
+		}
+	},
+	"applicationForm": {
+		"newTitle": "Neue Bewerbung",
+		"editTitle": "Bewerbung bearbeiten",
+		"company": "Firma",
+		"role": "Rolle",
+		"location": "Standort",
+		"salaryMin": "Gehalt min.",
+		"salaryMax": "Gehalt max.",
+		"currency": "Währung",
+		"workMode": "Arbeitsmodell",
+		"workModeOptions": {
+			"none": "—",
+			"REMOTE": "Remote",
+			"HYBRID": "Hybrid",
+			"ONSITE": "Vor Ort"
+		},
+		"techStack": "Tech-Stack (kommagetrennt)",
+		"applicationDate": "Bewerbungsdatum",
+		"status": "Status",
+		"jobDescription": "Stellenbeschreibung",
+		"cancel": "Abbrechen",
+		"createCta": "Bewerbung erstellen",
+		"saveCta": "Änderungen speichern",
+		"deleteCta": "Bewerbung löschen"
+	},
+	"applicationDetail": {
+		"back": "← Zurück zu den Bewerbungen",
+		"edit": "Bearbeiten",
+		"changeStage": "Phase ändern",
+		"tabs": {
+			"overview": "Übersicht",
+			"history": "Statusverlauf",
+			"interviews": "Interviews",
+			"contacts": "Kontakte",
+			"notes": "Notizen"
+		},
+		"jobDescription": "Stellenbeschreibung",
+		"noJobDescription": "Noch keine Stellenbeschreibung gespeichert.",
+		"techStack": "Tech-Stack",
+		"keyDates": "Wichtige Termine",
+		"applied": "Beworben: {{date}}",
+		"notAppliedYet": "Noch nicht beworben",
+		"lastUpdated": "Zuletzt aktualisiert: {{date}}",
+		"noInterviews": "Noch keine Interviews geplant.",
+		"noContacts": "Noch keine Kontakte gespeichert.",
+		"noNotes": "Noch keine Notizen.",
+		"notesSort": {
+			"newestFirst": "Neueste zuerst",
+			"oldestFirst": "Älteste zuerst"
+		},
+		"addInterview": "Interview hinzufügen",
+		"addContact": "Kontakt hinzufügen",
+		"addNote": "Notiz hinzufügen",
+		"cancel": "Abbrechen",
+		"noteActionsAria": "Notizaktionen",
+		"interviewActionsAria": "Aktionen für {{round}}",
+		"contactActionsAria": "Aktionen für {{name}}",
+		"confirmDeleteNote": "Diese Notiz löschen?",
+		"confirmDeleteInterview": "Dieses Interview löschen?",
+		"confirmDeleteContact": "Diesen Kontakt löschen?",
+		"toasts": {
+			"noteAdded": "Notiz hinzugefügt",
+			"noteUpdated": "Notiz aktualisiert",
+			"noteDeleted": "Notiz gelöscht",
+			"interviewAdded": "Interview hinzugefügt",
+			"interviewUpdated": "Interview aktualisiert",
+			"interviewDeleted": "Interview gelöscht",
+			"contactAdded": "Kontakt hinzugefügt",
+			"contactUpdated": "Kontakt aktualisiert",
+			"contactDeleted": "Kontakt gelöscht"
+		},
+		"noteForm": {
+			"placeholder": "Notiz hinzufügen…",
+			"submit": "Notiz hinzufügen",
+			"saveCta": "Änderungen speichern"
+		},
+		"interviewForm": {
+			"roundPlaceholder": "Runde (z. B. HR-Screening)",
+			"interviewerPlaceholder": "Interviewer",
+			"modePlaceholder": "Format (z. B. Videoanruf)",
+			"notesPlaceholder": "Notizen (optional)",
+			"submit": "Interview hinzufügen",
+			"saveCta": "Änderungen speichern"
+		},
+		"contactForm": {
+			"namePlaceholder": "Name",
+			"rolePlaceholder": "Rolle",
+			"emailPlaceholder": "E-Mail",
+			"submit": "Kontakt hinzufügen",
+			"saveCta": "Änderungen speichern"
+		}
+	}
+}

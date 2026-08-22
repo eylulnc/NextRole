@@ -31,7 +31,7 @@ class AuthControllerTest {
 	@Test
 	fun `register returns 201 with a token`() {
 		every { authService.register(RegisterRequest("new@example.com", "password123")) } returns
-			AuthResponse("fake-jwt-token", "new@example.com")
+			AuthResponse("fake-jwt-token", "new@example.com", "en", "EUR")
 
 		mockMvc.post("/api/auth/register") {
 			contentType = MediaType.APPLICATION_JSON
@@ -55,7 +55,7 @@ class AuthControllerTest {
 	@Test
 	fun `login returns 200 with a token`() {
 		every { authService.login(LoginRequest("user@example.com", "password123")) } returns
-			AuthResponse("fake-jwt-token", "user@example.com")
+			AuthResponse("fake-jwt-token", "user@example.com", "en", "EUR")
 
 		mockMvc.post("/api/auth/login") {
 			contentType = MediaType.APPLICATION_JSON

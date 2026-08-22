@@ -11,7 +11,8 @@
 	"nav": {
 		"logOut": "Log out",
 		"collapseSidebar": "Collapse sidebar",
-		"expandSidebar": "Expand sidebar"
+		"expandSidebar": "Expand sidebar",
+		"settings": "Settings"
 	},
 	"status": {
 		"SAVED": "Saved",
@@ -115,6 +116,28 @@
 			"techStack": "Tech stack",
 			"status": "Status",
 			"applied": "Applied"
+		}
+	},
+	"settingsModal": {
+		"title": "Settings",
+		"language": "Language",
+		"defaultCurrency": "Default currency",
+		"theme": "Theme",
+		"languageOptions": {
+			"en": "English",
+			"de": "Deutsch",
+			"tr": "Türkçe"
+		},
+		"themeOptions": {
+			"system": "System",
+			"light": "Light",
+			"dark": "Dark"
+		},
+		"saveCta": "Save changes",
+		"cancel": "Cancel",
+		"toasts": {
+			"updated": "Settings updated",
+			"error": "Something went wrong. Please try again."
 		}
 	},
 	"applicationForm": {

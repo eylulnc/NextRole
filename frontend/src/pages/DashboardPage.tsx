@@ -7,12 +7,12 @@ import type { DashboardStatistics } from "../types/dashboard";
 import type { CreateApplicationRequest } from "../types/application";
 import { AppShell } from "../components/AppShell";
 import { ApplicationFormModal } from "../components/ApplicationFormModal";
-import { statusHue } from "../components/StatusBadge";
+import { statusDotColor } from "../components/StatusBadge";
 import { formatDateTime } from "../utils/date";
 import { useToast } from "../context/ToastContext";
 
 const cardStyle: React.CSSProperties = {
-	background: "#fff",
+	background: "var(--color-surface)",
 	border: "1px solid var(--color-border)",
 	borderRadius: 14,
 	padding: 22,
@@ -53,7 +53,7 @@ export function DashboardPage() {
 		);
 	}
 
-	const subColorPositive = "oklch(50% 0.1 150)";
+	const subColorPositive = "var(--color-positive)";
 	const subColorNeutral = "var(--color-text-muted)";
 
 	const statTiles = [
@@ -101,7 +101,7 @@ export function DashboardPage() {
 						borderRadius: 10,
 						padding: "11px 18px",
 						background: "var(--color-accent)",
-						color: "#fff",
+						color: "var(--color-on-accent)",
 						font: "600 13px var(--font-body)",
 						cursor: "pointer",
 					}}
@@ -133,7 +133,7 @@ export function DashboardPage() {
 									alignItems: "center",
 									gap: 14,
 									padding: "12px 4px",
-									borderBottom: "1px solid oklch(94% 0.005 250)",
+									borderBottom: "1px solid var(--color-border)",
 									cursor: "pointer",
 								}}
 							>
@@ -186,7 +186,7 @@ export function DashboardPage() {
 							key={f.status}
 							style={{
 								flex: `${Math.max(f.count, 0.001)} 0 0`,
-								background: `oklch(60% 0.13 ${statusHue(f.status)})`,
+								background: statusDotColor(f.status),
 							}}
 							title={t(`status.${f.status}`)}
 						/>
@@ -195,7 +195,7 @@ export function DashboardPage() {
 				<div style={{ display: "flex", gap: 18, flexWrap: "wrap", marginTop: 14 }}>
 					{stats.funnelStages.map((f) => (
 						<div key={f.status} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--color-text-muted)" }}>
-							<div style={{ width: 8, height: 8, borderRadius: 2, background: `oklch(60% 0.13 ${statusHue(f.status)})` }} />
+							<div style={{ width: 8, height: 8, borderRadius: 2, background: statusDotColor(f.status) }} />
 							{t(`status.${f.status}`)} ({f.count})
 						</div>
 					))}

@@ -17,6 +17,12 @@ class User(
 	@Column(name = "password_hash", nullable = false)
 	var passwordHash: String,
 
+	@Column(nullable = false)
+	var language: String = "en",
+
+	@Column(name = "default_currency", nullable = false)
+	var defaultCurrency: String = "EUR",
+
 	@Column(name = "created_at", nullable = false, updatable = false)
 	val createdAt: Instant = Instant.now()
 )

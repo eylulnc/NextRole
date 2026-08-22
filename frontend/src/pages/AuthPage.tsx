@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
+import { LogoMark, Wordmark } from "../components/Logo";
 
 const inputStyle: React.CSSProperties = {
 	border: "1px solid var(--color-border)",
@@ -9,6 +10,7 @@ const inputStyle: React.CSSProperties = {
 	padding: "11px 14px",
 	font: "14px var(--font-body)",
 	background: "var(--color-input-bg)",
+	color: "var(--color-text)",
 };
 
 const labelStyle: React.CSSProperties = {
@@ -17,7 +19,7 @@ const labelStyle: React.CSSProperties = {
 	gap: 6,
 	fontSize: 13,
 	fontWeight: 500,
-	color: "oklch(38% 0.012 250)",
+	color: "var(--color-label)",
 };
 
 export function AuthPage() {
@@ -55,7 +57,7 @@ export function AuthPage() {
 				display: "flex",
 				alignItems: "center",
 				justifyContent: "center",
-				background: "oklch(97% 0.012 60)",
+				background: "var(--color-sidebar-bg)",
 				padding: 24,
 			}}
 		>
@@ -64,16 +66,16 @@ export function AuthPage() {
 					display: "flex",
 					maxWidth: 920,
 					width: "100%",
-					background: "#fff",
+					background: "var(--color-surface)",
 					borderRadius: 24,
 					overflow: "hidden",
-					boxShadow: "0 20px 60px oklch(22% 0.014 250 / 0.08)",
+					boxShadow: "0 20px 60px var(--color-shadow-sm)",
 				}}
 			>
 				<div style={{ flex: 1, padding: "56px 48px", display: "flex", flexDirection: "column", gap: 28 }}>
 					<div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-						<div style={{ width: 32, height: 32, borderRadius: 9, background: "var(--color-accent)" }} />
-						<span style={{ font: "700 18px var(--font-heading)" }}>{t("app.name")}</span>
+						<LogoMark size={32} />
+						<Wordmark size={25} />
 					</div>
 					<div>
 						<h1 style={{ font: "700 28px var(--font-heading)", margin: "0 0 8px" }}>
@@ -107,7 +109,7 @@ export function AuthPage() {
 								style={inputStyle}
 							/>
 						</label>
-						{error && <p style={{ margin: 0, color: "oklch(50% 0.15 30)", fontSize: 13 }}>{error}</p>}
+						{error && <p style={{ margin: 0, color: "var(--color-danger)", fontSize: 13 }}>{error}</p>}
 						<button
 							type="submit"
 							disabled={submitting}
@@ -117,7 +119,7 @@ export function AuthPage() {
 								borderRadius: 12,
 								padding: 13,
 								background: "var(--color-accent)",
-								color: "#fff",
+								color: "var(--color-on-accent)",
 								font: "600 14px var(--font-body)",
 								cursor: submitting ? "default" : "pointer",
 								opacity: submitting ? 0.7 : 1,
@@ -145,7 +147,7 @@ export function AuthPage() {
 					style={{
 						flex: 1,
 						background:
-							"repeating-linear-gradient(135deg, oklch(93% 0.03 35), oklch(93% 0.03 35) 10px, oklch(96% 0.02 35) 10px, oklch(96% 0.02 35) 20px)",
+							"repeating-linear-gradient(135deg, var(--color-highlight-bg), var(--color-highlight-bg) 10px, var(--color-highlight-bg-soft) 10px, var(--color-highlight-bg-soft) 20px)",
 						display: "flex",
 						alignItems: "center",
 						justifyContent: "center",
@@ -154,8 +156,8 @@ export function AuthPage() {
 					<span
 						style={{
 							font: "500 12px var(--font-mono)",
-							color: "oklch(45% 0.08 35)",
-							background: "#fff",
+							color: "var(--color-highlight-text)",
+							background: "var(--color-surface)",
 							padding: "6px 12px",
 							borderRadius: 8,
 						}}

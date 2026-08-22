@@ -2,6 +2,8 @@ import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { SettingsModal } from "./SettingsModal";
+import { LogoMark, Wordmark } from "./Logo";
 
 interface NavItem {
 	path: string;
@@ -25,6 +27,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const [collapsed, setCollapsed] = useState(() => localStorage.getItem(COLLAPSED_KEY) === "true");
+	const [showSettings, setShowSettings] = useState(false);
 
 	function toggleCollapsed() {
 		setCollapsed((v) => {
@@ -41,8 +44,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 					width: collapsed ? COLLAPSED_WIDTH : EXPANDED_WIDTH,
 					flex: "none",
 					height: "100%",
-					background: "oklch(97% 0.012 60)",
-					borderRight: "1px solid oklch(91% 0.008 60)",
+					background: "var(--color-sidebar-bg)",
+					borderRight: "1px solid var(--color-sidebar-border)",
 					display: "flex",
 					flexDirection: "column",
 					padding: "24px 16px",
@@ -63,7 +66,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 						height: 24,
 						borderRadius: "50%",
 						border: "1px solid var(--color-border)",
-						background: "#fff",
+						background: "var(--color-surface)",
 						color: "var(--color-text-muted)",
 						cursor: "pointer",
 						display: "flex",
@@ -78,8 +81,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 				</button>
 
 				<div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 8px", overflow: "hidden" }}>
-					<div style={{ width: 28, height: 28, borderRadius: 8, background: "var(--color-accent)", flex: "none" }} />
-					{!collapsed && <span style={{ font: "700 17px var(--font-heading)", whiteSpace: "nowrap" }}>{t("app.name")}</span>}
+					<LogoMark size={28} />
+					{!collapsed && <Wordmark size={22} />}
 				</div>
 				<nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
 					{NAV_ITEMS.map((item) => {
@@ -98,7 +101,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 									borderRadius: 10,
 									cursor: "pointer",
 									font: "500 14px var(--font-body)",
-									background: active ? "#fff" : "transparent",
+									background: active ? "var(--color-surface)" : "transparent",
 									color: active ? "var(--color-text)" : "var(--color-text-muted)",
 								}}
 							>
@@ -107,7 +110,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 										width: 8,
 										height: 8,
 										borderRadius: 3,
-										background: active ? "var(--color-accent)" : "oklch(85% 0.01 60)",
+										background: active ? "var(--color-accent)" : "var(--color-sidebar-dot-inactive)",
 										flex: "none",
 									}}
 								/>
@@ -124,7 +127,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 						gap: 10,
 						padding: collapsed ? "10px 0" : "10px 8px",
 						justifyContent: collapsed ? "center" : "flex-start",
-						borderTop: "1px solid oklch(91% 0.008 60)",
+						borderTop: "1px solid var(--color-sidebar-border)",
 					}}
 				>
 					<div
@@ -134,7 +137,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 							width: 32,
 							height: 32,
 							borderRadius: "50%",
-							background: "oklch(80% 0.02 250)",
+							background: "var(--color-sidebar-dot-inactive)",
 							flex: "none",
 							cursor: collapsed ? "pointer" : "default",
 						}}
@@ -144,20 +147,34 @@ export function AppShell({ children }: { children: ReactNode }) {
 							<div style={{ font: "600 13px var(--font-body)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
 								{email}
 							</div>
-							<a
-								href="#"
-								onClick={(e) => {
-									e.preventDefault();
-									logout();
-								}}
-								style={{ fontSize: 12, textDecoration: "none" }}
-							>
-								{t("nav.logOut")}
-							</a>
+							<div style={{ display: "flex", gap: 6, fontSize: 12 }}>
+								<a
+									href="#"
+									onClick={(e) => {
+										e.preventDefault();
+										setShowSettings(true);
+									}}
+									style={{ textDecoration: "none" }}
+								>
+									{t("nav.settings")}
+								</a>
+								<span style={{ color: "var(--color-text-faint)" }}>·</span>
+								<a
+									href="#"
+									onClick={(e) => {
+										e.preventDefault();
+										logout();
+									}}
+									style={{ textDecoration: "none" }}
+								>
+									{t("nav.logOut")}
+								</a>
+							</div>
 						</div>
 					)}
 				</div>
 			</aside>
+			{showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
 			<main
 				style={{
 					flex: 1,
