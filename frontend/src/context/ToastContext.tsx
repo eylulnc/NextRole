@@ -50,12 +50,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 					<div
 						key={toast.id}
 						style={{
-							background: toast.variant === "success" ? "oklch(45% 0.14 150)" : "oklch(50% 0.19 25)",
-							color: "#fff",
+							background: toast.variant === "success" ? "var(--color-success)" : "var(--color-error-strong)",
+							color: "var(--color-on-accent)",
 							padding: "12px 14px 12px 18px",
 							borderRadius: 10,
 							font: "500 13px var(--font-body)",
-							boxShadow: "0 8px 24px oklch(22% 0.014 250 / 0.25)",
+							boxShadow: "0 8px 24px var(--color-shadow-lg)",
 							minWidth: 220,
 							maxWidth: 360,
 							display: "flex",
@@ -71,7 +71,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 							style={{
 								border: "none",
 								background: "transparent",
-								color: "#fff",
+								color: "var(--color-on-accent)",
 								opacity: 0.75,
 								cursor: "pointer",
 								fontSize: 15,

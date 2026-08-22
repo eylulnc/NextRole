@@ -4,6 +4,7 @@ import type { Application, ApplicationStatus, CreateApplicationRequest } from ".
 import { statusOptions } from "./StatusBadge";
 import { CURRENCY_OPTIONS } from "../utils/currency";
 import { CloseButton } from "./CloseButton";
+import { useAuth } from "../context/AuthContext";
 
 const inputStyle: React.CSSProperties = {
 	border: "1px solid var(--color-border)",
@@ -11,6 +12,7 @@ const inputStyle: React.CSSProperties = {
 	padding: "10px 12px",
 	font: "13px var(--font-body)",
 	background: "var(--color-input-bg)",
+	color: "var(--color-text)",
 	width: "100%",
 };
 
@@ -34,7 +36,7 @@ const labelStyle: React.CSSProperties = {
 	gap: 6,
 	fontSize: 12.5,
 	fontWeight: 500,
-	color: "oklch(38% 0.012 250)",
+	color: "var(--color-label)",
 };
 
 const fieldRowStyle: React.CSSProperties = {
@@ -53,6 +55,7 @@ interface Props {
 
 export function ApplicationFormModal({ initial, initialStatus, onSubmit, onClose, onDelete }: Props) {
 	const { t } = useTranslation();
+	const { defaultCurrency } = useAuth();
 	const [form, setForm] = useState<CreateApplicationRequest>({
 		company: initial?.company ?? "",
 		role: initial?.role ?? "",
@@ -60,7 +63,7 @@ export function ApplicationFormModal({ initial, initialStatus, onSubmit, onClose
 		workMode: initial?.workMode ?? undefined,
 		salaryMin: initial?.salaryMin ?? undefined,
 		salaryMax: initial?.salaryMax ?? undefined,
-		currency: initial?.currency ?? "EUR",
+		currency: initial?.currency ?? defaultCurrency,
 		techStack: initial?.techStack ?? "",
 		applicationDate: initial?.applicationDate ?? "",
 		status: initial?.status ?? initialStatus ?? "SAVED",
@@ -90,7 +93,7 @@ export function ApplicationFormModal({ initial, initialStatus, onSubmit, onClose
 			style={{
 				position: "fixed",
 				inset: 0,
-				background: "oklch(22% 0.014 250 / 0.35)",
+				background: "var(--color-overlay-backdrop)",
 				display: "flex",
 				alignItems: "center",
 				justifyContent: "center",
@@ -101,7 +104,7 @@ export function ApplicationFormModal({ initial, initialStatus, onSubmit, onClose
 			<div
 				onClick={(e) => e.stopPropagation()}
 				style={{
-					background: "#fff",
+					background: "var(--color-surface)",
 					borderRadius: 16,
 					padding: 32,
 					width: "100%",
@@ -230,11 +233,11 @@ export function ApplicationFormModal({ initial, initialStatus, onSubmit, onClose
 								type="button"
 								onClick={onDelete}
 								style={{
-									border: "1px solid oklch(50% 0.15 30)",
+									border: "1px solid var(--color-danger)",
 									borderRadius: 10,
 									padding: "10px 16px",
-									background: "#fff",
-									color: "oklch(50% 0.15 30)",
+									background: "var(--color-surface)",
+									color: "var(--color-danger)",
 									font: "600 13px var(--font-body)",
 									cursor: "pointer",
 								}}
@@ -250,7 +253,7 @@ export function ApplicationFormModal({ initial, initialStatus, onSubmit, onClose
 								borderRadius: 10,
 								padding: "10px 16px",
 								background: "var(--color-accent)",
-								color: "#fff",
+								color: "var(--color-on-accent)",
 								font: "600 13px var(--font-body)",
 								cursor: submitting ? "default" : "pointer",
 								opacity: submitting ? 0.7 : 1,

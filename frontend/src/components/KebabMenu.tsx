@@ -69,10 +69,10 @@ export function KebabMenu({ items, ariaLabel }: Props) {
 						position: "absolute",
 						top: "calc(100% + 4px)",
 						right: 0,
-						background: "#fff",
+						background: "var(--color-surface)",
 						border: "1px solid var(--color-border)",
 						borderRadius: 12,
-						boxShadow: "0 12px 32px oklch(22% 0.014 250 / 0.12)",
+						boxShadow: "0 12px 32px var(--color-shadow-md)",
 						padding: 6,
 						display: "flex",
 						flexDirection: "column",
@@ -98,7 +98,7 @@ export function KebabMenu({ items, ariaLabel }: Props) {
 								font: "500 13px var(--font-body)",
 								textAlign: "left",
 								cursor: "pointer",
-								color: item.variant === "danger" ? "oklch(50% 0.15 30)" : "var(--color-text)",
+								color: item.variant === "danger" ? "var(--color-danger)" : "var(--color-text)",
 							}}
 						>
 							{item.label}

@@ -3,6 +3,8 @@ import { apiClient } from "./client";
 export interface AuthResponse {
 	token: string;
 	email: string;
+	language: string;
+	defaultCurrency: string;
 }
 
 export async function register(email: string, password: string): Promise<AuthResponse> {

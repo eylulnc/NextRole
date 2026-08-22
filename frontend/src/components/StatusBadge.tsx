@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import i18n from "../i18n/config";
 import type { ApplicationStatus } from "../types/application";
+import { useTheme } from "../context/ThemeContext";
 
 const STAGE_HUE: Record<ApplicationStatus, number> = {
 	SAVED: 230,
@@ -14,7 +15,9 @@ const STAGE_HUE: Record<ApplicationStatus, number> = {
 
 export function StatusBadge({ status }: { status: ApplicationStatus }) {
 	const { t } = useTranslation();
+	const { resolvedTheme } = useTheme();
 	const hue = STAGE_HUE[status];
+	const isDark = resolvedTheme === "dark";
 	return (
 		<span
 			style={{
@@ -22,8 +25,8 @@ export function StatusBadge({ status }: { status: ApplicationStatus }) {
 				fontWeight: 600,
 				padding: "4px 10px",
 				borderRadius: 20,
-				background: `oklch(93% 0.03 ${hue})`,
-				color: `oklch(40% 0.11 ${hue})`,
+				background: isDark ? `oklch(32% 0.09 ${hue})` : `oklch(93% 0.03 ${hue})`,
+				color: isDark ? `oklch(88% 0.14 ${hue})` : `oklch(40% 0.11 ${hue})`,
 				whiteSpace: "nowrap",
 			}}
 		>
@@ -34,6 +37,10 @@ export function StatusBadge({ status }: { status: ApplicationStatus }) {
 
 export function statusHue(status: ApplicationStatus): number {
 	return STAGE_HUE[status];
+}
+
+export function statusDotColor(status: ApplicationStatus): string {
+	return `oklch(60% 0.13 ${STAGE_HUE[status]})`;
 }
 
 export function statusOptions(): { value: ApplicationStatus; label: string }[] {

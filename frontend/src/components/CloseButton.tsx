@@ -17,7 +17,7 @@ export function CloseButton({ onClick }: { onClick: () => void }) {
 				height: 24,
 				borderRadius: "50%",
 				border: "none",
-				background: "oklch(95% 0.006 250)",
+				background: "var(--color-chip-bg)",
 				color: "var(--color-text-muted)",
 				cursor: "pointer",
 				display: "flex",

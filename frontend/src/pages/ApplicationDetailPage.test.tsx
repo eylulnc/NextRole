@@ -5,6 +5,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { ApplicationDetailPage } from "./ApplicationDetailPage";
 import { AuthProvider } from "../context/AuthContext";
 import { ToastProvider } from "../context/ToastContext";
+import { ThemeProvider } from "../context/ThemeContext";
 import * as applicationsApi from "../api/applications";
 import type { Application, Contact, Interview, Note, StatusHistoryEntry } from "../types/application";
 
@@ -38,13 +39,15 @@ function renderDetailPage() {
 	localStorage.setItem("nextrole_token", "fake-token");
 	return render(
 		<MemoryRouter initialEntries={["/applications/app-1"]}>
-			<AuthProvider>
-				<ToastProvider>
-					<Routes>
-						<Route path="/applications/:id" element={<ApplicationDetailPage />} />
-					</Routes>
-				</ToastProvider>
-			</AuthProvider>
+			<ThemeProvider>
+				<AuthProvider>
+					<ToastProvider>
+						<Routes>
+							<Route path="/applications/:id" element={<ApplicationDetailPage />} />
+						</Routes>
+					</ToastProvider>
+				</AuthProvider>
+			</ThemeProvider>
 		</MemoryRouter>
 	);
 }

@@ -20,7 +20,7 @@ export function IconButton({ onClick, label, variant = "default", children }: Pr
 				border: "none",
 				borderRadius: 8,
 				background: "transparent",
-				color: variant === "danger" ? "oklch(50% 0.15 30)" : "var(--color-text-muted)",
+				color: variant === "danger" ? "var(--color-danger)" : "var(--color-text-muted)",
 				cursor: "pointer",
 			}}
 		>

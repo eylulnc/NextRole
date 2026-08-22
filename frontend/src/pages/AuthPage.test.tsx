@@ -25,7 +25,7 @@ describe("AuthPage", () => {
 	});
 
 	it("logs in with email and password", async () => {
-		vi.mocked(authApi.login).mockResolvedValue({ token: "fake-token", email: "user@example.com" });
+		vi.mocked(authApi.login).mockResolvedValue({ token: "fake-token", email: "user@example.com", language: "en", defaultCurrency: "EUR" });
 		renderAuthPage();
 
 		await userEvent.type(screen.getByLabelText("Email"), "user@example.com");
@@ -39,7 +39,7 @@ describe("AuthPage", () => {
 	});
 
 	it("switches to the signup form and registers", async () => {
-		vi.mocked(authApi.register).mockResolvedValue({ token: "fake-token", email: "new@example.com" });
+		vi.mocked(authApi.register).mockResolvedValue({ token: "fake-token", email: "new@example.com", language: "en", defaultCurrency: "EUR" });
 		renderAuthPage();
 
 		await userEvent.click(screen.getByRole("link", { name: "Sign up" }));

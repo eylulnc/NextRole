@@ -16,7 +16,7 @@ export function ConfirmDialog({ message, onConfirm, onCancel }: ConfirmDialogPro
 			style={{
 				position: "fixed",
 				inset: 0,
-				background: "oklch(22% 0.014 250 / 0.35)",
+				background: "var(--color-overlay-backdrop)",
 				display: "flex",
 				alignItems: "center",
 				justifyContent: "center",
@@ -28,7 +28,7 @@ export function ConfirmDialog({ message, onConfirm, onCancel }: ConfirmDialogPro
 			<div
 				onClick={(e) => e.stopPropagation()}
 				style={{
-					background: "#fff",
+					background: "var(--color-surface)",
 					borderRadius: 16,
 					padding: 24,
 					width: "100%",
@@ -47,7 +47,7 @@ export function ConfirmDialog({ message, onConfirm, onCancel }: ConfirmDialogPro
 							border: "1px solid var(--color-border)",
 							borderRadius: 10,
 							padding: "9px 16px",
-							background: "#fff",
+							background: "var(--color-surface)",
 							color: "var(--color-text)",
 							font: "600 13px var(--font-body)",
 							cursor: "pointer",
@@ -62,8 +62,8 @@ export function ConfirmDialog({ message, onConfirm, onCancel }: ConfirmDialogPro
 							border: "none",
 							borderRadius: 10,
 							padding: "9px 16px",
-							background: "oklch(50% 0.15 30)",
-							color: "#fff",
+							background: "var(--color-danger)",
+							color: "var(--color-on-accent)",
 							font: "600 13px var(--font-body)",
 							cursor: "pointer",
 						}}

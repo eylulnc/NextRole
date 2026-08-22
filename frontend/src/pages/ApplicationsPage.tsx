@@ -128,7 +128,7 @@ export function ApplicationsPage() {
 						borderRadius: 10,
 						padding: "11px 18px",
 						background: "var(--color-accent)",
-						color: "#fff",
+						color: "var(--color-on-accent)",
 						font: "600 13px var(--font-body)",
 						cursor: "pointer",
 					}}
@@ -138,7 +138,7 @@ export function ApplicationsPage() {
 			</div>
 
 			<div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-				<div style={{ display: "flex", background: "oklch(94% 0.006 250)", borderRadius: 10, padding: 3 }}>
+				<div style={{ display: "flex", background: "var(--color-border)", borderRadius: 10, padding: 3 }}>
 					{(["board", "table"] as View[]).map((v) => (
 						<div
 							key={v}
@@ -151,7 +151,7 @@ export function ApplicationsPage() {
 								borderRadius: 8,
 								font: "600 13px var(--font-body)",
 								cursor: "pointer",
-								background: view === v ? "#fff" : "transparent",
+								background: view === v ? "var(--color-surface)" : "transparent",
 								color: view === v ? "var(--color-text)" : "var(--color-text-faint)",
 							}}
 						>
@@ -170,7 +170,8 @@ export function ApplicationsPage() {
 						padding: "9px 14px",
 						font: "13px var(--font-body)",
 						minWidth: 260,
-						background: "#fff",
+						background: "var(--color-surface)",
+						color: "var(--color-text)",
 					}}
 				/>
 			</div>
@@ -195,7 +196,7 @@ export function ApplicationsPage() {
 					onDelete={handleDelete}
 				/>
 			) : (
-				<div style={{ background: "#fff", border: "1px solid var(--color-border)", borderRadius: 14, overflowX: "auto" }}>
+				<div style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: 14, overflowX: "auto" }}>
 					<div style={{ minWidth: 920 }}>
 					<div
 						style={{
@@ -211,7 +212,7 @@ export function ApplicationsPage() {
 							borderBottom: "1px solid var(--color-border)",
 							position: "sticky",
 							top: 0,
-							background: "#fff",
+							background: "var(--color-surface)",
 							zIndex: 1,
 						}}
 					>
@@ -233,7 +234,7 @@ export function ApplicationsPage() {
 								columnGap: 16,
 								padding: "14px 20px",
 								alignItems: "center",
-								borderBottom: "1px solid oklch(95% 0.005 250)",
+								borderBottom: "1px solid var(--color-border)",
 								fontSize: 13,
 								cursor: "pointer",
 							}}
@@ -242,8 +243,8 @@ export function ApplicationsPage() {
 								<div style={{ fontWeight: 600 }}>{app.company}</div>
 								<div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>{app.role}</div>
 							</div>
-							<div style={{ color: "oklch(40% 0.012 250)" }}>{formatLocation(app.location, app.workMode) ?? "—"}</div>
-							<div style={{ color: "oklch(40% 0.012 250)" }}>
+							<div style={{ color: "var(--color-text-muted)" }}>{formatLocation(app.location, app.workMode) ?? "—"}</div>
+							<div style={{ color: "var(--color-text-muted)" }}>
 								{formatSalaryRange(app.salaryMin, app.salaryMax, app.currency) ?? "—"}
 							</div>
 							<div style={{ display: "flex", gap: 5, flexWrap: "nowrap", overflow: "hidden" }}>
@@ -262,10 +263,10 @@ export function ApplicationsPage() {
 													key={t}
 													style={{
 														font: "500 10px var(--font-mono)",
-														background: "oklch(95% 0.006 250)",
+														background: "var(--color-sidebar-bg)",
 														padding: "3px 6px",
 														borderRadius: 5,
-														color: "oklch(38% 0.012 250)",
+														color: "var(--color-text-muted)",
 														whiteSpace: "nowrap",
 													}}
 												>

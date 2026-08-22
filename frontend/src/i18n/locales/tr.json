@@ -1,0 +1,235 @@
+{
+	"app": {
+		"name": "NextRole"
+	},
+	"common": {
+		"actions": "İşlemler",
+		"edit": "Düzenle",
+		"delete": "Sil",
+		"cancel": "Vazgeç"
+	},
+	"nav": {
+		"logOut": "Çıkış yap",
+		"collapseSidebar": "Kenar çubuğunu daralt",
+		"expandSidebar": "Kenar çubuğunu genişlet",
+		"settings": "Ayarlar"
+	},
+	"status": {
+		"SAVED": "Kaydedildi",
+		"APPLIED": "Başvuruldu",
+		"HR_INTERVIEW": "İK Görüşmesi",
+		"TECHNICAL": "Teknik",
+		"FINAL": "Final Görüşmesi",
+		"OFFER": "Teklif",
+		"REJECTED": "Reddedildi"
+	},
+	"auth": {
+		"welcomeBackTitle": "Tekrar hoş geldin",
+		"welcomeBackSubtitle": "Başvurularını takip etmeye devam etmek için giriş yap.",
+		"createAccountTitle": "Hesabını oluştur",
+		"createAccountSubtitle": "İş aramana dakikalar içinde başla.",
+		"emailLabel": "E-posta",
+		"emailPlaceholder": "sen@ornek.com",
+		"passwordLabel": "Şifre",
+		"signInCta": "Giriş yap",
+		"createAccountCta": "Hesap oluştur",
+		"noAccount": "Hesabın yok mu?",
+		"haveAccount": "Zaten hesabın var mı?",
+		"signUpLink": "Kaydol",
+		"signInLink": "Giriş yap",
+		"signupError": "Hesap oluşturulamadı. Farklı bir e-posta dene.",
+		"loginError": "Geçersiz e-posta veya şifre."
+	},
+	"nav_links": {
+		"dashboard": "Panel",
+		"applications": "Başvurular",
+		"calendar": "Takvim",
+		"analytics": "Analiz"
+	},
+	"calendar": {
+		"title": "Takvim",
+		"previousMonth": "Önceki ay",
+		"nextMonth": "Sonraki ay",
+		"viewUpcoming": "Yaklaşanları görüntüle",
+		"noInterviewsOnDay": "Bu günde görüşme yok.",
+		"weekdays": {
+			"sun": "Paz",
+			"mon": "Pzt",
+			"tue": "Sal",
+			"wed": "Çar",
+			"thu": "Per",
+			"fri": "Cum",
+			"sat": "Cmt"
+		}
+	},
+	"dashboard": {
+		"title": "Panel",
+		"subtitle": "{{count}} aktif başvuru",
+		"stats": {
+			"activeApplications": "Aktif başvurular",
+			"interviewsThisWeek": "Bu haftaki görüşmeler",
+			"responseRate": "Yanıt oranı",
+			"avgDaysInPipeline": "Süreçte ort. gün"
+		},
+		"addedThisMonth": "+{{count}} bu ay",
+		"acrossPipeline": "Tüm süreç genelinde",
+		"upcomingInterviews": "Yaklaşan görüşmeler",
+		"recentActivity": "Son etkinlik",
+		"pipelineOverview": "Süreç özeti",
+		"noUpcomingInterviews": "Planlanmış görüşme yok.",
+		"noRecentActivity": "Henüz etkinlik yok.",
+		"movedTo": "{{company}} {{status}} durumuna geçti"
+	},
+	"analytics": {
+		"title": "Analiz",
+		"subtitle": "Başvurularındaki eğilimler",
+		"funnel": "Süreç hunisi",
+		"applicationsOverTime": "Zaman içinde başvurular",
+		"topTechnologies": "En çok kullanılan teknolojiler",
+		"noTechnologies": "Henüz teknoloji verisi yok.",
+		"stageConversionRate": "Aşama dönüşüm oranı",
+		"applicationsByWorkMode": "Çalışma şekline göre başvurular"
+	},
+	"applications": {
+		"title": "Başvurular",
+		"newApplication": "+ Yeni başvuru",
+		"searchPlaceholder": "Şirket veya pozisyon ara",
+		"boardView": "Pano",
+		"tableView": "Tablo",
+		"loading": "Yükleniyor…",
+		"empty": "Henüz başvuru yok. İlkini ekle.",
+		"emptySearch": "Aramanla eşleşen başvuru yok.",
+		"clearSearch": "Aramayı temizle",
+		"confirmDelete": "Bu başvuru silinsin mi?",
+		"actionsAria": "{{company}} için işlemler",
+		"toasts": {
+			"created": "Başvuru oluşturuldu",
+			"updated": "Başvuru güncellendi",
+			"deleted": "Başvuru silindi",
+			"statusChanged": "Durum güncellendi",
+			"error": "Bir şeyler ters gitti. Lütfen tekrar dene."
+		},
+		"columns": {
+			"companyRole": "Şirket / Pozisyon",
+			"location": "Konum",
+			"salary": "Maaş",
+			"techStack": "Teknoloji",
+			"status": "Durum",
+			"applied": "Başvuru tarihi"
+		}
+	},
+	"settingsModal": {
+		"title": "Ayarlar",
+		"language": "Dil",
+		"defaultCurrency": "Varsayılan para birimi",
+		"theme": "Tema",
+		"languageOptions": {
+			"en": "English",
+			"de": "Deutsch",
+			"tr": "Türkçe"
+		},
+		"themeOptions": {
+			"system": "Sistem",
+			"light": "Açık",
+			"dark": "Koyu"
+		},
+		"saveCta": "Değişiklikleri kaydet",
+		"cancel": "Vazgeç",
+		"toasts": {
+			"updated": "Ayarlar güncellendi",
+			"error": "Bir şeyler ters gitti. Lütfen tekrar dene."
+		}
+	},
+	"applicationForm": {
+		"newTitle": "Yeni başvuru",
+		"editTitle": "Başvuruyu düzenle",
+		"company": "Şirket",
+		"role": "Pozisyon",
+		"location": "Konum",
+		"salaryMin": "Min. maaş",
+		"salaryMax": "Maks. maaş",
+		"currency": "Para birimi",
+		"workMode": "Çalışma şekli",
+		"workModeOptions": {
+			"none": "—",
+			"REMOTE": "Uzaktan",
+			"HYBRID": "Hibrit",
+			"ONSITE": "Ofisten"
+		},
+		"techStack": "Teknoloji (virgülle ayrılmış)",
+		"applicationDate": "Başvuru tarihi",
+		"status": "Durum",
+		"jobDescription": "İş tanımı",
+		"cancel": "Vazgeç",
+		"createCta": "Başvuru oluştur",
+		"saveCta": "Değişiklikleri kaydet",
+		"deleteCta": "Başvuruyu sil"
+	},
+	"applicationDetail": {
+		"back": "← Başvurulara dön",
+		"edit": "Düzenle",
+		"changeStage": "Aşamayı değiştir",
+		"tabs": {
+			"overview": "Genel bakış",
+			"history": "Durum geçmişi",
+			"interviews": "Görüşmeler",
+			"contacts": "Kişiler",
+			"notes": "Notlar"
+		},
+		"jobDescription": "İş tanımı",
+		"noJobDescription": "Henüz iş tanımı kaydedilmedi.",
+		"techStack": "Teknoloji",
+		"keyDates": "Önemli tarihler",
+		"applied": "Başvuru tarihi: {{date}}",
+		"notAppliedYet": "Henüz başvurulmadı",
+		"lastUpdated": "Son güncelleme: {{date}}",
+		"noInterviews": "Henüz görüşme planlanmadı.",
+		"noContacts": "Henüz kişi kaydedilmedi.",
+		"noNotes": "Henüz not yok.",
+		"notesSort": {
+			"newestFirst": "Önce en yeni",
+			"oldestFirst": "Önce en eski"
+		},
+		"addInterview": "Görüşme ekle",
+		"addContact": "Kişi ekle",
+		"addNote": "Not ekle",
+		"cancel": "Vazgeç",
+		"noteActionsAria": "Not işlemleri",
+		"interviewActionsAria": "{{round}} için işlemler",
+		"contactActionsAria": "{{name}} için işlemler",
+		"confirmDeleteNote": "Bu not silinsin mi?",
+		"confirmDeleteInterview": "Bu görüşme silinsin mi?",
+		"confirmDeleteContact": "Bu kişi silinsin mi?",
+		"toasts": {
+			"noteAdded": "Not eklendi",
+			"noteUpdated": "Not güncellendi",
+			"noteDeleted": "Not silindi",
+			"interviewAdded": "Görüşme eklendi",
+			"interviewUpdated": "Görüşme güncellendi",
+			"interviewDeleted": "Görüşme silindi",
+			"contactAdded": "Kişi eklendi",
+			"contactUpdated": "Kişi güncellendi",
+			"contactDeleted": "Kişi silindi"
+		},
+		"noteForm": {
+			"placeholder": "Not ekle…",
+			"submit": "Not ekle",
+			"saveCta": "Değişiklikleri kaydet"
+		},
+		"interviewForm": {
+			"roundPlaceholder": "Aşama (ör. İK Görüşmesi)",
+			"interviewerPlaceholder": "Görüşmeci",
+			"modePlaceholder": "Format (ör. Görüntülü görüşme)",
+			"notesPlaceholder": "Notlar (opsiyonel)",
+			"submit": "Görüşme ekle",
+			"saveCta": "Değişiklikleri kaydet"
+		},
+		"contactForm": {
+			"namePlaceholder": "İsim",
+			"rolePlaceholder": "Pozisyon",
+			"emailPlaceholder": "E-posta",
+			"submit": "Kişi ekle",
+			"saveCta": "Değişiklikleri kaydet"
+		}
+	}
+}
