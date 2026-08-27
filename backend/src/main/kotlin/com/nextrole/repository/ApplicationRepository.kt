@@ -10,4 +10,5 @@ interface ApplicationRepository : JpaRepository<Application, UUID> {
 	fun findByUserId(userId: UUID, pageable: Pageable): Page<Application>
 	fun findByUserId(userId: UUID): List<Application>
 	fun findByIdAndUserId(id: UUID, userId: UUID): Application?
+	fun existsByUserIdAndStatus(userId: UUID, status: String): Boolean
 }

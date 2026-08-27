@@ -1,11 +1,12 @@
 package com.nextrole.service
 
 import com.nextrole.domain.Application
-import com.nextrole.domain.ApplicationStatus
 import com.nextrole.domain.ApplicationStatusHistory
 import com.nextrole.exception.ApplicationNotFoundException
+import com.nextrole.exception.ResourceNotFoundException
 import com.nextrole.repository.ApplicationRepository
 import com.nextrole.repository.ApplicationStatusHistoryRepository
+import com.nextrole.repository.PipelineStageRepository
 import com.nextrole.web.dto.CreateApplicationRequest
 import com.nextrole.web.dto.UpdateApplicationRequest
 import org.springframework.data.domain.Page
@@ -17,10 +18,12 @@ import java.util.UUID
 @Service
 class ApplicationService(
 	private val applicationRepository: ApplicationRepository,
-	private val statusHistoryRepository: ApplicationStatusHistoryRepository
+	private val statusHistoryRepository: ApplicationStatusHistoryRepository,
+	private val pipelineStageRepository: PipelineStageRepository
 ) {
 
 	fun create(userId: UUID, request: CreateApplicationRequest): Application {
+		requireValidStage(userId, request.status)
 		val application = Application(
 			userId = userId,
 			company = request.company,
@@ -62,6 +65,7 @@ class ApplicationService(
 		request.applicationDate?.let { application.applicationDate = it }
 		request.notes?.let { application.notes = it }
 		if (request.status != null && request.status != application.status) {
+			requireValidStage(userId, request.status)
 			application.status = request.status
 			recordStatusChange(application.id, application.status)
 		}
@@ -69,7 +73,8 @@ class ApplicationService(
 		return applicationRepository.save(application)
 	}
 
-	fun changeStatus(userId: UUID, id: UUID, status: ApplicationStatus): Application {
+	fun changeStatus(userId: UUID, id: UUID, status: String): Application {
+		requireValidStage(userId, status)
 		val application = get(userId, id)
 		application.status = status
 		application.updatedAt = Instant.now()
@@ -88,7 +93,13 @@ class ApplicationService(
 		applicationRepository.delete(application)
 	}
 
-	private fun recordStatusChange(applicationId: UUID, status: ApplicationStatus) {
+	private fun requireValidStage(userId: UUID, status: String) {
+		if (pipelineStageRepository.findByUserIdAndKey(userId, status) == null) {
+			throw ResourceNotFoundException("PipelineStage", status)
+		}
+	}
+
+	private fun recordStatusChange(applicationId: UUID, status: String) {
 		statusHistoryRepository.save(ApplicationStatusHistory(applicationId = applicationId, status = status))
 	}
 }

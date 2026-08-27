@@ -1,11 +1,10 @@
 package com.nextrole.web.dto
 
-import com.nextrole.domain.ApplicationStatus
 import java.time.Instant
 import java.util.UUID
 
 data class FunnelStageCount(
-	val status: ApplicationStatus,
+	val status: String,
 	val count: Int
 )
 
@@ -20,7 +19,7 @@ data class UpcomingInterviewResponse(
 data class RecentActivityResponse(
 	val applicationId: UUID,
 	val company: String,
-	val status: ApplicationStatus,
+	val status: String,
 	val changedAt: Instant
 )
 

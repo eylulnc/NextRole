@@ -1,6 +1,5 @@
 package com.nextrole.web.dto
 
-import com.nextrole.domain.ApplicationStatus
 import jakarta.validation.constraints.NotBlank
 import java.time.Instant
 import java.time.LocalDate
@@ -17,7 +16,7 @@ data class CreateApplicationRequest(
 	val techStack: String? = null,
 	val jobDescription: String? = null,
 	val applicationDate: LocalDate? = null,
-	val status: ApplicationStatus = ApplicationStatus.SAVED,
+	val status: String = "SAVED",
 	val notes: String? = null
 )
 
@@ -32,7 +31,7 @@ data class UpdateApplicationRequest(
 	val techStack: String? = null,
 	val jobDescription: String? = null,
 	val applicationDate: LocalDate? = null,
-	val status: ApplicationStatus? = null,
+	val status: String? = null,
 	val notes: String? = null
 )
 
@@ -48,7 +47,7 @@ data class ApplicationResponse(
 	val techStack: String?,
 	val jobDescription: String?,
 	val applicationDate: LocalDate?,
-	val status: ApplicationStatus,
+	val status: String,
 	val notes: String?,
 	val createdAt: Instant,
 	val updatedAt: Instant

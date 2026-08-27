@@ -1,9 +1,10 @@
 package com.nextrole.service
 
-import com.nextrole.domain.ApplicationStatus
+import com.nextrole.domain.PipelineStageCategory
 import com.nextrole.repository.ApplicationRepository
 import com.nextrole.repository.ApplicationStatusHistoryRepository
 import com.nextrole.repository.InterviewRepository
+import com.nextrole.repository.PipelineStageRepository
 import com.nextrole.web.dto.DashboardStatisticsResponse
 import com.nextrole.web.dto.FunnelStageCount
 import com.nextrole.web.dto.RecentActivityResponse
@@ -15,8 +16,6 @@ import java.time.YearMonth
 import java.time.ZoneOffset
 import java.util.UUID
 
-private val TERMINAL_STATUSES = setOf(ApplicationStatus.OFFER, ApplicationStatus.REJECTED)
-private val PRE_RESPONSE_STATUSES = setOf(ApplicationStatus.SAVED, ApplicationStatus.APPLIED)
 private const val RECENT_ACTIVITY_LIMIT = 5
 private const val UPCOMING_INTERVIEWS_LIMIT = 5
 
@@ -24,7 +23,8 @@ private const val UPCOMING_INTERVIEWS_LIMIT = 5
 class DashboardService(
 	private val applicationRepository: ApplicationRepository,
 	private val interviewRepository: InterviewRepository,
-	private val statusHistoryRepository: ApplicationStatusHistoryRepository
+	private val statusHistoryRepository: ApplicationStatusHistoryRepository,
+	private val pipelineStageRepository: PipelineStageRepository
 ) {
 
 	fun getStatistics(userId: UUID): DashboardStatisticsResponse {
@@ -32,7 +32,11 @@ class DashboardService(
 		val applicationsById = applications.associateBy { it.id }
 		val now = Instant.now()
 
-		val activeApplications = applications.filter { it.status !in TERMINAL_STATUSES }
+		val stages = pipelineStageRepository.findByUserIdOrderByOrderIndexAsc(userId).filter { it.visible }
+		val terminalKeys = stages.filter { it.category == PipelineStageCategory.TERMINAL }.map { it.key }.toSet()
+		val preResponseKeys = stages.filter { it.category == PipelineStageCategory.PRE_RESPONSE }.map { it.key }.toSet()
+
+		val activeApplications = applications.filter { it.status !in terminalKeys }
 
 		val startOfMonth = YearMonth.now().atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant()
 		val applicationsAddedThisMonth = applications.count { it.createdAt >= startOfMonth }
@@ -40,8 +44,10 @@ class DashboardService(
 		val upcomingInterviews = interviewRepository.findUpcomingByUserId(userId, now)
 		val interviewsThisWeek = upcomingInterviews.count { it.scheduledAt <= now.plus(Duration.ofDays(7)) }
 
-		val applied = applications.filter { it.status !in setOf(ApplicationStatus.SAVED) }
-		val responded = applied.filter { it.status !in PRE_RESPONSE_STATUSES }
+		// "SAVED" specifically means "not yet applied" — distinct from the broader PRE_RESPONSE
+		// category. SAVED is a built-in stage that can never be deleted, so this is safe long-term.
+		val applied = applications.filter { it.status != "SAVED" }
+		val responded = applied.filter { it.status !in preResponseKeys }
 		val responseRatePercent = if (applied.isEmpty()) 0 else (responded.size * 100) / applied.size
 
 		val avgDaysInPipeline = if (activeApplications.isEmpty()) {
@@ -53,8 +59,8 @@ class DashboardService(
 				.toInt()
 		}
 
-		val funnelStages = ApplicationStatus.entries.map { status ->
-			FunnelStageCount(status = status, count = applications.count { it.status == status })
+		val funnelStages = stages.map { stage ->
+			FunnelStageCount(status = stage.key, count = applications.count { it.status == stage.key })
 		}
 
 		val upcomingInterviewsResponse = upcomingInterviews.take(UPCOMING_INTERVIEWS_LIMIT).mapNotNull { interview ->

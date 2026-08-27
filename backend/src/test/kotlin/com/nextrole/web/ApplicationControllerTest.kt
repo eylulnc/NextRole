@@ -3,7 +3,6 @@ package com.nextrole.web
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import com.nextrole.domain.Application
-import com.nextrole.domain.ApplicationStatus
 import com.nextrole.domain.ApplicationStatusHistory
 import com.nextrole.exception.ApplicationNotFoundException
 import com.nextrole.service.ApplicationService
@@ -102,12 +101,12 @@ class ApplicationControllerTest {
 	@Test
 	fun `changeStatus returns the updated application`() {
 		val id = UUID.randomUUID()
-		val updated = Application(id = id, userId = userId, company = "Acme", role = "Backend Engineer", status = ApplicationStatus.APPLIED)
-		every { applicationService.changeStatus(userId, id, ApplicationStatus.APPLIED) } returns updated
+		val updated = Application(id = id, userId = userId, company = "Acme", role = "Backend Engineer", status = "APPLIED")
+		every { applicationService.changeStatus(userId, id, "APPLIED") } returns updated
 
 		mockMvc.post("/api/applications/$id/status") {
 			contentType = MediaType.APPLICATION_JSON
-			content = objectMapper.writeValueAsString(ChangeStatusRequest(ApplicationStatus.APPLIED))
+			content = objectMapper.writeValueAsString(ChangeStatusRequest("APPLIED"))
 		}.andExpect {
 			status { isOk() }
 			jsonPath("$.status") { value("APPLIED") }
@@ -117,7 +116,7 @@ class ApplicationControllerTest {
 	@Test
 	fun `history returns the status timeline`() {
 		val id = UUID.randomUUID()
-		val entries = listOf(ApplicationStatusHistory(applicationId = id, status = ApplicationStatus.SAVED))
+		val entries = listOf(ApplicationStatusHistory(applicationId = id, status = "SAVED"))
 		every { applicationService.getHistory(userId, id) } returns entries
 
 		mockMvc.get("/api/applications/$id/history").andExpect {

@@ -44,9 +44,8 @@ class Application(
 	@Column(name = "application_date")
 	var applicationDate: LocalDate? = null,
 
-	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	var status: ApplicationStatus = ApplicationStatus.SAVED,
+	var status: String = "SAVED",
 
 	@Column(columnDefinition = "TEXT")
 	var notes: String? = null,

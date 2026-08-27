@@ -27,6 +27,18 @@ class GlobalExceptionHandler {
 	fun handleResourceNotFound(ex: ResourceNotFoundException): ResponseEntity<ErrorResponse> =
 		ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse(ex.message ?: "Not found"))
 
+	@ExceptionHandler(PipelineStageInUseException::class)
+	fun handlePipelineStageInUse(ex: PipelineStageInUseException): ResponseEntity<ErrorResponse> =
+		ResponseEntity.status(HttpStatus.CONFLICT).body(ErrorResponse(ex.message ?: "Stage is in use"))
+
+	@ExceptionHandler(BuiltInPipelineStageException::class)
+	fun handleBuiltInPipelineStage(ex: BuiltInPipelineStageException): ResponseEntity<ErrorResponse> =
+		ResponseEntity.status(HttpStatus.CONFLICT).body(ErrorResponse(ex.message ?: "Cannot delete a built-in stage"))
+
+	@ExceptionHandler(PipelineStageLimitExceededException::class)
+	fun handlePipelineStageLimitExceeded(ex: PipelineStageLimitExceededException): ResponseEntity<ErrorResponse> =
+		ResponseEntity.status(HttpStatus.CONFLICT).body(ErrorResponse(ex.message ?: "Pipeline stage limit reached"))
+
 	@ExceptionHandler(MethodArgumentNotValidException::class)
 	fun handleValidation(ex: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
 		val message = ex.bindingResult.fieldErrors

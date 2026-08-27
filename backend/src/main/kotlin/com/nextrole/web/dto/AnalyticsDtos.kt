@@ -1,7 +1,5 @@
 package com.nextrole.web.dto
 
-import com.nextrole.domain.ApplicationStatus
-
 data class MonthlyApplicationCount(
 	val month: String,
 	val count: Int
@@ -13,7 +11,7 @@ data class TechnologyCount(
 )
 
 data class StageConversionRate(
-	val status: ApplicationStatus,
+	val status: String,
 	val conversionRatePercent: Int
 )
 
