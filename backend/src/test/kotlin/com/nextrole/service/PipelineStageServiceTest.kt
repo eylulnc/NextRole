@@ -40,15 +40,30 @@ class PipelineStageServiceTest {
 	)
 
 	@Test
-	fun `seedDefaults creates the 7 built-in stages`() {
+	fun `seedDefaults creates the 8 built-in stages`() {
 		val savedSlots = mutableListOf<PipelineStage>()
 		every { pipelineStageRepository.save(capture(savedSlots)) } answers { savedSlots.last() }
 
 		pipelineStageService.seedDefaults(userId)
 
-		assertEquals(7, savedSlots.size)
-		assertEquals(setOf("SAVED", "APPLIED", "HR_INTERVIEW", "TECHNICAL", "FINAL", "OFFER", "REJECTED"), savedSlots.map { it.key }.toSet())
+		assertEquals(8, savedSlots.size)
+		assertEquals(
+			setOf("SAVED", "APPLIED", "HR_INTERVIEW", "CODING_ASSIGNMENT", "TECHNICAL", "FINAL", "OFFER", "REJECTED"),
+			savedSlots.map { it.key }.toSet()
+		)
 		assert(savedSlots.all { it.isBuiltIn })
+	}
+
+	@Test
+	fun `seedDefaults creates Coding Assignment hidden by default`() {
+		val savedSlots = mutableListOf<PipelineStage>()
+		every { pipelineStageRepository.save(capture(savedSlots)) } answers { savedSlots.last() }
+
+		pipelineStageService.seedDefaults(userId)
+
+		val codingAssignment = savedSlots.single { it.key == "CODING_ASSIGNMENT" }
+		assert(!codingAssignment.visible)
+		assert(savedSlots.filter { it.key != "CODING_ASSIGNMENT" }.all { it.visible })
 	}
 
 	@Test

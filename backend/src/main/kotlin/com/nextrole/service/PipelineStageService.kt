@@ -20,7 +20,8 @@ private data class DefaultStage(
 	val key: String,
 	val label: String,
 	val hue: Int,
-	val category: PipelineStageCategory
+	val category: PipelineStageCategory,
+	val visible: Boolean = true
 )
 
 private val DEFAULT_STAGES = listOf(
@@ -30,7 +31,8 @@ private val DEFAULT_STAGES = listOf(
 	DefaultStage("TECHNICAL", "Technical", 310, PipelineStageCategory.ACTIVE),
 	DefaultStage("FINAL", "Final Round", 20, PipelineStageCategory.ACTIVE),
 	DefaultStage("OFFER", "Offer", 150, PipelineStageCategory.TERMINAL),
-	DefaultStage("REJECTED", "Rejected", 0, PipelineStageCategory.TERMINAL)
+	DefaultStage("REJECTED", "Rejected", 0, PipelineStageCategory.TERMINAL),
+	DefaultStage("CODING_ASSIGNMENT", "Coding Assignment", 85, PipelineStageCategory.ACTIVE, visible = false)
 )
 
 const val MAX_PIPELINE_STAGES = 12
@@ -56,7 +58,7 @@ class PipelineStageService(
 					hue = default.hue,
 					category = default.category,
 					isBuiltIn = true,
-					visible = true
+					visible = default.visible
 				)
 			)
 		}

@@ -35,5 +35,8 @@ SELECT gen_random_uuid(), id, 'OFFER', 'Offer', 5, 150, 'TERMINAL', TRUE, TRUE, 
 INSERT INTO pipeline_stages (id, user_id, key, label, order_index, hue, category, is_built_in, visible, created_at)
 SELECT gen_random_uuid(), id, 'REJECTED', 'Rejected', 6, 0, 'TERMINAL', TRUE, TRUE, now() FROM users;
 
+INSERT INTO pipeline_stages (id, user_id, key, label, order_index, hue, category, is_built_in, visible, created_at)
+SELECT gen_random_uuid(), id, 'CODING_ASSIGNMENT', 'Coding Assignment', 7, 85, 'ACTIVE', TRUE, FALSE, now() FROM users;
+
 ALTER TABLE applications
 	ADD CONSTRAINT fk_applications_status_stage FOREIGN KEY (user_id, status) REFERENCES pipeline_stages(user_id, key);

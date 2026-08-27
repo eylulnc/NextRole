@@ -18,7 +18,7 @@ import { ChevronDownIcon, CheckIcon, DragHandleIcon, EyeIcon, EyeOffIcon, TrashI
 
 const CATEGORIES: PipelineStageCategory[] = ["PRE_RESPONSE", "ACTIVE", "TERMINAL"];
 
-const DEFAULT_STAGE_KEY_ORDER = ["SAVED", "APPLIED", "HR_INTERVIEW", "TECHNICAL", "FINAL", "OFFER", "REJECTED"];
+const DEFAULT_STAGE_KEY_ORDER = ["SAVED", "APPLIED", "HR_INTERVIEW", "TECHNICAL", "FINAL", "OFFER", "REJECTED", "CODING_ASSIGNMENT"];
 
 const MAX_PIPELINE_STAGES = 12;
 
