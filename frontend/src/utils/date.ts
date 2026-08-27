@@ -9,6 +9,13 @@ export function formatDateTime(iso: string): string {
 	}).format(new Date(iso));
 }
 
+export function formatTime(iso: string): string {
+	return new Intl.DateTimeFormat(i18n.language, {
+		hour: "numeric",
+		minute: "2-digit",
+	}).format(new Date(iso));
+}
+
 export function formatDate(iso: string): string {
 	return new Intl.DateTimeFormat(i18n.language, {
 		month: "short",
