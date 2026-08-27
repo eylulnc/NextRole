@@ -7,15 +7,18 @@ import { App } from "./App";
 import { AuthProvider } from "./context/AuthContext";
 import { ToastProvider } from "./context/ToastContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import { PipelineStagesProvider } from "./context/PipelineStagesContext";
 
 createRoot(document.getElementById("root")!).render(
 	<StrictMode>
 		<BrowserRouter>
 			<ThemeProvider>
 				<AuthProvider>
-					<ToastProvider>
-						<App />
-					</ToastProvider>
+					<PipelineStagesProvider>
+						<ToastProvider>
+							<App />
+						</ToastProvider>
+					</PipelineStagesProvider>
 				</AuthProvider>
 			</ThemeProvider>
 		</BrowserRouter>

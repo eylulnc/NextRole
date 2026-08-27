@@ -244,5 +244,34 @@
 			"submit": "Add contact",
 			"saveCta": "Save changes"
 		}
+	},
+	"pipelineStages": {
+		"manage": "Manage pipeline stages",
+		"title": "Pipeline stages",
+		"subtitle": "Hide, reorder, or add your own stages. Built-in stages can be hidden but not deleted.",
+		"hide": "Hide",
+		"show": "Show",
+		"addPlaceholder": "New stage name",
+		"addCta": "Add",
+		"limitReached": "You've reached the limit of {{max}} pipeline stages",
+		"resetOrderCta": "Reset to original order",
+		"confirmDelete": "Delete the \"{{label}}\" stage?",
+		"duplicateName": "A stage named \"{{label}}\" already exists",
+		"categories": {
+			"PRE_RESPONSE": "Awaiting response",
+			"ACTIVE": "In progress",
+			"TERMINAL": "Closed"
+		},
+		"reassign": {
+			"title": "{{count}} applications are in \"{{label}}\"",
+			"description": "Move them to another stage first:",
+			"noTarget": "There's no other visible stage to move them to — show or add one first.",
+			"moveAndHideCta": "Move {{count}} and hide",
+			"moveAndDeleteCta": "Move {{count}} and delete",
+			"toastMoved": "Moved {{count}} applications"
+		},
+		"toasts": {
+			"error": "Something went wrong. Please try again."
+		}
 	}
 }

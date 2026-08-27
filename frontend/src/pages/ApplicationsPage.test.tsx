@@ -6,10 +6,14 @@ import { ApplicationsPage } from "./ApplicationsPage";
 import { AuthProvider } from "../context/AuthContext";
 import { ToastProvider } from "../context/ToastContext";
 import { ThemeProvider } from "../context/ThemeContext";
+import { PipelineStagesProvider } from "../context/PipelineStagesContext";
+import { SAMPLE_STAGES } from "../test/pipelineStagesFixture";
 import * as applicationsApi from "../api/applications";
+import * as pipelineStagesApi from "../api/pipelineStages";
 import type { Application, Page } from "../types/application";
 
 vi.mock("../api/applications");
+vi.mock("../api/pipelineStages");
 
 const SAMPLE_APPLICATION: Application = {
 	id: "app-1",
@@ -40,9 +44,11 @@ function renderApplicationsPage(initialEntries: Parameters<typeof MemoryRouter>[
 		<MemoryRouter initialEntries={initialEntries}>
 			<ThemeProvider>
 				<AuthProvider>
-					<ToastProvider>
-						<ApplicationsPage />
-					</ToastProvider>
+					<PipelineStagesProvider>
+						<ToastProvider>
+							<ApplicationsPage />
+						</ToastProvider>
+					</PipelineStagesProvider>
 				</AuthProvider>
 			</ThemeProvider>
 		</MemoryRouter>
@@ -53,6 +59,7 @@ describe("ApplicationsPage", () => {
 	beforeEach(() => {
 		localStorage.clear();
 		vi.clearAllMocks();
+		vi.mocked(pipelineStagesApi.listPipelineStages).mockResolvedValue(SAMPLE_STAGES);
 	});
 
 	it("renders the list of applications", async () => {

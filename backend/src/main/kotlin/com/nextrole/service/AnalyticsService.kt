@@ -1,8 +1,8 @@
 package com.nextrole.service
 
-import com.nextrole.domain.ApplicationStatus
 import com.nextrole.repository.ApplicationRepository
 import com.nextrole.repository.ApplicationStatusHistoryRepository
+import com.nextrole.repository.PipelineStageRepository
 import com.nextrole.web.dto.AnalyticsResponse
 import com.nextrole.web.dto.FunnelStageCount
 import com.nextrole.web.dto.MonthlyApplicationCount
@@ -21,19 +21,24 @@ private val WORK_MODES = listOf("REMOTE", "HYBRID", "ONSITE")
 @Service
 class AnalyticsService(
 	private val applicationRepository: ApplicationRepository,
-	private val statusHistoryRepository: ApplicationStatusHistoryRepository
+	private val statusHistoryRepository: ApplicationStatusHistoryRepository,
+	private val pipelineStageRepository: PipelineStageRepository
 ) {
 
 	fun getAnalytics(userId: UUID): AnalyticsResponse {
 		val applications = applicationRepository.findByUserId(userId)
+		val stages = pipelineStageRepository.findByUserIdOrderByOrderIndexAsc(userId).filter { it.visible }
 
-		val funnelStages = ApplicationStatus.entries.map { status ->
-			FunnelStageCount(status = status, count = applications.count { it.status == status })
+		val funnelStages = stages.map { stage ->
+			FunnelStageCount(status = stage.key, count = applications.count { it.status == stage.key })
 		}
 
 		val currentMonth = YearMonth.now()
 		val months = (MONTHS_OF_HISTORY - 1 downTo 0).map { currentMonth.minusMonths(it) }
-		val appliedApplications = applications.filter { it.status != ApplicationStatus.SAVED }
+		// "SAVED" specifically means "not yet applied" — distinct from the PRE_RESPONSE category
+		// (which also covers "applied, awaiting response"). SAVED is a built-in stage that can
+		// never be deleted, so this literal check is safe long-term.
+		val appliedApplications = applications.filter { it.status != "SAVED" }
 		val appliedMonths = appliedApplications.map { application ->
 			application.applicationDate?.let { YearMonth.from(it) }
 				?: YearMonth.from(application.createdAt.atZone(ZoneOffset.UTC))
@@ -53,8 +58,8 @@ class AnalyticsService(
 			.map { TechnologyCount(technology = it.key, count = it.value) }
 
 		val history = statusHistoryRepository.findAllByUserIdOrderByApplicationAndTime(userId)
-		val enteredByStatus = mutableMapOf<ApplicationStatus, Int>()
-		val advancedByStatus = mutableMapOf<ApplicationStatus, Int>()
+		val enteredByStatus = mutableMapOf<String, Int>()
+		val advancedByStatus = mutableMapOf<String, Int>()
 		history.groupBy { it.applicationId }.values.forEach { entries ->
 			entries.forEachIndexed { index, entry ->
 				enteredByStatus[entry.status] = (enteredByStatus[entry.status] ?: 0) + 1
@@ -63,11 +68,11 @@ class AnalyticsService(
 				}
 			}
 		}
-		val stageConversionRates = ApplicationStatus.entries.map { status ->
-			val entered = enteredByStatus[status] ?: 0
-			val advanced = advancedByStatus[status] ?: 0
+		val stageConversionRates = stages.map { stage ->
+			val entered = enteredByStatus[stage.key] ?: 0
+			val advanced = advancedByStatus[stage.key] ?: 0
 			val rate = if (entered == 0) 0 else (advanced * 100) / entered
-			StageConversionRate(status = status, conversionRatePercent = rate)
+			StageConversionRate(status = stage.key, conversionRatePercent = rate)
 		}
 
 		val applicationsByWorkMode = WORK_MODES.map { mode ->

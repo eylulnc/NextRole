@@ -1,18 +1,17 @@
 package com.nextrole.web.dto
 
-import com.nextrole.domain.ApplicationStatus
 import com.nextrole.domain.ApplicationStatusHistory
-import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.NotBlank
 import java.time.Instant
 import java.util.UUID
 
 data class ChangeStatusRequest(
-	@field:NotNull val status: ApplicationStatus
+	@field:NotBlank val status: String
 )
 
 data class StatusHistoryResponse(
 	val id: UUID,
-	val status: ApplicationStatus,
+	val status: String,
 	val changedAt: Instant
 )
 

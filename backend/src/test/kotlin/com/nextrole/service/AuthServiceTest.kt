@@ -11,6 +11,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import io.mockk.just
+import io.mockk.Runs
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
@@ -23,11 +25,13 @@ class AuthServiceTest {
 	private val userRepository = mockk<UserRepository>()
 	private val passwordEncoder = mockk<PasswordEncoder>()
 	private val jwtService = mockk<JwtService>()
-	private val authService = AuthService(userRepository, passwordEncoder, jwtService)
+	private val pipelineStageService = mockk<PipelineStageService>()
+	private val authService = AuthService(userRepository, passwordEncoder, jwtService, pipelineStageService)
 
 	@BeforeEach
 	fun setUp() {
 		every { jwtService.generateToken(any(), any()) } returns "fake-jwt-token"
+		every { pipelineStageService.seedDefaults(any()) } just Runs
 	}
 
 	@Test
@@ -42,6 +46,7 @@ class AuthServiceTest {
 		assertEquals("new@example.com", response.email)
 		assertEquals("fake-jwt-token", response.token)
 		assertEquals("hashed-password", savedSlot.captured.passwordHash)
+		verify(exactly = 1) { pipelineStageService.seedDefaults(savedSlot.captured.id) }
 	}
 
 	@Test

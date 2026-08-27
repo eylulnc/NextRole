@@ -5,10 +5,14 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { DashboardPage } from "./DashboardPage";
 import { AuthProvider } from "../context/AuthContext";
 import { ToastProvider } from "../context/ToastContext";
+import { PipelineStagesProvider } from "../context/PipelineStagesContext";
+import { SAMPLE_STAGES } from "../test/pipelineStagesFixture";
 import * as dashboardApi from "../api/dashboard";
+import * as pipelineStagesApi from "../api/pipelineStages";
 import type { DashboardStatistics } from "../types/dashboard";
 
 vi.mock("../api/dashboard");
+vi.mock("../api/pipelineStages");
 
 const SAMPLE_STATS: DashboardStatistics = {
 	activeApplications: 4,
@@ -37,12 +41,14 @@ function renderDashboard() {
 	return render(
 		<MemoryRouter initialEntries={["/dashboard"]}>
 			<AuthProvider>
-				<ToastProvider>
-					<Routes>
-						<Route path="/dashboard" element={<DashboardPage />} />
-						<Route path="/applications/:id" element={<div>Application detail</div>} />
-					</Routes>
-				</ToastProvider>
+				<PipelineStagesProvider>
+					<ToastProvider>
+						<Routes>
+							<Route path="/dashboard" element={<DashboardPage />} />
+							<Route path="/applications/:id" element={<div>Application detail</div>} />
+						</Routes>
+					</ToastProvider>
+				</PipelineStagesProvider>
 			</AuthProvider>
 		</MemoryRouter>
 	);
@@ -53,6 +59,7 @@ describe("DashboardPage", () => {
 		localStorage.clear();
 		vi.clearAllMocks();
 		vi.mocked(dashboardApi.getDashboardStatistics).mockResolvedValue(SAMPLE_STATS);
+		vi.mocked(pipelineStagesApi.listPipelineStages).mockResolvedValue(SAMPLE_STAGES);
 	});
 
 	it("renders stat tiles and lists from the statistics response", async () => {

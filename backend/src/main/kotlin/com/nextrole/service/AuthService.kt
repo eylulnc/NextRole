@@ -15,7 +15,8 @@ import org.springframework.stereotype.Service
 class AuthService(
 	private val userRepository: UserRepository,
 	private val passwordEncoder: PasswordEncoder,
-	private val jwtService: JwtService
+	private val jwtService: JwtService,
+	private val pipelineStageService: PipelineStageService
 ) {
 
 	fun register(request: RegisterRequest): AuthResponse {
@@ -27,6 +28,7 @@ class AuthService(
 			passwordHash = passwordEncoder.encode(request.password)
 		)
 		userRepository.save(user)
+		pipelineStageService.seedDefaults(user.id)
 		val token = jwtService.generateToken(user.id, user.email)
 		return AuthResponse(token, user.email, user.language, user.defaultCurrency)
 	}

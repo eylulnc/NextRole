@@ -1,11 +1,4 @@
-export type ApplicationStatus =
-	| "SAVED"
-	| "APPLIED"
-	| "HR_INTERVIEW"
-	| "TECHNICAL"
-	| "FINAL"
-	| "OFFER"
-	| "REJECTED";
+export type ApplicationStatus = string;
 
 export interface Application {
 	id: string;

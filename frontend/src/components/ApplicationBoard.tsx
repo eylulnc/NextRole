@@ -7,6 +7,7 @@ import { formatSalaryRange } from "../utils/currency";
 import { formatLocation } from "../utils/workMode";
 import { PlusIcon } from "./IconButton";
 import { KebabMenu } from "./KebabMenu";
+import { usePipelineStages } from "../context/PipelineStagesContext";
 
 const cardStyle: React.CSSProperties = {
 	background: "var(--color-surface)",
@@ -30,9 +31,10 @@ interface Props {
 export function ApplicationBoard({ applications, onStatusChange, onAddToStatus, onEdit, onDelete }: Props) {
 	const navigate = useNavigate();
 	const { t } = useTranslation();
+	const { visibleStages } = usePipelineStages();
 	const [dragOverStatus, setDragOverStatus] = useState<ApplicationStatus | null>(null);
 
-	const columns = statusOptions().map((opt) => ({
+	const columns = statusOptions(visibleStages).map((opt) => ({
 		status: opt.value as ApplicationStatus,
 		label: opt.label,
 		cards: applications.filter((a) => a.status === opt.value),
@@ -82,7 +84,7 @@ export function ApplicationBoard({ applications, onStatusChange, onAddToStatus, 
 									width: 8,
 									height: 8,
 									borderRadius: 2,
-									background: statusDotColor(col.status),
+									background: statusDotColor(col.status, visibleStages),
 									flex: "none",
 								}}
 							/>
