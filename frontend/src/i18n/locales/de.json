@@ -52,6 +52,7 @@
 		"nextMonth": "Nächster Monat",
 		"viewUpcoming": "Anstehende ansehen",
 		"noInterviewsOnDay": "Keine Interviews an diesem Tag.",
+		"moreEvents": "+{{count}} weitere",
 		"weekdays": {
 			"sun": "So",
 			"mon": "Mo",

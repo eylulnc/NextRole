@@ -52,6 +52,7 @@
 		"nextMonth": "Sonraki ay",
 		"viewUpcoming": "Yaklaşanları görüntüle",
 		"noInterviewsOnDay": "Bu günde görüşme yok.",
+		"moreEvents": "+{{count}} daha",
 		"weekdays": {
 			"sun": "Paz",
 			"mon": "Pzt",

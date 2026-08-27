@@ -4,7 +4,9 @@ import { useTranslation } from "react-i18next";
 import { getCalendarInterviews } from "../api/calendar";
 import type { UpcomingInterview } from "../types/dashboard";
 import { AppShell } from "../components/AppShell";
-import { formatDateTime } from "../utils/date";
+import { formatDateTime, formatTime } from "../utils/date";
+
+const MAX_VISIBLE_BANNERS = 3;
 
 const cardStyle: React.CSSProperties = {
 	background: "var(--color-surface)",
@@ -41,6 +43,9 @@ export function CalendarPage() {
 			list.push(iv);
 			map.set(key, list);
 		}
+		for (const list of map.values()) {
+			list.sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
+		}
 		return map;
 	}, [interviews]);
 
@@ -72,9 +77,9 @@ export function CalendarPage() {
 		setViewDate(new Date(year, month + delta, 1));
 	}
 
-	const cells: { num: number | null; key: string | null; isToday: boolean; hasEvent: boolean }[] = [];
+	const cells: { num: number | null; key: string | null; isToday: boolean; dayInterviews: UpcomingInterview[] }[] = [];
 	for (let i = 0; i < leadingBlanks; i++) {
-		cells.push({ num: null, key: null, isToday: false, hasEvent: false });
+		cells.push({ num: null, key: null, isToday: false, dayInterviews: [] });
 	}
 	for (let day = 1; day <= daysInMonth; day++) {
 		const d = new Date(year, month, day);
@@ -83,7 +88,7 @@ export function CalendarPage() {
 			num: day,
 			key,
 			isToday: dateKey(today) === key,
-			hasEvent: interviewsByDay.has(key),
+			dayInterviews: interviewsByDay.get(key) ?? [],
 		});
 	}
 
@@ -132,14 +137,15 @@ export function CalendarPage() {
 										setSelectedDateKey((prev) => (prev === cell.key ? null : cell.key));
 									}}
 									style={{
-										aspectRatio: "1",
+										minHeight: 92,
 										borderRadius: 10,
 										border: isSelected ? "2px solid var(--color-accent)" : "1px solid var(--color-border)",
 										background: cell.isToday ? "var(--color-highlight-bg)" : "var(--color-surface)",
 										padding: 6,
 										display: "flex",
 										flexDirection: "column",
-										gap: 4,
+										gap: 3,
+										overflow: "hidden",
 										visibility: cell.num === null ? "hidden" : "visible",
 										cursor: cell.num === null ? "default" : "pointer",
 									}}
@@ -149,12 +155,33 @@ export function CalendarPage() {
 											fontSize: 12,
 											fontWeight: 600,
 											color: cell.isToday ? "var(--color-highlight-text-strong)" : "var(--color-text)",
+											marginBottom: 1,
 										}}
 									>
 										{cell.num}
 									</span>
-									{cell.hasEvent && (
-										<div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--color-accent)" }} />
+									{cell.dayInterviews.slice(0, MAX_VISIBLE_BANNERS).map((iv) => (
+										<div
+											key={`${iv.applicationId}-${iv.scheduledAt}`}
+											style={{
+												background: cell.isToday ? "var(--color-surface)" : "var(--color-highlight-bg)",
+												color: "var(--color-highlight-text-strong)",
+												fontSize: 10.5,
+												fontWeight: 600,
+												borderRadius: 4,
+												padding: "1px 5px",
+												whiteSpace: "nowrap",
+												overflow: "hidden",
+												textOverflow: "ellipsis",
+											}}
+										>
+											{iv.company} {formatTime(iv.scheduledAt)}
+										</div>
+									))}
+									{cell.dayInterviews.length > MAX_VISIBLE_BANNERS && (
+										<span style={{ fontSize: 10.5, fontWeight: 600, color: "var(--color-text-faint)", padding: "0 5px" }}>
+											{t("calendar.moreEvents", { count: cell.dayInterviews.length - MAX_VISIBLE_BANNERS })}
+										</span>
 									)}
 								</div>
 							);
