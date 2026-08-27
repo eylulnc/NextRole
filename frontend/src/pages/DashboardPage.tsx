@@ -7,9 +7,10 @@ import type { DashboardStatistics } from "../types/dashboard";
 import type { CreateApplicationRequest } from "../types/application";
 import { AppShell } from "../components/AppShell";
 import { ApplicationFormModal } from "../components/ApplicationFormModal";
-import { statusDotColor } from "../components/StatusBadge";
+import { stageLabel, statusDotColor } from "../components/StatusBadge";
 import { formatDateTime } from "../utils/date";
 import { useToast } from "../context/ToastContext";
+import { usePipelineStages } from "../context/PipelineStagesContext";
 
 const cardStyle: React.CSSProperties = {
 	background: "var(--color-surface)",
@@ -22,6 +23,7 @@ export function DashboardPage() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { showToast } = useToast();
+	const { stages } = usePipelineStages();
 	const [stats, setStats] = useState<DashboardStatistics | null>(null);
 	const [creating, setCreating] = useState(false);
 
@@ -166,7 +168,7 @@ export function DashboardPage() {
 									}}
 								/>
 								<div style={{ fontSize: 13, lineHeight: 1.5 }}>
-									{t("dashboard.movedTo", { company: activity.company, status: t(`status.${activity.status}`) })}
+									{t("dashboard.movedTo", { company: activity.company, status: stageLabel(activity.status, stages) })}
 									<div style={{ color: "var(--color-text-faint)", fontSize: 11.5 }}>{formatDateTime(activity.changedAt)}</div>
 								</div>
 							</div>
@@ -186,17 +188,17 @@ export function DashboardPage() {
 							key={f.status}
 							style={{
 								flex: `${Math.max(f.count, 0.001)} 0 0`,
-								background: statusDotColor(f.status),
+								background: statusDotColor(f.status, stages),
 							}}
-							title={t(`status.${f.status}`)}
+							title={stageLabel(f.status, stages)}
 						/>
 					))}
 				</div>
 				<div style={{ display: "flex", gap: 18, flexWrap: "wrap", marginTop: 14 }}>
 					{stats.funnelStages.map((f) => (
 						<div key={f.status} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--color-text-muted)" }}>
-							<div style={{ width: 8, height: 8, borderRadius: 2, background: statusDotColor(f.status) }} />
-							{t(`status.${f.status}`)} ({f.count})
+							<div style={{ width: 8, height: 8, borderRadius: 2, background: statusDotColor(f.status, stages) }} />
+							{stageLabel(f.status, stages)} ({f.count})
 						</div>
 					))}
 				</div>

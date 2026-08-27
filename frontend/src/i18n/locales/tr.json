@@ -244,5 +244,34 @@
 			"submit": "Kişi ekle",
 			"saveCta": "Değişiklikleri kaydet"
 		}
+	},
+	"pipelineStages": {
+		"manage": "Aşamaları yönet",
+		"title": "Süreç aşamaları",
+		"subtitle": "Aşamaları gizle, yeniden sırala veya kendi aşamanı ekle. Yerleşik aşamalar gizlenebilir ama silinemez.",
+		"hide": "Gizle",
+		"show": "Göster",
+		"addPlaceholder": "Yeni aşama adı",
+		"addCta": "Ekle",
+		"limitReached": "En fazla {{max}} aşama ekleyebilirsiniz",
+		"resetOrderCta": "Orijinal sıraya dön",
+		"confirmDelete": "\"{{label}}\" aşaması silinsin mi?",
+		"duplicateName": "\"{{label}}\" adında bir aşama zaten var",
+		"categories": {
+			"PRE_RESPONSE": "Yanıt bekleniyor",
+			"ACTIVE": "Devam ediyor",
+			"TERMINAL": "Kapandı"
+		},
+		"reassign": {
+			"title": "\"{{label}}\" aşamasında {{count}} başvuru var",
+			"description": "Önce başka bir aşamaya taşı:",
+			"noTarget": "Taşınacak başka görünür aşama yok — önce birini göster veya ekle.",
+			"moveAndHideCta": "{{count}} taşı ve gizle",
+			"moveAndDeleteCta": "{{count}} taşı ve sil",
+			"toastMoved": "{{count}} başvuru taşındı"
+		},
+		"toasts": {
+			"error": "Bir şeyler ters gitti. Lütfen tekrar dene."
+		}
 	}
 }

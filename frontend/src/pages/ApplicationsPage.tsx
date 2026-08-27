@@ -17,6 +17,9 @@ import { KebabMenu } from "../components/KebabMenu";
 import { FilterIcon } from "../components/IconButton";
 import { ApplicationBoard } from "../components/ApplicationBoard";
 import { useToast } from "../context/ToastContext";
+import { usePipelineStages } from "../context/PipelineStagesContext";
+import { PipelineStagesModal } from "../components/PipelineStagesModal";
+import { GearIcon } from "../components/IconButton";
 import { formatDate } from "../utils/date";
 import { formatSalaryRange } from "../utils/currency";
 import { formatLocation } from "../utils/workMode";
@@ -58,6 +61,8 @@ export function ApplicationsPage() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { showToast } = useToast();
+	const { visibleStages } = usePipelineStages();
+	const [managingStages, setManagingStages] = useState(false);
 	const { confirm, dialog: confirmDialog } = useConfirm();
 	const [applications, setApplications] = useState<Application[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -265,6 +270,26 @@ export function ApplicationsPage() {
 						</div>
 					))}
 				</div>
+				<button
+					type="button"
+					onClick={() => setManagingStages(true)}
+					aria-label={t("pipelineStages.manage")}
+					title={t("pipelineStages.manage")}
+					style={{
+						display: "inline-flex",
+						alignItems: "center",
+						justifyContent: "center",
+						width: 36,
+						height: 36,
+						border: "1px solid var(--color-border)",
+						borderRadius: 10,
+						background: "var(--color-surface)",
+						color: "var(--color-text-muted)",
+						cursor: "pointer",
+					}}
+				>
+					<GearIcon />
+				</button>
 				<input
 					type="text"
 					placeholder={t("applications.searchPlaceholder")}
@@ -333,7 +358,7 @@ export function ApplicationsPage() {
 										style={filterSelectStyle}
 									>
 										<option value="">{t("applications.filters.allStatuses")}</option>
-										{statusOptions().map((opt) => (
+										{statusOptions(visibleStages).map((opt) => (
 											<option key={opt.value} value={opt.value}>
 												{opt.label}
 											</option>
@@ -582,6 +607,7 @@ export function ApplicationsPage() {
 				/>
 			)}
 			{confirmDialog}
+			{managingStages && <PipelineStagesModal onClose={() => setManagingStages(false)} />}
 		</AppShell>
 	);
 }

@@ -6,10 +6,14 @@ import { ApplicationDetailPage } from "./ApplicationDetailPage";
 import { AuthProvider } from "../context/AuthContext";
 import { ToastProvider } from "../context/ToastContext";
 import { ThemeProvider } from "../context/ThemeContext";
+import { PipelineStagesProvider } from "../context/PipelineStagesContext";
+import { SAMPLE_STAGES } from "../test/pipelineStagesFixture";
 import * as applicationsApi from "../api/applications";
+import * as pipelineStagesApi from "../api/pipelineStages";
 import type { Application, Contact, Interview, Note, StatusHistoryEntry } from "../types/application";
 
 vi.mock("../api/applications");
+vi.mock("../api/pipelineStages");
 
 const SAMPLE_APPLICATION: Application = {
 	id: "app-1",
@@ -41,11 +45,13 @@ function renderDetailPage() {
 		<MemoryRouter initialEntries={["/applications/app-1"]}>
 			<ThemeProvider>
 				<AuthProvider>
-					<ToastProvider>
-						<Routes>
-							<Route path="/applications/:id" element={<ApplicationDetailPage />} />
-						</Routes>
-					</ToastProvider>
+					<PipelineStagesProvider>
+						<ToastProvider>
+							<Routes>
+								<Route path="/applications/:id" element={<ApplicationDetailPage />} />
+							</Routes>
+						</ToastProvider>
+					</PipelineStagesProvider>
 				</AuthProvider>
 			</ThemeProvider>
 		</MemoryRouter>
@@ -61,6 +67,7 @@ describe("ApplicationDetailPage", () => {
 		vi.mocked(applicationsApi.listNotes).mockResolvedValue([]);
 		vi.mocked(applicationsApi.listInterviews).mockResolvedValue([]);
 		vi.mocked(applicationsApi.listContacts).mockResolvedValue([]);
+		vi.mocked(pipelineStagesApi.listPipelineStages).mockResolvedValue(SAMPLE_STAGES);
 	});
 
 	it("renders the application overview by default", async () => {

@@ -244,5 +244,34 @@
 			"submit": "Kontakt hinzufügen",
 			"saveCta": "Änderungen speichern"
 		}
+	},
+	"pipelineStages": {
+		"manage": "Phasen verwalten",
+		"title": "Pipeline-Phasen",
+		"subtitle": "Blende Phasen aus, ordne sie neu an oder füge eigene hinzu. Eingebaute Phasen können ausgeblendet, aber nicht gelöscht werden.",
+		"hide": "Ausblenden",
+		"show": "Einblenden",
+		"addPlaceholder": "Name der neuen Phase",
+		"addCta": "Hinzufügen",
+		"limitReached": "Sie haben das Limit von {{max}} Pipeline-Phasen erreicht",
+		"resetOrderCta": "Ursprüngliche Reihenfolge",
+		"confirmDelete": "Phase \"{{label}}\" löschen?",
+		"duplicateName": "Eine Phase namens \"{{label}}\" existiert bereits",
+		"categories": {
+			"PRE_RESPONSE": "Wartet auf Rückmeldung",
+			"ACTIVE": "In Bearbeitung",
+			"TERMINAL": "Abgeschlossen"
+		},
+		"reassign": {
+			"title": "{{count}} Bewerbungen sind in \"{{label}}\"",
+			"description": "Verschiebe sie zuerst in eine andere Phase:",
+			"noTarget": "Es gibt keine andere sichtbare Phase — zeige zuerst eine an oder füge eine hinzu.",
+			"moveAndHideCta": "{{count}} verschieben und ausblenden",
+			"moveAndDeleteCta": "{{count}} verschieben und löschen",
+			"toastMoved": "{{count}} Bewerbungen verschoben"
+		},
+		"toasts": {
+			"error": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
+		}
 	}
 }

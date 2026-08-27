@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next";
 import { getAnalytics } from "../api/analytics";
 import type { Analytics } from "../types/analytics";
 import { AppShell } from "../components/AppShell";
-import { statusDotColor } from "../components/StatusBadge";
+import { stageLabel, statusDotColor } from "../components/StatusBadge";
+import { usePipelineStages } from "../context/PipelineStagesContext";
 
 const cardStyle: React.CSSProperties = {
 	background: "var(--color-surface)",
@@ -14,6 +15,7 @@ const cardStyle: React.CSSProperties = {
 
 export function AnalyticsPage() {
 	const { t, i18n } = useTranslation();
+	const { stages } = usePipelineStages();
 	const [analytics, setAnalytics] = useState<Analytics | null>(null);
 
 	useEffect(() => {
@@ -49,7 +51,7 @@ export function AnalyticsPage() {
 						{analytics.funnelStages.map((f) => (
 							<div key={f.status}>
 								<div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 5 }}>
-									<span style={{ fontWeight: 700, fontSize: 12.5 }}>{t(`status.${f.status}`)}</span>
+									<span style={{ fontWeight: 700, fontSize: 12.5 }}>{stageLabel(f.status, stages)}</span>
 									<span style={{ fontSize: 12.5 }}>{f.count}</span>
 								</div>
 								<div style={{ height: 8, borderRadius: 4, background: "var(--color-border)", overflow: "hidden" }}>
@@ -58,7 +60,7 @@ export function AnalyticsPage() {
 											width: `${(f.count / maxFunnelCount) * 100}%`,
 											height: "100%",
 											borderRadius: 4,
-											background: statusDotColor(f.status),
+											background: statusDotColor(f.status, stages),
 										}}
 									/>
 								</div>
@@ -81,7 +83,7 @@ export function AnalyticsPage() {
 									borderBottom: i < analytics.stageConversionRates.length - 1 ? "1px solid var(--color-border)" : "none",
 								}}
 							>
-								<span style={{ fontSize: 12.5 }}>{t(`status.${s.status}`)}</span>
+								<span style={{ fontSize: 12.5 }}>{stageLabel(s.status, stages)}</span>
 								<span style={{ fontWeight: 700, fontSize: 12.5 }}>{s.conversionRatePercent}%</span>
 							</div>
 						))}

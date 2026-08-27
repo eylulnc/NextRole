@@ -30,7 +30,8 @@ import type {
 	UpdateApplicationRequest,
 } from "../types/application";
 import { AppShell } from "../components/AppShell";
-import { StatusBadge, statusOptions } from "../components/StatusBadge";
+import { StatusBadge, stageLabel, statusOptions } from "../components/StatusBadge";
+import { usePipelineStages } from "../context/PipelineStagesContext";
 import { ApplicationFormModal } from "../components/ApplicationFormModal";
 import { AutoGrowTextarea } from "../components/AutoGrowTextarea";
 import { CloseButton } from "../components/CloseButton";
@@ -128,6 +129,7 @@ function toDateTimeLocal(iso: string): string {
 
 export function ApplicationDetailPage() {
 	const { t } = useTranslation();
+	const { stages, visibleStages } = usePipelineStages();
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
 	const { showToast } = useToast();
@@ -430,7 +432,7 @@ export function ApplicationDetailPage() {
 								minWidth: 160,
 							}}
 						>
-							{statusOptions().map((opt) => (
+							{statusOptions(visibleStages).map((opt) => (
 								<button
 									key={opt.value}
 									onClick={() => handleChangeStatus(opt.value)}
@@ -565,7 +567,7 @@ export function ApplicationDetailPage() {
 									{i < history.length - 1 && <div style={{ width: 1, flex: 1, background: "var(--color-border)" }} />}
 								</div>
 								<div style={{ paddingBottom: i < history.length - 1 ? 26 : 0 }}>
-									<div style={{ fontWeight: 700, fontSize: 14 }}>{t(`status.${h.status}`)}</div>
+									<div style={{ fontWeight: 700, fontSize: 14 }}>{stageLabel(h.status, stages)}</div>
 									<div style={{ fontSize: 12, color: "var(--color-text-faint)", marginTop: 3 }}>
 										{formatDateTime(h.changedAt)}
 									</div>

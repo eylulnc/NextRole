@@ -1,9 +1,15 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ApplicationBoard } from "./ApplicationBoard";
 import type { Application } from "../types/application";
+import { AuthProvider } from "../context/AuthContext";
+import { PipelineStagesProvider } from "../context/PipelineStagesContext";
+import { SAMPLE_STAGES } from "../test/pipelineStagesFixture";
+import * as pipelineStagesApi from "../api/pipelineStages";
+
+vi.mock("../api/pipelineStages");
 
 function fakeDataTransfer() {
 	let stored = "";
@@ -41,33 +47,45 @@ function renderBoard(
 	onEdit = vi.fn(),
 	onDelete = vi.fn()
 ) {
+	localStorage.setItem("nextrole_email", "user@example.com");
+	localStorage.setItem("nextrole_token", "fake-token");
 	render(
 		<MemoryRouter initialEntries={["/applications"]}>
-			<Routes>
-				<Route
-					path="/applications"
-					element={
-						<ApplicationBoard
-							applications={applications}
-							onStatusChange={onStatusChange}
-							onAddToStatus={onAddToStatus}
-							onEdit={onEdit}
-							onDelete={onDelete}
+			<AuthProvider>
+				<PipelineStagesProvider>
+					<Routes>
+						<Route
+							path="/applications"
+							element={
+								<ApplicationBoard
+									applications={applications}
+									onStatusChange={onStatusChange}
+									onAddToStatus={onAddToStatus}
+									onEdit={onEdit}
+									onDelete={onDelete}
+								/>
+							}
 						/>
-					}
-				/>
-				<Route path="/applications/:id" element={<div>Application detail</div>} />
-			</Routes>
+						<Route path="/applications/:id" element={<div>Application detail</div>} />
+					</Routes>
+				</PipelineStagesProvider>
+			</AuthProvider>
 		</MemoryRouter>
 	);
 	return { onStatusChange, onAddToStatus, onEdit, onDelete };
 }
 
 describe("ApplicationBoard", () => {
-	it("groups applications into columns by status with counts", () => {
+	beforeEach(() => {
+		localStorage.clear();
+		vi.clearAllMocks();
+		vi.mocked(pipelineStagesApi.listPipelineStages).mockResolvedValue(SAMPLE_STAGES);
+	});
+
+	it("groups applications into columns by status with counts", async () => {
 		renderBoard([APP_APPLIED]);
 
-		expect(screen.getByText("Acme Corp")).toBeInTheDocument();
+		expect(await screen.findByText("Acme Corp")).toBeInTheDocument();
 		expect(screen.getByText("Saved")).toBeInTheDocument();
 		expect(screen.getByText("Applied")).toBeInTheDocument();
 	});
@@ -75,7 +93,7 @@ describe("ApplicationBoard", () => {
 	it("navigates to the application detail page when clicking a card", async () => {
 		renderBoard([APP_APPLIED]);
 
-		await userEvent.click(screen.getByText("Acme Corp"));
+		await userEvent.click(await screen.findByText("Acme Corp"));
 
 		expect(await screen.findByText("Application detail")).toBeInTheDocument();
 	});
@@ -83,6 +101,7 @@ describe("ApplicationBoard", () => {
 	it("shows a header quick-add button only on non-empty columns", async () => {
 		const { onAddToStatus } = renderBoard([APP_APPLIED]);
 
+		await screen.findByText("Acme Corp");
 		expect(screen.queryByLabelText("Add application to Saved")).not.toBeInTheDocument();
 
 		await userEvent.click(screen.getByLabelText("Add application to Applied"));
@@ -92,6 +111,7 @@ describe("ApplicationBoard", () => {
 	it("shows a ghost add tile only on empty columns", async () => {
 		const { onAddToStatus } = renderBoard([APP_APPLIED]);
 
+		await screen.findByText("Acme Corp");
 		const savedColumn = screen.getByTestId("board-column-SAVED");
 		const ghostTile = savedColumn.querySelector("button") as HTMLElement;
 		expect(ghostTile).toBeInTheDocument();
@@ -106,6 +126,7 @@ describe("ApplicationBoard", () => {
 	it("opens the kebab menu and triggers edit/delete", async () => {
 		const { onEdit, onDelete } = renderBoard([APP_APPLIED]);
 
+		await screen.findByText("Acme Corp");
 		await userEvent.click(screen.getByLabelText("Actions for Acme Corp"));
 		await userEvent.click(screen.getByRole("menuitem", { name: "Edit" }));
 		expect(onEdit).toHaveBeenCalledWith(APP_APPLIED);
@@ -115,9 +136,10 @@ describe("ApplicationBoard", () => {
 		expect(onDelete).toHaveBeenCalledWith("app-1");
 	});
 
-	it("calls onStatusChange with the target column when a card is dropped", () => {
+	it("calls onStatusChange with the target column when a card is dropped", async () => {
 		const { onStatusChange } = renderBoard([APP_APPLIED]);
 
+		await screen.findByText("Acme Corp");
 		const card = screen.getByText("Acme Corp").closest("[draggable]") as HTMLElement;
 		const dataTransfer = fakeDataTransfer();
 

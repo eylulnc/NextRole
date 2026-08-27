@@ -5,6 +5,7 @@ import { statusOptions } from "./StatusBadge";
 import { CURRENCY_OPTIONS } from "../utils/currency";
 import { CloseButton } from "./CloseButton";
 import { useAuth } from "../context/AuthContext";
+import { usePipelineStages } from "../context/PipelineStagesContext";
 
 const inputStyle: React.CSSProperties = {
 	border: "1px solid var(--color-border)",
@@ -56,6 +57,7 @@ interface Props {
 export function ApplicationFormModal({ initial, initialStatus, onSubmit, onClose, onDelete }: Props) {
 	const { t } = useTranslation();
 	const { defaultCurrency } = useAuth();
+	const { visibleStages } = usePipelineStages();
 	const [form, setForm] = useState<CreateApplicationRequest>({
 		company: initial?.company ?? "",
 		role: initial?.role ?? "",
@@ -211,7 +213,7 @@ export function ApplicationFormModal({ initial, initialStatus, onSubmit, onClose
 								}}
 								style={selectStyle}
 							>
-								{statusOptions().map((opt) => (
+								{statusOptions(visibleStages).map((opt) => (
 									<option key={opt.value} value={opt.value}>
 										{opt.label}
 									</option>

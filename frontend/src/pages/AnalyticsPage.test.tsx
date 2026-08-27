@@ -4,10 +4,14 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { AnalyticsPage } from "./AnalyticsPage";
 import { AuthProvider } from "../context/AuthContext";
 import { ToastProvider } from "../context/ToastContext";
+import { PipelineStagesProvider } from "../context/PipelineStagesContext";
+import { SAMPLE_STAGES } from "../test/pipelineStagesFixture";
 import * as analyticsApi from "../api/analytics";
+import * as pipelineStagesApi from "../api/pipelineStages";
 import type { Analytics } from "../types/analytics";
 
 vi.mock("../api/analytics");
+vi.mock("../api/pipelineStages");
 
 const SAMPLE_ANALYTICS: Analytics = {
 	funnelStages: [
@@ -44,11 +48,13 @@ function renderAnalytics() {
 	return render(
 		<MemoryRouter initialEntries={["/analytics"]}>
 			<AuthProvider>
-				<ToastProvider>
-					<Routes>
-						<Route path="/analytics" element={<AnalyticsPage />} />
-					</Routes>
-				</ToastProvider>
+				<PipelineStagesProvider>
+					<ToastProvider>
+						<Routes>
+							<Route path="/analytics" element={<AnalyticsPage />} />
+						</Routes>
+					</ToastProvider>
+				</PipelineStagesProvider>
 			</AuthProvider>
 		</MemoryRouter>
 	);
@@ -59,6 +65,7 @@ describe("AnalyticsPage", () => {
 		localStorage.clear();
 		vi.clearAllMocks();
 		vi.mocked(analyticsApi.getAnalytics).mockResolvedValue(SAMPLE_ANALYTICS);
+		vi.mocked(pipelineStagesApi.listPipelineStages).mockResolvedValue(SAMPLE_STAGES);
 	});
 
 	it("renders funnel, technologies, and stage conversion rates from the analytics response", async () => {
