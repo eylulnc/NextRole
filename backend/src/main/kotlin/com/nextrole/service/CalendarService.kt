@@ -21,7 +21,10 @@ class CalendarService(
 				company = application.company,
 				role = application.role,
 				round = interview.round,
-				scheduledAt = interview.scheduledAt
+				scheduledAt = interview.scheduledAt,
+				mode = interview.mode,
+				durationMinutes = interview.durationMinutes,
+				meetingLink = interview.meetingLink
 			)
 		}
 	}

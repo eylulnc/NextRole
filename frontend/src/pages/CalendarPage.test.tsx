@@ -44,6 +44,9 @@ describe("CalendarPage", () => {
 			role: "Backend Engineer",
 			round: "HR Screen",
 			scheduledAt: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(),
+			mode: null,
+			durationMinutes: null,
+			meetingLink: null,
 		};
 		vi.mocked(calendarApi.getCalendarInterviews).mockResolvedValue([future]);
 		renderCalendar();
@@ -62,6 +65,9 @@ describe("CalendarPage", () => {
 			role: "Engineer",
 			round: "Technical",
 			scheduledAt: past.toISOString(),
+			mode: null,
+			durationMinutes: null,
+			meetingLink: null,
 		};
 		vi.mocked(calendarApi.getCalendarInterviews).mockResolvedValue([pastInterview]);
 		renderCalendar();

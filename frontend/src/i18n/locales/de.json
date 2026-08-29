@@ -240,7 +240,8 @@
 			"submit": "Interview hinzufügen",
 			"saveCta": "Änderungen speichern",
 			"durationLabel": "{{count}} Min.",
-			"joinCta": "Meeting beitreten"
+			"joinCta": "Meeting beitreten",
+			"goToLinkCta": "Zum Link"
 		},
 		"contactForm": {
 			"namePlaceholder": "Name",

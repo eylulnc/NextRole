@@ -141,7 +141,11 @@ export function DashboardPage() {
 							>
 								<div style={{ flex: 1, minWidth: 0 }}>
 									<div style={{ fontWeight: 600, fontSize: 13.5 }}>{iv.company}</div>
-									<div style={{ fontSize: 12.5, color: "var(--color-text-muted)" }}>{iv.round}</div>
+									<div style={{ fontSize: 12.5, color: "var(--color-text-muted)" }}>
+										{[iv.round, iv.durationMinutes ? t("applicationDetail.interviewForm.durationLabel", { count: iv.durationMinutes }) : null]
+											.filter(Boolean)
+											.join(" · ")}
+									</div>
 								</div>
 								<div style={{ fontSize: 12, color: "var(--color-text-faint)" }}>{formatDateTime(iv.scheduledAt)}</div>
 							</div>

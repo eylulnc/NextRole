@@ -240,7 +240,8 @@
 			"submit": "Görüşme ekle",
 			"saveCta": "Değişiklikleri kaydet",
 			"durationLabel": "{{count}} dk",
-			"joinCta": "Görüşmeye katıl"
+			"joinCta": "Görüşmeye katıl",
+			"goToLinkCta": "Bağlantıya git"
 		},
 		"contactForm": {
 			"namePlaceholder": "İsim",

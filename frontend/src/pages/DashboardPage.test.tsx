@@ -30,7 +30,16 @@ const SAMPLE_STATS: DashboardStatistics = {
 		{ status: "REJECTED", count: 0 },
 	],
 	upcomingInterviews: [
-		{ applicationId: "app-1", company: "Acme Corp", role: "Backend Engineer", round: "HR Screen", scheduledAt: "2026-08-20T10:00:00Z" },
+		{
+			applicationId: "app-1",
+			company: "Acme Corp",
+			role: "Backend Engineer",
+			round: "HR Screen",
+			scheduledAt: "2026-08-20T10:00:00Z",
+			mode: null,
+			durationMinutes: null,
+			meetingLink: null,
+		},
 	],
 	recentActivity: [{ applicationId: "app-1", company: "Acme Corp", status: "APPLIED", changedAt: "2026-08-18T00:00:00Z" }],
 };

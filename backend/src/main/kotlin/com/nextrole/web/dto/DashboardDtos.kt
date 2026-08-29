@@ -13,7 +13,10 @@ data class UpcomingInterviewResponse(
 	val company: String,
 	val role: String,
 	val round: String,
-	val scheduledAt: Instant
+	val scheduledAt: Instant,
+	val mode: String? = null,
+	val durationMinutes: Int? = null,
+	val meetingLink: String? = null
 )
 
 data class RecentActivityResponse(

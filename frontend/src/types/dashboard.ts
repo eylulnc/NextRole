@@ -11,6 +11,9 @@ export interface UpcomingInterview {
 	role: string;
 	round: string;
 	scheduledAt: string;
+	mode: string | null;
+	durationMinutes: number | null;
+	meetingLink: string | null;
 }
 
 export interface RecentActivity {

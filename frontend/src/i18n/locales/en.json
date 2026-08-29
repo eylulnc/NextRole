@@ -240,7 +240,8 @@
 			"submit": "Add interview",
 			"saveCta": "Save changes",
 			"durationLabel": "{{count}} min",
-			"joinCta": "Join meeting"
+			"joinCta": "Join meeting",
+			"goToLinkCta": "Go to link"
 		},
 		"contactForm": {
 			"namePlaceholder": "Name",

@@ -41,6 +41,7 @@ import { IconButton, PencilIcon, PlusIcon } from "../components/IconButton";
 import { KebabMenu } from "../components/KebabMenu";
 import { useToast } from "../context/ToastContext";
 import { formatDate, formatDateTime } from "../utils/date";
+import { isMeetingJoinable } from "../utils/interviewTiming";
 import { formatSalaryRange } from "../utils/currency";
 import { formatLocation } from "../utils/workMode";
 import * as React from "react";
@@ -653,7 +654,9 @@ export function ApplicationDetailPage() {
 													padding: "8px 14px",
 												}}
 											>
-												{t("applicationDetail.interviewForm.joinCta")}
+												{isMeetingJoinable(iv.scheduledAt, iv.durationMinutes)
+													? t("applicationDetail.interviewForm.joinCta")
+													: t("applicationDetail.interviewForm.goToLinkCta")}
 											</a>
 										)}
 									</div>
