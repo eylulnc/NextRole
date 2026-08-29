@@ -372,6 +372,15 @@ export function ApplicationDetailPage() {
 		);
 	}
 
+	const techStackTags = (application.techStack ?? "")
+		.split(",")
+		.map((tag) => tag.trim())
+		.filter(Boolean);
+
+	const nextInterview = interviews
+		.filter((iv) => new Date(iv.scheduledAt).getTime() >= Date.now())
+		.sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())[0];
+
 	return (
 		<AppShell>
 			<div>
@@ -528,14 +537,11 @@ export function ApplicationDetailPage() {
 						</div>
 					)}
 					<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-						<div style={cardStyle}>
-							<h3 style={{ font: "700 14px var(--font-heading)", margin: "0 0 10px" }}>{t("applicationDetail.techStack")}</h3>
-							<div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-								{(application.techStack ?? "")
-									.split(",")
-									.map((t) => t.trim())
-									.filter(Boolean)
-									.map((t) => (
+						{techStackTags.length > 0 && (
+							<div style={cardStyle}>
+								<h3 style={{ font: "700 14px var(--font-heading)", margin: "0 0 10px" }}>{t("applicationDetail.techStack")}</h3>
+								<div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+									{techStackTags.map((t) => (
 										<span
 											key={t}
 											style={{
@@ -548,19 +554,31 @@ export function ApplicationDetailPage() {
 											{t}
 										</span>
 									))}
-							</div>
-						</div>
-						<div style={cardStyle}>
-							<h3 style={{ font: "700 14px var(--font-heading)", margin: "0 0 8px" }}>{t("applicationDetail.keyDates")}</h3>
-							<div style={{ fontSize: 13, color: "var(--color-text-muted)", display: "flex", flexDirection: "column", gap: 6 }}>
-								<div>
-									{application.status !== "SAVED" && application.applicationDate
-										? t("applicationDetail.applied", { date: formatDate(application.applicationDate) })
-										: t("applicationDetail.notAppliedYet")}
 								</div>
-								<div>{t("applicationDetail.lastUpdated", { date: formatDate(application.updatedAt) })}</div>
+							</div>
+						)}
+						<div style={cardStyle}>
+							<div style={{ fontSize: 12, color: "var(--color-text-muted)", fontWeight: 500 }}>
+								{application.status !== "SAVED" && application.applicationDate
+									? t("applicationDetail.appliedLabel")
+									: t("applicationDetail.savedLabel")}
+							</div>
+							<div style={{ fontSize: 14, fontWeight: 600, marginTop: 4 }}>
+								{application.status !== "SAVED" && application.applicationDate
+									? formatDate(application.applicationDate)
+									: formatDate(application.createdAt)}
 							</div>
 						</div>
+						{nextInterview && (
+							<div style={cardStyle}>
+								<div style={{ fontSize: 12, color: "var(--color-text-muted)", fontWeight: 500 }}>
+									{t("applicationDetail.nextInterviewLabel")}
+								</div>
+								<div style={{ fontSize: 14, fontWeight: 600, marginTop: 4 }}>
+									{nextInterview.round} · {formatDateTime(nextInterview.scheduledAt)}
+								</div>
+							</div>
+						)}
 					</div>
 				</div>
 			)}

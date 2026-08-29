@@ -80,6 +80,24 @@ describe("CalendarPage", () => {
 		expect(screen.getByText("View upcoming")).toBeInTheDocument();
 	});
 
+	it("marks today's earliest qualifying interview with the same accent indicator as the dashboard banner", async () => {
+		const soon: UpcomingInterview = {
+			applicationId: "app-1",
+			company: "Acme Corp",
+			role: "Backend Engineer",
+			round: "HR Screen",
+			scheduledAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+			mode: null,
+			durationMinutes: null,
+			meetingLink: null,
+		};
+		vi.mocked(calendarApi.getCalendarInterviews).mockResolvedValue([soon]);
+		renderCalendar();
+
+		await screen.findByText("Acme Corp");
+		expect(screen.getByTitle("Next up")).toBeInTheDocument();
+	});
+
 	it("navigates between months", async () => {
 		vi.mocked(calendarApi.getCalendarInterviews).mockResolvedValue([]);
 		renderCalendar();

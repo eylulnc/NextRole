@@ -76,16 +76,44 @@ describe("ApplicationDetailPage", () => {
 		expect(await screen.findByRole("heading", { name: "Backend Engineer" })).toBeInTheDocument();
 		expect(screen.getByText("Build great APIs.")).toBeInTheDocument();
 		expect(screen.getByText("Kotlin")).toBeInTheDocument();
-		expect(screen.getByText("Applied: Aug 1, 2026")).toBeInTheDocument();
+		expect(screen.getAllByText("Applied").length).toBeGreaterThanOrEqual(2);
+		expect(screen.getByText("Aug 1, 2026")).toBeInTheDocument();
 	});
 
-	it("shows 'Not applied yet' when still in the saved stage, even if an application date is set", async () => {
+	it("hides the tech stack card when there's no tech stack", async () => {
+		vi.mocked(applicationsApi.getApplication).mockResolvedValue({ ...SAMPLE_APPLICATION, techStack: null });
+		renderDetailPage();
+
+		await screen.findByRole("heading", { name: "Backend Engineer" });
+		expect(screen.queryByText("Tech stack")).not.toBeInTheDocument();
+	});
+
+	it("shows the next interview under Key Dates when one is scheduled", async () => {
+		const upcoming: Interview = {
+			id: "iv1",
+			round: "Technical",
+			interviewer: null,
+			scheduledAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+			mode: null,
+			durationMinutes: null,
+			meetingLink: null,
+			notes: null,
+			createdAt: "2026-08-01T00:00:00Z",
+		};
+		vi.mocked(applicationsApi.listInterviews).mockResolvedValue([upcoming]);
+		renderDetailPage();
+
+		expect(await screen.findByText("Next interview")).toBeInTheDocument();
+		expect(screen.getByText("Technical", { exact: false })).toBeInTheDocument();
+	});
+
+	it("shows 'Saved' when still in the saved stage, even if an application date is set", async () => {
 		vi.mocked(applicationsApi.getApplication).mockResolvedValue({ ...SAMPLE_APPLICATION, status: "SAVED" });
 		renderDetailPage();
 
 		expect(await screen.findByRole("heading", { name: "Backend Engineer" })).toBeInTheDocument();
-		expect(screen.getByText("Not applied yet")).toBeInTheDocument();
-		expect(screen.queryByText("Applied: Aug 1, 2026")).not.toBeInTheDocument();
+		expect(screen.getAllByText("Saved").length).toBeGreaterThanOrEqual(2);
+		expect(screen.queryByText("Applied")).not.toBeInTheDocument();
 	});
 
 	it("edits the job description inline from the overview tab", async () => {

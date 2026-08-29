@@ -5,6 +5,12 @@ import { getCalendarInterviews } from "../api/calendar";
 import type { UpcomingInterview } from "../types/dashboard";
 import { AppShell } from "../components/AppShell";
 import { formatDateTime, formatTime } from "../utils/date";
+import { isWithinReminderMode } from "../utils/interviewTiming";
+import { useAuth } from "../context/AuthContext";
+
+function interviewKey(iv: UpcomingInterview): string {
+	return `${iv.applicationId}-${iv.scheduledAt}`;
+}
 
 const MAX_VISIBLE_BANNERS = 3;
 
@@ -24,6 +30,7 @@ function dateKey(d: Date): string {
 export function CalendarPage() {
 	const { t, i18n } = useTranslation();
 	const navigate = useNavigate();
+	const { interviewReminderMode, interviewReminderHours } = useAuth();
 	const [interviews, setInterviews] = useState<UpcomingInterview[]>([]);
 	const [viewDate, setViewDate] = useState(() => {
 		const now = new Date();
@@ -56,6 +63,12 @@ export function CalendarPage() {
 			.sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
 			.slice(0, 8);
 	}, [interviews]);
+
+	// Same "today's earliest qualifying interview" logic as the Dashboard reminder banner —
+	// marks the same interview here, independent of whether that banner is currently snoozed.
+	const primaryReminder = upcomingInterviews.find((iv) =>
+		isWithinReminderMode(iv.scheduledAt, iv.durationMinutes, interviewReminderMode, interviewReminderHours)
+	);
 
 	const selectedDayInterviews = useMemo(() => {
 		if (!selectedDateKey) return [];
@@ -227,6 +240,12 @@ export function CalendarPage() {
 									cursor: "pointer",
 								}}
 							>
+								{primaryReminder && interviewKey(iv) === interviewKey(primaryReminder) && (
+									<div
+										style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--color-accent)", flex: "none" }}
+										title={t("dashboard.reminderBanner.label")}
+									/>
+								)}
 								<div style={{ flex: 1, minWidth: 0 }}>
 									<div style={{ fontWeight: 600, fontSize: 13.5 }}>{iv.company}</div>
 									<div style={{ fontSize: 12.5, color: "var(--color-text-muted)" }}>
