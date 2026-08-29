@@ -25,6 +25,43 @@ import { formatSalaryRange } from "../utils/currency";
 import { formatLocation } from "../utils/workMode";
 
 type View = "table" | "board";
+type SortColumn = "company" | "salary" | "applied";
+type SortDirection = "asc" | "desc";
+
+function compareNullable<T>(a: T | null | undefined, b: T | null | undefined, cmp: (a: T, b: T) => number): number {
+	const aNull = a === null || a === undefined || a === "";
+	const bNull = b === null || b === undefined || b === "";
+	if (aNull && bNull) return 0;
+	if (aNull) return 1;
+	if (bNull) return -1;
+	return cmp(a, b);
+}
+
+function SortableHeader({
+	column,
+	label,
+	sortColumn,
+	sortDirection,
+	onSort,
+}: {
+	column: SortColumn;
+	label: string;
+	sortColumn: SortColumn;
+	sortDirection: SortDirection;
+	onSort: (column: SortColumn) => void;
+}) {
+	const active = sortColumn === column;
+	return (
+		<div
+			onClick={() => onSort(column)}
+			data-testid={`sort-header-${column}`}
+			style={{ display: "flex", alignItems: "center", gap: 4, cursor: "pointer", userSelect: "none" }}
+		>
+			{label}
+			{active && <span style={{ color: "var(--color-text)", fontSize: 10 }}>{sortDirection === "asc" ? "▲" : "▼"}</span>}
+		</div>
+	);
+}
 
 const VIEW_KEY = "nextrole_applications_view";
 
@@ -84,6 +121,17 @@ export function ApplicationsPage() {
 	const [maxSalaryFilter, setMaxSalaryFilter] = useState("");
 	const [filtersOpen, setFiltersOpen] = useState(false);
 	const filtersRef = useRef<HTMLDivElement>(null);
+	const [sortColumn, setSortColumn] = useState<SortColumn>("applied");
+	const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+
+	function toggleSort(column: SortColumn) {
+		if (sortColumn !== column) {
+			setSortColumn(column);
+			setSortDirection("asc");
+			return;
+		}
+		setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
+	}
 
 	useEffect(() => {
 		if (!filtersOpen) return;
@@ -153,6 +201,31 @@ export function ApplicationsPage() {
 		minSalaryFilter,
 		maxSalaryFilter,
 	]);
+
+	const sorted = useMemo(() => {
+		const dir = sortDirection === "asc" ? 1 : -1;
+		const list = [...filtered];
+		list.sort((a, b) => {
+			switch (sortColumn) {
+				case "company":
+					return dir * (a.company.localeCompare(b.company) || a.role.localeCompare(b.role));
+				case "salary":
+					return (
+						dir *
+						(compareNullable(a.salaryMin, b.salaryMin, (x, y) => x - y) ||
+							compareNullable(a.salaryMax, b.salaryMax, (x, y) => x - y))
+					);
+				case "applied":
+					// No applied date is treated as the oldest possible date, not sorted to the end.
+					// Ties (e.g. several apps with no date) break by company name for a deterministic order.
+					return (
+						dir *
+						((a.applicationDate ?? "").localeCompare(b.applicationDate ?? "") || a.company.localeCompare(b.company))
+					);
+			}
+		});
+		return list;
+	}, [filtered, sortColumn, sortDirection]);
 
 	const activeFilterCount = [
 		statusFilter,
@@ -495,15 +568,15 @@ export function ApplicationsPage() {
 							zIndex: 1,
 						}}
 					>
-						<div>{t("applications.columns.companyRole")}</div>
+						<SortableHeader column="company" label={t("applications.columns.companyRole")} sortColumn={sortColumn} sortDirection={sortDirection} onSort={toggleSort} />
 						<div>{t("applications.columns.location")}</div>
-						<div>{t("applications.columns.salary")}</div>
+						<SortableHeader column="salary" label={t("applications.columns.salary")} sortColumn={sortColumn} sortDirection={sortDirection} onSort={toggleSort} />
 						<div>{t("applications.columns.techStack")}</div>
 						<div>{t("applications.columns.status")}</div>
-						<div>{t("applications.columns.applied")}</div>
+						<SortableHeader column="applied" label={t("applications.columns.applied")} sortColumn={sortColumn} sortDirection={sortDirection} onSort={toggleSort} />
 						<div />
 					</div>
-					{filtered.map((app) => (
+					{sorted.map((app) => (
 						<div
 							key={app.id}
 							onClick={() => navigate(`/applications/${app.id}`)}

@@ -278,6 +278,98 @@ describe("ApplicationsPage", () => {
 		expect(screen.getByText("Globex")).toBeInTheDocument();
 	});
 
+	it("defaults to sorting by applied date, newest first, with no clicks needed", async () => {
+		const earlier: Application = { ...SAMPLE_APPLICATION, id: "app-2", company: "Earlier Co", applicationDate: "2026-01-01" };
+		const later: Application = { ...SAMPLE_APPLICATION, id: "app-3", company: "Later Co", applicationDate: "2026-12-01" };
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage([earlier, SAMPLE_APPLICATION, later]));
+		renderApplicationsPage();
+
+		await screen.findByText("Later Co");
+		const companyNames = screen.getAllByText(/^(Acme Corp|Earlier Co|Later Co)$/).map((el) => el.textContent);
+		expect(companyNames).toEqual(["Later Co", "Acme Corp", "Earlier Co"]);
+	});
+
+	it("sorts the table by company name, toggling direction on repeated clicks", async () => {
+		const zulu: Application = { ...SAMPLE_APPLICATION, id: "app-2", company: "Zulu Systems" };
+		const nimbus: Application = { ...SAMPLE_APPLICATION, id: "app-3", company: "Nimbus Labs" };
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage([zulu, SAMPLE_APPLICATION, nimbus]));
+		renderApplicationsPage();
+
+		await screen.findByText("Zulu Systems");
+		const companyNames = () => screen.getAllByText(/^(Acme Corp|Zulu Systems|Nimbus Labs)$/).map((el) => el.textContent);
+
+		await userEvent.click(screen.getByTestId("sort-header-company"));
+		expect(companyNames()).toEqual(["Acme Corp", "Nimbus Labs", "Zulu Systems"]);
+
+		await userEvent.click(screen.getByTestId("sort-header-company"));
+		expect(companyNames()).toEqual(["Zulu Systems", "Nimbus Labs", "Acme Corp"]);
+	});
+
+	it("breaks ties in company sort by role", async () => {
+		const backend: Application = { ...SAMPLE_APPLICATION, id: "app-2", company: "Acme Corp", role: "Backend Engineer" };
+		const frontend: Application = { ...SAMPLE_APPLICATION, id: "app-3", company: "Acme Corp", role: "Frontend Engineer" };
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage([frontend, backend]));
+		renderApplicationsPage();
+
+		await screen.findAllByText("Acme Corp");
+		await userEvent.click(screen.getByTestId("sort-header-company"));
+
+		const roles = screen.getAllByText(/^(Backend Engineer|Frontend Engineer)$/).map((el) => el.textContent);
+		expect(roles).toEqual(["Backend Engineer", "Frontend Engineer"]);
+	});
+
+	it("breaks ties in salary sort by max when min matches", async () => {
+		const lowerMax: Application = { ...SAMPLE_APPLICATION, id: "app-2", company: "LowerMax Co", salaryMin: 70000, salaryMax: 80000 };
+		const higherMax: Application = { ...SAMPLE_APPLICATION, id: "app-3", company: "HigherMax Co", salaryMin: 70000, salaryMax: 90000 };
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage([higherMax, lowerMax]));
+		renderApplicationsPage();
+
+		await screen.findByText("HigherMax Co");
+		await userEvent.click(screen.getByTestId("sort-header-salary"));
+
+		const companyNames = screen.getAllByText(/^(LowerMax Co|HigherMax Co)$/).map((el) => el.textContent);
+		expect(companyNames).toEqual(["LowerMax Co", "HigherMax Co"]);
+	});
+
+	it("sorts the table by applied date", async () => {
+		const earlier: Application = { ...SAMPLE_APPLICATION, id: "app-2", company: "Earlier Co", applicationDate: "2026-01-01" };
+		const later: Application = { ...SAMPLE_APPLICATION, id: "app-3", company: "Later Co", applicationDate: "2026-12-01" };
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage([later, SAMPLE_APPLICATION, earlier]));
+		renderApplicationsPage();
+
+		await screen.findByText("Later Co");
+		const companyNames = () => screen.getAllByText(/^(Acme Corp|Earlier Co|Later Co)$/).map((el) => el.textContent);
+
+		await userEvent.click(screen.getByTestId("sort-header-applied"));
+		expect(companyNames()).toEqual(["Earlier Co", "Acme Corp", "Later Co"]);
+	});
+
+	it("breaks ties in applied-date sort by company name", async () => {
+		const zulu: Application = { ...SAMPLE_APPLICATION, id: "app-2", company: "Zulu Systems", applicationDate: null };
+		const acme: Application = { ...SAMPLE_APPLICATION, id: "app-3", company: "Acme Corp", applicationDate: null };
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage([zulu, acme]));
+		renderApplicationsPage();
+
+		await screen.findByText("Zulu Systems");
+		await userEvent.click(screen.getByTestId("sort-header-applied"));
+
+		const companyNames = screen.getAllByText(/^(Zulu Systems|Acme Corp)$/).map((el) => el.textContent);
+		expect(companyNames).toEqual(["Acme Corp", "Zulu Systems"]);
+	});
+
+	it("treats a missing applied date as the oldest, not sorted to the end", async () => {
+		const noDate: Application = { ...SAMPLE_APPLICATION, id: "app-2", company: "NoDate Co", applicationDate: null };
+		const dated: Application = { ...SAMPLE_APPLICATION, id: "app-3", company: "Dated Co", applicationDate: "2026-01-01" };
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage([dated, noDate]));
+		renderApplicationsPage();
+
+		await screen.findByText("Dated Co");
+		await userEvent.click(screen.getByTestId("sort-header-applied"));
+
+		const companyNames = screen.getAllByText(/^(NoDate Co|Dated Co)$/).map((el) => el.textContent);
+		expect(companyNames).toEqual(["NoDate Co", "Dated Co"]);
+	});
+
 	it("does not show the filters button in board view", async () => {
 		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage());
 		renderApplicationsPage();
