@@ -11,6 +11,8 @@ data class CreateInterviewRequest(
 	val interviewer: String? = null,
 	@field:NotNull val scheduledAt: Instant,
 	val mode: String? = null,
+	val durationMinutes: Int? = null,
+	val meetingLink: String? = null,
 	val notes: String? = null
 )
 
@@ -19,6 +21,8 @@ data class UpdateInterviewRequest(
 	val interviewer: String? = null,
 	val scheduledAt: Instant? = null,
 	val mode: String? = null,
+	val durationMinutes: Int? = null,
+	val meetingLink: String? = null,
 	val notes: String? = null
 )
 
@@ -28,6 +32,8 @@ data class InterviewResponse(
 	val interviewer: String?,
 	val scheduledAt: Instant,
 	val mode: String?,
+	val durationMinutes: Int?,
+	val meetingLink: String?,
 	val notes: String?,
 	val createdAt: Instant
 )
@@ -38,6 +44,8 @@ fun Interview.toResponse() = InterviewResponse(
 	interviewer = interviewer,
 	scheduledAt = scheduledAt,
 	mode = mode,
+	durationMinutes = durationMinutes,
+	meetingLink = meetingLink,
 	notes = notes,
 	createdAt = createdAt
 )

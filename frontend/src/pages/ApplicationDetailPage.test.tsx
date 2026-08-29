@@ -191,6 +191,8 @@ describe("ApplicationDetailPage", () => {
 			interviewer: "Lena Fischer",
 			scheduledAt: "2026-08-05T10:00:00Z",
 			mode: "Video call",
+			durationMinutes: null,
+			meetingLink: null,
 			notes: null,
 			createdAt: "2026-08-01T00:00:00Z",
 		};
@@ -201,6 +203,62 @@ describe("ApplicationDetailPage", () => {
 		await userEvent.click(screen.getByText("Interviews"));
 
 		expect(screen.getByText("HR Screen")).toBeInTheDocument();
+	});
+
+	it("shows duration and a join link for an interview that has them", async () => {
+		const existingInterview: Interview = {
+			id: "iv1",
+			round: "HR Screen",
+			interviewer: "Lena Fischer",
+			scheduledAt: "2026-08-05T10:00:00Z",
+			mode: "Video call",
+			durationMinutes: 45,
+			meetingLink: "https://meet.example.com/room",
+			notes: null,
+			createdAt: "2026-08-01T00:00:00Z",
+		};
+		vi.mocked(applicationsApi.listInterviews).mockResolvedValue([existingInterview]);
+		renderDetailPage();
+
+		await screen.findByRole("heading", { name: "Backend Engineer" });
+		await userEvent.click(screen.getByText("Interviews"));
+
+		expect(screen.getByText("45 min", { exact: false })).toBeInTheDocument();
+		const joinLink = screen.getByRole("link", { name: "Join meeting" });
+		expect(joinLink).toHaveAttribute("href", "https://meet.example.com/room");
+	});
+
+	it("adds an interview with duration and a meeting link", async () => {
+		vi.mocked(applicationsApi.createInterview).mockResolvedValue({
+			id: "iv2",
+			round: "Technical",
+			interviewer: null,
+			scheduledAt: "2026-08-10T10:00:00Z",
+			mode: null,
+			durationMinutes: 30,
+			meetingLink: "https://meet.example.com/room",
+			notes: null,
+			createdAt: "2026-08-02T00:00:00Z",
+		});
+		const { container } = renderDetailPage();
+
+		await screen.findByRole("heading", { name: "Backend Engineer" });
+		await userEvent.click(screen.getByText("Interviews"));
+		await userEvent.click(screen.getByText("No interviews scheduled yet."));
+
+		await userEvent.type(screen.getByPlaceholderText("Round (e.g. HR Screen)"), "Technical");
+		await userEvent.type(screen.getByPlaceholderText("Duration (minutes)"), "30");
+		await userEvent.type(screen.getByPlaceholderText("Meeting link"), "https://meet.example.com/room");
+		const dateInput = container.querySelector('input[type="datetime-local"]') as HTMLInputElement;
+		await userEvent.type(dateInput, "2026-08-10T10:00");
+		await userEvent.click(screen.getByRole("button", { name: "Add interview" }));
+
+		await waitFor(() => {
+			expect(applicationsApi.createInterview).toHaveBeenCalledWith(
+				"app-1",
+				expect.objectContaining({ round: "Technical", durationMinutes: 30, meetingLink: "https://meet.example.com/room" })
+			);
+		});
 	});
 
 	it("edits an existing note", async () => {
@@ -297,6 +355,8 @@ describe("ApplicationDetailPage", () => {
 			interviewer: "Lena Fischer",
 			scheduledAt: "2026-08-05T10:00:00Z",
 			mode: "Video call",
+			durationMinutes: null,
+			meetingLink: null,
 			notes: null,
 			createdAt: "2026-08-01T00:00:00Z",
 		};

@@ -234,9 +234,13 @@
 			"roundPlaceholder": "Round (e.g. HR Screen)",
 			"interviewerPlaceholder": "Interviewer",
 			"modePlaceholder": "Mode (e.g. Video call)",
+			"durationPlaceholder": "Duration (minutes)",
+			"meetingLinkPlaceholder": "Meeting link",
 			"notesPlaceholder": "Notes (optional)",
 			"submit": "Add interview",
-			"saveCta": "Save changes"
+			"saveCta": "Save changes",
+			"durationLabel": "{{count}} min",
+			"joinCta": "Join meeting"
 		},
 		"contactForm": {
 			"namePlaceholder": "Name",

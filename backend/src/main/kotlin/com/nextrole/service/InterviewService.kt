@@ -22,6 +22,8 @@ class InterviewService(
 			interviewer = request.interviewer,
 			scheduledAt = request.scheduledAt,
 			mode = request.mode,
+			durationMinutes = request.durationMinutes,
+			meetingLink = request.meetingLink,
 			notes = request.notes
 		)
 		return interviewRepository.save(interview)
@@ -38,6 +40,8 @@ class InterviewService(
 		request.interviewer?.let { interview.interviewer = it }
 		request.scheduledAt?.let { interview.scheduledAt = it }
 		request.mode?.let { interview.mode = it }
+		request.durationMinutes?.let { interview.durationMinutes = it }
+		request.meetingLink?.let { interview.meetingLink = it }
 		request.notes?.let { interview.notes = it }
 		return interviewRepository.save(interview)
 	}

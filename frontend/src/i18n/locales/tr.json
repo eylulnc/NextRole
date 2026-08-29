@@ -234,9 +234,13 @@
 			"roundPlaceholder": "Aşama (ör. İK Görüşmesi)",
 			"interviewerPlaceholder": "Görüşmeci",
 			"modePlaceholder": "Format (ör. Görüntülü görüşme)",
+			"durationPlaceholder": "Süre (dakika)",
+			"meetingLinkPlaceholder": "Görüşme bağlantısı",
 			"notesPlaceholder": "Notlar (opsiyonel)",
 			"submit": "Görüşme ekle",
-			"saveCta": "Değişiklikleri kaydet"
+			"saveCta": "Değişiklikleri kaydet",
+			"durationLabel": "{{count}} dk",
+			"joinCta": "Görüşmeye katıl"
 		},
 		"contactForm": {
 			"namePlaceholder": "İsim",

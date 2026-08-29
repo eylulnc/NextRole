@@ -43,6 +43,7 @@ import { useToast } from "../context/ToastContext";
 import { formatDate, formatDateTime } from "../utils/date";
 import { formatSalaryRange } from "../utils/currency";
 import { formatLocation } from "../utils/workMode";
+import * as React from "react";
 
 type Tab = "overview" | "history" | "interviews" | "contacts" | "notes";
 
@@ -226,7 +227,15 @@ export function ApplicationDetailPage() {
 		}
 	}
 
-	async function handleAddInterview(round: string, interviewer: string, scheduledAt: string, mode: string, notesText: string) {
+	async function handleAddInterview(
+		round: string,
+		interviewer: string,
+		scheduledAt: string,
+		mode: string,
+		durationMinutes: string,
+		meetingLink: string,
+		notesText: string
+	) {
 		if (!id) return;
 		try {
 			await createInterview(id, {
@@ -234,6 +243,8 @@ export function ApplicationDetailPage() {
 				interviewer: interviewer || undefined,
 				scheduledAt: new Date(scheduledAt).toISOString(),
 				mode: mode || undefined,
+				durationMinutes: durationMinutes ? Number(durationMinutes) : undefined,
+				meetingLink: meetingLink || undefined,
 				notes: notesText || undefined,
 			});
 			setShowInterviewForm(false);
@@ -289,6 +300,8 @@ export function ApplicationDetailPage() {
 		interviewer: string,
 		scheduledAt: string,
 		mode: string,
+		durationMinutes: string,
+		meetingLink: string,
 		notesText: string
 	) {
 		if (!id) return;
@@ -298,6 +311,8 @@ export function ApplicationDetailPage() {
 				interviewer: interviewer || undefined,
 				scheduledAt: new Date(scheduledAt).toISOString(),
 				mode: mode || undefined,
+				durationMinutes: durationMinutes ? Number(durationMinutes) : undefined,
+				meetingLink: meetingLink || undefined,
 				notes: notesText || undefined,
 			});
 			setEditingInterviewId(null);
@@ -585,8 +600,8 @@ export function ApplicationDetailPage() {
 							<InterviewForm
 								key={iv.id}
 								initial={iv}
-								onSubmit={(round, interviewer, scheduledAt, mode, notesText) =>
-									handleUpdateInterview(iv.id, round, interviewer, scheduledAt, mode, notesText)
+								onSubmit={(round, interviewer, scheduledAt, mode, durationMinutes, meetingLink, notesText) =>
+									handleUpdateInterview(iv.id, round, interviewer, scheduledAt, mode, durationMinutes, meetingLink, notesText)
 								}
 								onClose={() => setEditingInterviewId(null)}
 							/>
@@ -608,13 +623,40 @@ export function ApplicationDetailPage() {
 										]}
 									/>
 								</div>
-								<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
 									<div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>
-										{[iv.interviewer, iv.mode].filter(Boolean).join(" · ")}
+										{[
+											iv.interviewer,
+											iv.mode,
+											iv.durationMinutes ? t("applicationDetail.interviewForm.durationLabel", { count: iv.durationMinutes }) : null,
+										]
+											.filter(Boolean)
+											.join(" · ")}
 									</div>
-									<span style={{ fontSize: 12, color: "var(--color-text-faint)" }}>
-										{formatDateTime(iv.scheduledAt)}
-									</span>
+									<div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+										<span style={{ fontSize: 12, color: "var(--color-text-faint)" }}>
+											{formatDateTime(iv.scheduledAt)}
+										</span>
+										{iv.meetingLink && (
+											<a
+												href={iv.meetingLink}
+												target="_blank"
+												rel="noreferrer"
+												style={{
+													marginTop: 4,
+													fontSize: 13,
+													fontWeight: 600,
+													textDecoration: "none",
+													background: "var(--color-highlight-bg)",
+													color: "var(--color-highlight-text-strong)",
+													borderRadius: 8,
+													padding: "8px 14px",
+												}}
+											>
+												{t("applicationDetail.interviewForm.joinCta")}
+											</a>
+										)}
+									</div>
 								</div>
 								{iv.notes && <div style={{ fontSize: 13, color: "var(--color-text)" }}>{iv.notes}</div>}
 							</div>
@@ -920,7 +962,15 @@ function InterviewForm({
 	onClose,
 }: {
 	initial?: Interview;
-	onSubmit: (round: string, interviewer: string, scheduledAt: string, mode: string, notes: string) => Promise<void>;
+	onSubmit: (
+		round: string,
+		interviewer: string,
+		scheduledAt: string,
+		mode: string,
+		durationMinutes: string,
+		meetingLink: string,
+		notes: string
+	) => Promise<void>;
 	onClose: () => void;
 }) {
 	const { t } = useTranslation();
@@ -928,6 +978,8 @@ function InterviewForm({
 	const [interviewer, setInterviewer] = useState(initial?.interviewer ?? "");
 	const [scheduledAt, setScheduledAt] = useState(initial ? toDateTimeLocal(initial.scheduledAt) : "");
 	const [mode, setMode] = useState(initial?.mode ?? "");
+	const [durationMinutes, setDurationMinutes] = useState(initial?.durationMinutes?.toString() ?? "");
+	const [meetingLink, setMeetingLink] = useState(initial?.meetingLink ?? "");
 	const [notes, setNotes] = useState(initial?.notes ?? "");
 	const [submitting, setSubmitting] = useState(false);
 
@@ -936,12 +988,14 @@ function InterviewForm({
 		if (!round.trim() || !scheduledAt) return;
 		setSubmitting(true);
 		try {
-			await onSubmit(round, interviewer, scheduledAt, mode, notes);
+			await onSubmit(round, interviewer, scheduledAt, mode, durationMinutes, meetingLink, notes);
 			if (!initial) {
 				setRound("");
 				setInterviewer("");
 				setScheduledAt("");
 				setMode("");
+				setDurationMinutes("");
+				setMeetingLink("");
 				setNotes("");
 			}
 		} finally {
@@ -977,6 +1031,21 @@ function InterviewForm({
 					placeholder={t("applicationDetail.interviewForm.modePlaceholder")}
 					value={mode}
 					onChange={(e) => setMode(e.target.value)}
+					style={inputStyle}
+				/>
+				<input
+					type="number"
+					min={0}
+					placeholder={t("applicationDetail.interviewForm.durationPlaceholder")}
+					value={durationMinutes}
+					onChange={(e) => setDurationMinutes(e.target.value)}
+					style={inputStyle}
+				/>
+				<input
+					type="url"
+					placeholder={t("applicationDetail.interviewForm.meetingLinkPlaceholder")}
+					value={meetingLink}
+					onChange={(e) => setMeetingLink(e.target.value)}
 					style={inputStyle}
 				/>
 			</div>
