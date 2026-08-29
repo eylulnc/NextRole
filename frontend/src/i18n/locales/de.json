@@ -79,7 +79,27 @@
 		"pipelineOverview": "Pipeline-Übersicht",
 		"noUpcomingInterviews": "Keine Interviews geplant.",
 		"noRecentActivity": "Noch keine Aktivität.",
-		"movedTo": "{{company}} wechselte zu {{status}}"
+		"movedTo": "{{company}} wechselte zu {{status}}",
+		"reminderBanner": {
+			"label": "Als Nächstes",
+			"inHours": "In {{count}}Std",
+			"inMinutes": "In {{count}}Min",
+			"now": "Jetzt",
+			"openNotes": "Notizen öffnen",
+			"moreToday": "+{{count}} weitere heute",
+			"dismiss": "Ausblenden",
+			"snoozeChoices": {
+				"10min": "In 10 Min. erinnern",
+				"1h": "In 1 Std. erinnern",
+				"today": "Heute nicht mehr zeigen",
+				"never": "Nie",
+				"always": "Immer"
+			}
+		},
+		"reminderPrompt": {
+			"title": "Interview-Erinnerungen",
+			"description": "Möchten Sie vor Ihren Interviews eine Erinnerung sehen? Wählen Sie, wie es funktionieren soll — das können Sie jederzeit in den Einstellungen ändern."
+		}
 	},
 	"analytics": {
 		"title": "Analyse",
@@ -137,6 +157,14 @@
 		"language": "Sprache",
 		"defaultCurrency": "Standardwährung",
 		"theme": "Design",
+		"interviewReminders": "Interview-Erinnerungen im Dashboard",
+		"reminderChoices": {
+			"OFF": "Aus",
+			"ALWAYS": "Immer (jederzeit heute)",
+			"HOURS_3": "3 Stunden vorher",
+			"HOURS_12": "12 Stunden vorher",
+			"HOURS_24": "24 Stunden vorher (einen Tag vorher)"
+		},
 		"languageOptions": {
 			"en": "English",
 			"de": "Deutsch",

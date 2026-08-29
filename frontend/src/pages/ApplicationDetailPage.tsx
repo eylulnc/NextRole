@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
 	changeApplicationStatus,
@@ -134,13 +134,15 @@ export function ApplicationDetailPage() {
 	const { stages, visibleStages } = usePipelineStages();
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { showToast } = useToast();
 	const [application, setApplication] = useState<Application | null>(null);
 	const [history, setHistory] = useState<StatusHistoryEntry[]>([]);
 	const [notes, setNotes] = useState<Note[]>([]);
 	const [interviews, setInterviews] = useState<Interview[]>([]);
 	const [contacts, setContacts] = useState<Contact[]>([]);
-	const [tab, setTab] = useState<Tab>("overview");
+	const requestedTab = (location.state as { tab?: Tab } | null)?.tab;
+	const [tab, setTab] = useState<Tab>(requestedTab ?? "overview");
 	const [editing, setEditing] = useState(false);
 	const [changingStage, setChangingStage] = useState(false);
 	const [showNoteForm, setShowNoteForm] = useState(false);

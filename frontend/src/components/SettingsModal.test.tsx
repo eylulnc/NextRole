@@ -6,6 +6,7 @@ import { AuthProvider } from "../context/AuthContext";
 import { ToastProvider } from "../context/ToastContext";
 import { ThemeProvider } from "../context/ThemeContext";
 import * as settingsApi from "../api/settings";
+import i18n from "../i18n/config";
 
 vi.mock("../api/settings");
 
@@ -32,10 +33,11 @@ describe("SettingsModal", () => {
 	beforeEach(() => {
 		localStorage.clear();
 		vi.clearAllMocks();
+		i18n.changeLanguage("en");
 	});
 
 	it("saves the selected language and default currency", async () => {
-		vi.mocked(settingsApi.updateSettings).mockResolvedValue({ language: "de", defaultCurrency: "USD" });
+		vi.mocked(settingsApi.updateSettings).mockResolvedValue({ language: "de", defaultCurrency: "USD", interviewReminderMode: "ALWAYS", interviewReminderHours: 24, interviewReminderPrompted: false });
 		const { onClose } = renderSettingsModal();
 
 		await userEvent.selectOptions(screen.getByLabelText("Language"), "de");
@@ -43,10 +45,33 @@ describe("SettingsModal", () => {
 		await userEvent.click(screen.getByRole("button", { name: "Save changes" }));
 
 		await waitFor(() => {
-			expect(settingsApi.updateSettings).toHaveBeenCalledWith({ language: "de", defaultCurrency: "USD" });
+			expect(settingsApi.updateSettings).toHaveBeenCalledWith({
+				language: "de",
+				defaultCurrency: "USD",
+				interviewReminderMode: "ALWAYS",
+				interviewReminderHours: 24,
+			});
 		});
 		expect(localStorage.getItem("nextrole_language")).toBe("de");
 		expect(localStorage.getItem("nextrole_default_currency")).toBe("USD");
 		expect(onClose).toHaveBeenCalled();
+	});
+
+	it("turns off interview reminders", async () => {
+		vi.mocked(settingsApi.updateSettings).mockResolvedValue({ language: "en", defaultCurrency: "EUR", interviewReminderMode: "OFF", interviewReminderHours: 24, interviewReminderPrompted: false });
+		renderSettingsModal();
+
+		await userEvent.selectOptions(screen.getByLabelText("Interview reminders on the dashboard"), "Off");
+		await userEvent.click(screen.getByRole("button", { name: "Save changes" }));
+
+		await waitFor(() => {
+			expect(settingsApi.updateSettings).toHaveBeenCalledWith({
+				language: "en",
+				defaultCurrency: "EUR",
+				interviewReminderMode: "OFF",
+				interviewReminderHours: 24,
+			});
+		});
+		expect(localStorage.getItem("nextrole_interview_reminder_mode")).toBe("OFF");
 	});
 });

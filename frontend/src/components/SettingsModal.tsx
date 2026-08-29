@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { updateSettings } from "../api/settings";
 import { CURRENCY_OPTIONS } from "../utils/currency";
+import { REMINDER_CHOICES, decodeReminderChoice, encodeReminderChoice, type ReminderChoice } from "../utils/interviewTiming";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { useTheme, type Theme } from "../context/ThemeContext";
@@ -45,18 +46,29 @@ const labelStyle: React.CSSProperties = {
 
 export function SettingsModal({ onClose }: { onClose: () => void }) {
 	const { t } = useTranslation();
-	const { language, defaultCurrency, updateLocalSettings } = useAuth();
+	const { language, defaultCurrency, interviewReminderMode, interviewReminderHours, updateLocalSettings } = useAuth();
 	const { theme, setTheme } = useTheme();
 	const { showToast } = useToast();
-	const [form, setForm] = useState({ language, defaultCurrency });
+	const [form, setForm] = useState({
+		language,
+		defaultCurrency,
+		reminderChoice: encodeReminderChoice(interviewReminderMode, interviewReminderHours),
+	});
 	const [submitting, setSubmitting] = useState(false);
 
 	async function handleSubmit(e: FormEvent) {
 		e.preventDefault();
 		setSubmitting(true);
 		try {
-			await updateSettings(form);
-			updateLocalSettings(form);
+			const { mode, hours } = decodeReminderChoice(form.reminderChoice);
+			const request = {
+				language: form.language,
+				defaultCurrency: form.defaultCurrency,
+				interviewReminderMode: mode,
+				interviewReminderHours: hours,
+			};
+			await updateSettings(request);
+			updateLocalSettings(request);
 			showToast(t("settingsModal.toasts.updated"), "success");
 			onClose();
 		} catch {
@@ -132,6 +144,20 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
 							{CURRENCY_OPTIONS.map((code) => (
 								<option key={code} value={code}>
 									{code}
+								</option>
+							))}
+						</select>
+					</label>
+					<label style={labelStyle}>
+						{t("settingsModal.interviewReminders")}
+						<select
+							value={form.reminderChoice}
+							onChange={(e) => setForm((f) => ({ ...f, reminderChoice: e.target.value as ReminderChoice }))}
+							style={selectStyle}
+						>
+							{REMINDER_CHOICES.map((choice) => (
+								<option key={choice} value={choice}>
+									{t(`settingsModal.reminderChoices.${choice}`)}
 								</option>
 							))}
 						</select>

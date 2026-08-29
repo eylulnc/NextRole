@@ -30,7 +30,15 @@ class AuthService(
 		userRepository.save(user)
 		pipelineStageService.seedDefaults(user.id)
 		val token = jwtService.generateToken(user.id, user.email)
-		return AuthResponse(token, user.email, user.language, user.defaultCurrency)
+		return AuthResponse(
+			token,
+			user.email,
+			user.language,
+			user.defaultCurrency,
+			user.interviewReminderMode,
+			user.interviewReminderHours,
+			user.interviewReminderPrompted
+		)
 	}
 
 	fun login(request: LoginRequest): AuthResponse {
@@ -40,6 +48,14 @@ class AuthService(
 			throw InvalidCredentialsException()
 		}
 		val token = jwtService.generateToken(user.id, user.email)
-		return AuthResponse(token, user.email, user.language, user.defaultCurrency)
+		return AuthResponse(
+			token,
+			user.email,
+			user.language,
+			user.defaultCurrency,
+			user.interviewReminderMode,
+			user.interviewReminderHours,
+			user.interviewReminderPrompted
+		)
 	}
 }

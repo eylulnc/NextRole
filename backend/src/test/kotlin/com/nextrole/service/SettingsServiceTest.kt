@@ -49,4 +49,25 @@ class SettingsServiceTest {
 		assertEquals("tr", result.language)
 		assertEquals("EUR", result.defaultCurrency)
 	}
+
+	@Test
+	fun `interview reminder mode defaults to ALWAYS with a 24h window and can be changed`() {
+		val user = User(id = userId, email = "user@example.com", passwordHash = "hash")
+		every { userRepository.findById(userId) } returns Optional.of(user)
+		every { userRepository.save(user) } returns user
+
+		val defaults = settingsService.get(userId)
+		assertEquals("ALWAYS", defaults.interviewReminderMode)
+		assertEquals(24, defaults.interviewReminderHours)
+		assertEquals(false, defaults.interviewReminderPrompted)
+
+		val result = settingsService.update(
+			userId,
+			UpdateUserSettingsRequest(interviewReminderMode = "HOURS", interviewReminderHours = 12, interviewReminderPrompted = true)
+		)
+
+		assertEquals("HOURS", result.interviewReminderMode)
+		assertEquals(12, result.interviewReminderHours)
+		assertEquals(true, result.interviewReminderPrompted)
+	}
 }

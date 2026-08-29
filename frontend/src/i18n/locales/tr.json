@@ -79,7 +79,27 @@
 		"pipelineOverview": "Süreç özeti",
 		"noUpcomingInterviews": "Planlanmış görüşme yok.",
 		"noRecentActivity": "Henüz etkinlik yok.",
-		"movedTo": "{{company}} {{status}} durumuna geçti"
+		"movedTo": "{{company}} {{status}} durumuna geçti",
+		"reminderBanner": {
+			"label": "Sıradaki",
+			"inHours": "{{count}} sa sonra",
+			"inMinutes": "{{count}} dk sonra",
+			"now": "Şimdi",
+			"openNotes": "Notları aç",
+			"moreToday": "Bugün +{{count}} daha",
+			"dismiss": "Kapat",
+			"snoozeChoices": {
+				"10min": "10 dakika sonra hatırlat",
+				"1h": "1 saat sonra hatırlat",
+				"today": "Bugün gösterme",
+				"never": "Asla",
+				"always": "Her zaman"
+			}
+		},
+		"reminderPrompt": {
+			"title": "Görüşme hatırlatmaları",
+			"description": "Görüşmelerinizden önce bir hatırlatma bandı görmek ister misiniz? Nasıl çalışacağını seçin — bunu istediğiniz zaman Ayarlar'dan değiştirebilirsiniz."
+		}
 	},
 	"analytics": {
 		"title": "Analiz",
@@ -137,6 +157,14 @@
 		"language": "Dil",
 		"defaultCurrency": "Varsayılan para birimi",
 		"theme": "Tema",
+		"interviewReminders": "Panoda görüşme hatırlatmaları",
+		"reminderChoices": {
+			"OFF": "Kapalı",
+			"ALWAYS": "Her zaman (bugün her an)",
+			"HOURS_3": "3 saat önce",
+			"HOURS_12": "12 saat önce",
+			"HOURS_24": "24 saat önce (bir gün önce)"
+		},
 		"languageOptions": {
 			"en": "English",
 			"de": "Deutsch",

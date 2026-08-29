@@ -48,7 +48,13 @@ class SettingsControllerTest {
 
 	@Test
 	fun `get returns the current user's settings`() {
-		every { settingsService.get(userId) } returns UserSettingsResponse(language = "de", defaultCurrency = "USD")
+		every { settingsService.get(userId) } returns UserSettingsResponse(
+			language = "de",
+			defaultCurrency = "USD",
+			interviewReminderMode = "ALWAYS",
+			interviewReminderHours = 24,
+			interviewReminderPrompted = false
+		)
 
 		mockMvc.get("/api/settings").andExpect {
 			status { isOk() }
@@ -60,7 +66,13 @@ class SettingsControllerTest {
 	@Test
 	fun `update saves and returns the updated settings`() {
 		val request = UpdateUserSettingsRequest(language = "tr", defaultCurrency = "TRY")
-		every { settingsService.update(userId, request) } returns UserSettingsResponse(language = "tr", defaultCurrency = "TRY")
+		every { settingsService.update(userId, request) } returns UserSettingsResponse(
+			language = "tr",
+			defaultCurrency = "TRY",
+			interviewReminderMode = "ALWAYS",
+			interviewReminderHours = 24,
+			interviewReminderPrompted = false
+		)
 
 		mockMvc.patch("/api/settings") {
 			contentType = MediaType.APPLICATION_JSON
