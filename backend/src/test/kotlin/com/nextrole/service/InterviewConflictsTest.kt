@@ -9,6 +9,9 @@ import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.util.UUID
 
+// Mirrors frontend/src/utils/interviewTiming.test.ts case-for-case. Conflict detection exists
+// twice by design — here for what the Dashboard and Calendar display, and client-side for the
+// interview form, which must warn on a time that hasn't been saved yet. Keep the two in step.
 class InterviewConflictsTest {
 
 	private val userId = UUID.randomUUID()
