@@ -14,7 +14,9 @@ class CalendarService(
 
 	fun getInterviews(userId: UUID): List<UpcomingInterviewResponse> {
 		val applicationsById = applicationRepository.findByUserId(userId).associateBy { it.id }
-		return interviewRepository.findAllByUserId(userId).mapNotNull { interview ->
+		val interviews = interviewRepository.findAllByUserId(userId)
+		val conflicts = InterviewConflicts.findConflicts(interviews, applicationsById)
+		return interviews.mapNotNull { interview ->
 			val application = applicationsById[interview.applicationId] ?: return@mapNotNull null
 			UpcomingInterviewResponse(
 				id = interview.id,
@@ -25,7 +27,8 @@ class CalendarService(
 				scheduledAt = interview.scheduledAt,
 				mode = interview.mode,
 				durationMinutes = interview.durationMinutes,
-				meetingLink = interview.meetingLink
+				meetingLink = interview.meetingLink,
+				conflictsWith = conflicts[interview.id]
 			)
 		}
 	}

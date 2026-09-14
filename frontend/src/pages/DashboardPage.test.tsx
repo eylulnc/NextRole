@@ -42,6 +42,7 @@ const SAMPLE_STATS: DashboardStatistics = {
 			mode: null,
 			durationMinutes: null,
 			meetingLink: null,
+			conflictsWith: null,
 		},
 	],
 	recentActivity: [{ applicationId: "app-1", company: "Acme Corp", status: "APPLIED", changedAt: "2026-08-18T00:00:00Z" }],
@@ -229,19 +230,25 @@ describe("DashboardPage", () => {
 		expect(screen.queryByText("Next up", { exact: false })).not.toBeInTheDocument();
 	});
 
-	it("shows a conflict banner when two upcoming interviews overlap", async () => {
+	it("shows a conflict banner from the server-reported conflict", async () => {
 		const start = new Date(Date.now() + 90 * 60 * 1000);
+		const clash = new Date(start.getTime() + 15 * 60 * 1000);
 		vi.mocked(dashboardApi.getDashboardStatistics).mockResolvedValue({
 			...SAMPLE_STATS,
 			upcomingInterviews: [
-				{ ...SAMPLE_STATS.upcomingInterviews[0], id: "iv-1", company: "Acme Corp", scheduledAt: start.toISOString(), durationMinutes: 60 },
 				{
 					...SAMPLE_STATS.upcomingInterviews[0],
-					id: "iv-2",
-					applicationId: "app-2",
-					company: "Globex",
-					scheduledAt: new Date(start.getTime() + 15 * 60 * 1000).toISOString(),
+					id: "iv-1",
+					company: "Acme Corp",
+					scheduledAt: start.toISOString(),
 					durationMinutes: 60,
+					conflictsWith: {
+						id: "iv-2",
+						applicationId: "app-2",
+						company: "Globex",
+						scheduledAt: clash.toISOString(),
+						durationMinutes: 60,
+					},
 				},
 			],
 		});
@@ -252,7 +259,36 @@ describe("DashboardPage", () => {
 		expect(screen.getAllByText("Globex", { exact: false }).length).toBeGreaterThan(0);
 	});
 
-	it("does not show a conflict banner when upcoming interviews don't overlap", async () => {
+	it("reports a conflict with an interview too far out to be listed", async () => {
+		const start = new Date(Date.now() + 90 * 60 * 1000);
+		// The clashing interview is not among upcomingInterviews at all — the server saw it past
+		// the dashboard's limit. The banner must still name it.
+		vi.mocked(dashboardApi.getDashboardStatistics).mockResolvedValue({
+			...SAMPLE_STATS,
+			upcomingInterviews: [
+				{
+					...SAMPLE_STATS.upcomingInterviews[0],
+					id: "iv-1",
+					company: "Acme Corp",
+					scheduledAt: start.toISOString(),
+					durationMinutes: 60,
+					conflictsWith: {
+						id: "iv-beyond-limit",
+						applicationId: "app-9",
+						company: "Initech",
+						scheduledAt: new Date(start.getTime() + 30 * 60 * 1000).toISOString(),
+						durationMinutes: 60,
+					},
+				},
+			],
+		});
+		renderDashboard();
+
+		expect(await screen.findByText("conflicting interviews", { exact: false })).toBeInTheDocument();
+		expect(screen.getAllByText("Initech", { exact: false }).length).toBeGreaterThan(0);
+	});
+
+	it("does not show a conflict banner when the server reports no conflict", async () => {
 		const start = new Date(Date.now() + 90 * 60 * 1000);
 		vi.mocked(dashboardApi.getDashboardStatistics).mockResolvedValue({
 			...SAMPLE_STATS,

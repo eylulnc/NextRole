@@ -63,6 +63,9 @@ class DashboardService(
 			FunnelStageCount(status = stage.key, count = applications.count { it.status == stage.key })
 		}
 
+		// Conflicts are computed across every upcoming interview, then attached to the few we return —
+		// otherwise a clash involving an interview past the limit would be invisible on the Dashboard.
+		val conflicts = InterviewConflicts.findConflicts(upcomingInterviews, applicationsById)
 		val upcomingInterviewsResponse = upcomingInterviews.take(UPCOMING_INTERVIEWS_LIMIT).mapNotNull { interview ->
 			val application = applicationsById[interview.applicationId] ?: return@mapNotNull null
 			UpcomingInterviewResponse(
@@ -74,7 +77,8 @@ class DashboardService(
 				scheduledAt = interview.scheduledAt,
 				mode = interview.mode,
 				durationMinutes = interview.durationMinutes,
-				meetingLink = interview.meetingLink
+				meetingLink = interview.meetingLink,
+				conflictsWith = conflicts[interview.id]
 			)
 		}
 
