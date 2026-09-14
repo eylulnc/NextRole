@@ -99,6 +99,9 @@
 		"reminderPrompt": {
 			"title": "Interview-Erinnerungen",
 			"description": "Möchten Sie vor Ihren Interviews eine Erinnerung sehen? Wählen Sie, wie es funktionieren soll — das können Sie jederzeit in den Einstellungen ändern."
+		},
+		"conflictBanner": {
+			"message": "Du hast sich überschneidende Interviews: {{companyA}} um {{timeA}} überschneidet sich mit {{companyB}} um {{timeB}}"
 		}
 	},
 	"analytics": {
@@ -268,7 +271,10 @@
 			"saveCta": "Änderungen speichern",
 			"durationLabel": "{{count}} Min.",
 			"joinCta": "Meeting beitreten",
-			"goToLinkCta": "Zum Link"
+			"goToLinkCta": "Zum Link",
+			"scheduleConflict": "Überschneidet sich mit deinem Interview bei {{company}} um {{time}}",
+			"scheduleConflictConfirm": "Dieses Interview überschneidet sich mit deinem Interview bei {{company}} um {{time}}. Möchtest du trotzdem speichern?",
+			"saveAnywayCta": "Trotzdem speichern"
 		},
 		"contactForm": {
 			"namePlaceholder": "Name",

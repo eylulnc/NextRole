@@ -14,7 +14,14 @@ import { CloseButton } from "../components/CloseButton";
 import { stageLabel, statusDotColor } from "../components/StatusBadge";
 import { XIcon } from "../components/IconButton";
 import { formatDateTime, formatTime } from "../utils/date";
-import { isMeetingJoinable, isWithinReminderMode, REMINDER_CHOICES, decodeReminderChoice, type ReminderChoice } from "../utils/interviewTiming";
+import {
+	findSchedulingConflict,
+	isMeetingJoinable,
+	isWithinReminderMode,
+	REMINDER_CHOICES,
+	decodeReminderChoice,
+	type ReminderChoice,
+} from "../utils/interviewTiming";
 import { useToast } from "../context/ToastContext";
 import { usePipelineStages } from "../context/PipelineStagesContext";
 import { useAuth } from "../context/AuthContext";
@@ -267,6 +274,15 @@ export function DashboardPage() {
 	const moreRemindersCount = Math.max(qualifyingReminders.length - 1, 0);
 	const bannerVisible = primaryReminder !== undefined && bannerSnoozedUntil <= Date.now();
 
+	// Flags the first overlapping pair among the interviews shown below — a lightweight,
+	// always-visible heads-up independent of the (snoozable) reminder banner above.
+	const conflictingInterview = stats.upcomingInterviews.find((iv) =>
+		findSchedulingConflict(iv.scheduledAt, iv.durationMinutes, stats.upcomingInterviews, iv.id)
+	);
+	const conflictingWith = conflictingInterview
+		? findSchedulingConflict(conflictingInterview.scheduledAt, conflictingInterview.durationMinutes, stats.upcomingInterviews, conflictingInterview.id)
+		: undefined;
+
 	const subColorPositive = "var(--color-positive)";
 	const subColorNeutral = "var(--color-text-muted)";
 
@@ -424,6 +440,26 @@ export function DashboardPage() {
 							)}
 						</div>
 					</div>
+				</div>
+			)}
+
+			{conflictingInterview && conflictingWith && (
+				<div
+					style={{
+						background: "var(--color-warning-bg)",
+						color: "var(--color-warning-text)",
+						borderRadius: 12,
+						padding: "12px 18px",
+						fontSize: 13.5,
+						fontWeight: 500,
+					}}
+				>
+					{t("dashboard.conflictBanner.message", {
+						companyA: conflictingInterview.company,
+						timeA: formatDateTime(conflictingInterview.scheduledAt),
+						companyB: conflictingWith.company,
+						timeB: formatDateTime(conflictingWith.scheduledAt),
+					})}
 				</div>
 			)}
 

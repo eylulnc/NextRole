@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { DashboardPage } from "./DashboardPage";
 import { AuthProvider } from "../context/AuthContext";
 import { ToastProvider } from "../context/ToastContext";
@@ -33,6 +33,7 @@ const SAMPLE_STATS: DashboardStatistics = {
 	],
 	upcomingInterviews: [
 		{
+			id: "iv-1",
 			applicationId: "app-1",
 			company: "Acme Corp",
 			role: "Backend Engineer",
@@ -68,6 +69,10 @@ function renderDashboard() {
 
 describe("DashboardPage", () => {
 	beforeEach(() => {
+		// Pin the clock well away from local midnight so offsets like "+6h" or "+26h" can't
+		// flip which calendar day they land on depending on when the suite happens to run.
+		vi.useFakeTimers({ toFake: ["Date"] });
+		vi.setSystemTime(new Date(2026, 7, 15, 8, 0, 0));
 		localStorage.clear();
 		vi.clearAllMocks();
 		vi.mocked(dashboardApi.getDashboardStatistics).mockResolvedValue(SAMPLE_STATS);
@@ -79,6 +84,10 @@ describe("DashboardPage", () => {
 			interviewReminderHours: 24,
 			interviewReminderPrompted: true,
 		});
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
 	});
 
 	it("renders stat tiles and lists from the statistics response", async () => {
@@ -218,6 +227,51 @@ describe("DashboardPage", () => {
 
 		await screen.findByText("Acme Corp");
 		expect(screen.queryByText("Next up", { exact: false })).not.toBeInTheDocument();
+	});
+
+	it("shows a conflict banner when two upcoming interviews overlap", async () => {
+		const start = new Date(Date.now() + 90 * 60 * 1000);
+		vi.mocked(dashboardApi.getDashboardStatistics).mockResolvedValue({
+			...SAMPLE_STATS,
+			upcomingInterviews: [
+				{ ...SAMPLE_STATS.upcomingInterviews[0], id: "iv-1", company: "Acme Corp", scheduledAt: start.toISOString(), durationMinutes: 60 },
+				{
+					...SAMPLE_STATS.upcomingInterviews[0],
+					id: "iv-2",
+					applicationId: "app-2",
+					company: "Globex",
+					scheduledAt: new Date(start.getTime() + 15 * 60 * 1000).toISOString(),
+					durationMinutes: 60,
+				},
+			],
+		});
+		renderDashboard();
+
+		expect(await screen.findByText("conflicting interviews", { exact: false })).toBeInTheDocument();
+		expect(screen.getAllByText("Acme Corp", { exact: false }).length).toBeGreaterThan(0);
+		expect(screen.getAllByText("Globex", { exact: false }).length).toBeGreaterThan(0);
+	});
+
+	it("does not show a conflict banner when upcoming interviews don't overlap", async () => {
+		const start = new Date(Date.now() + 90 * 60 * 1000);
+		vi.mocked(dashboardApi.getDashboardStatistics).mockResolvedValue({
+			...SAMPLE_STATS,
+			upcomingInterviews: [
+				{ ...SAMPLE_STATS.upcomingInterviews[0], id: "iv-1", company: "Acme Corp", scheduledAt: start.toISOString(), durationMinutes: 30 },
+				{
+					...SAMPLE_STATS.upcomingInterviews[0],
+					id: "iv-2",
+					applicationId: "app-2",
+					company: "Globex",
+					scheduledAt: new Date(start.getTime() + 5 * 60 * 60 * 1000).toISOString(),
+					durationMinutes: 30,
+				},
+			],
+		});
+		renderDashboard();
+
+		await screen.findAllByText("Acme Corp", { exact: false });
+		expect(screen.queryByText("conflicting interviews", { exact: false })).not.toBeInTheDocument();
 	});
 
 	it("shows empty states when there is no interview or activity data", async () => {

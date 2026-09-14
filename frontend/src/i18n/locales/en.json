@@ -99,6 +99,9 @@
 		"reminderPrompt": {
 			"title": "Interview reminders",
 			"description": "Want a reminder banner before your interviews? Choose how you'd like it to work — you can change this anytime in Settings."
+		},
+		"conflictBanner": {
+			"message": "You have conflicting interviews: {{companyA}} at {{timeA}} overlaps with {{companyB}} at {{timeB}}"
 		}
 	},
 	"analytics": {
@@ -268,7 +271,10 @@
 			"saveCta": "Save changes",
 			"durationLabel": "{{count}} min",
 			"joinCta": "Join meeting",
-			"goToLinkCta": "Go to link"
+			"goToLinkCta": "Go to link",
+			"scheduleConflict": "Overlaps with your {{company}} interview at {{time}}",
+			"scheduleConflictConfirm": "This interview conflicts with your {{company}} interview at {{time}}. Are you sure you want to save it?",
+			"saveAnywayCta": "Save anyway"
 		},
 		"contactForm": {
 			"namePlaceholder": "Name",

@@ -17,6 +17,7 @@ class CalendarService(
 		return interviewRepository.findAllByUserId(userId).mapNotNull { interview ->
 			val application = applicationsById[interview.applicationId] ?: return@mapNotNull null
 			UpcomingInterviewResponse(
+				id = interview.id,
 				applicationId = interview.applicationId,
 				company = application.company,
 				role = application.role,

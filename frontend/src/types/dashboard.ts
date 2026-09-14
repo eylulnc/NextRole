@@ -6,6 +6,7 @@ export interface FunnelStageCount {
 }
 
 export interface UpcomingInterview {
+	id: string;
 	applicationId: string;
 	company: string;
 	role: string;

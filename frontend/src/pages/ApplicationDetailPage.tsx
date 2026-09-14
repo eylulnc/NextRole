@@ -41,7 +41,8 @@ import { IconButton, PencilIcon, PlusIcon } from "../components/IconButton";
 import { KebabMenu } from "../components/KebabMenu";
 import { useToast } from "../context/ToastContext";
 import { formatDate, formatDateTime } from "../utils/date";
-import { isMeetingJoinable } from "../utils/interviewTiming";
+import { findSchedulingConflict, isMeetingJoinable, type SchedulingConflictCandidate } from "../utils/interviewTiming";
+import { getCalendarInterviews } from "../api/calendar";
 import { formatSalaryRange } from "../utils/currency";
 import { formatLocation } from "../utils/workMode";
 import * as React from "react";
@@ -140,6 +141,7 @@ export function ApplicationDetailPage() {
 	const [history, setHistory] = useState<StatusHistoryEntry[]>([]);
 	const [notes, setNotes] = useState<Note[]>([]);
 	const [interviews, setInterviews] = useState<Interview[]>([]);
+	const [otherInterviews, setOtherInterviews] = useState<SchedulingConflictCandidate[]>([]);
 	const [contacts, setContacts] = useState<Contact[]>([]);
 	const requestedTab = (location.state as { tab?: Tab } | null)?.tab;
 	const [tab, setTab] = useState<Tab>(requestedTab ?? "overview");
@@ -157,18 +159,20 @@ export function ApplicationDetailPage() {
 
 	async function refresh() {
 		if (!id) return;
-		const [app, hist, noteList, interviewList, contactList] = await Promise.all([
+		const [app, hist, noteList, interviewList, contactList, calendarInterviews] = await Promise.all([
 			getApplication(id),
 			getApplicationHistory(id),
 			listNotes(id),
 			listInterviews(id),
 			listContacts(id),
+			getCalendarInterviews(),
 		]);
 		setApplication(app);
 		setHistory(hist);
 		setNotes(noteList);
 		setInterviews(interviewList);
 		setContacts(contactList);
+		setOtherInterviews(calendarInterviews);
 	}
 
 	useEffect(() => {
@@ -380,6 +384,9 @@ export function ApplicationDetailPage() {
 	const nextInterview = interviews
 		.filter((iv) => new Date(iv.scheduledAt).getTime() >= Date.now())
 		.sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())[0];
+	const nextInterviewConflict = nextInterview
+		? findSchedulingConflict(nextInterview.scheduledAt, nextInterview.durationMinutes, otherInterviews, nextInterview.id)
+		: undefined;
 
 	return (
 		<AppShell>
@@ -577,6 +584,24 @@ export function ApplicationDetailPage() {
 								<div style={{ fontSize: 14, fontWeight: 600, marginTop: 4 }}>
 									{nextInterview.round} · {formatDateTime(nextInterview.scheduledAt)}
 								</div>
+								{nextInterviewConflict && (
+									<div
+										style={{
+											marginTop: 8,
+											fontSize: 12.5,
+											fontWeight: 500,
+											color: "var(--color-warning-text)",
+											background: "var(--color-warning-bg)",
+											borderRadius: 8,
+											padding: "8px 10px",
+										}}
+									>
+										{t("applicationDetail.interviewForm.scheduleConflict", {
+											company: nextInterviewConflict.company,
+											time: formatDateTime(nextInterviewConflict.scheduledAt),
+										})}
+									</div>
+								)}
 							</div>
 						)}
 					</div>
@@ -616,11 +641,14 @@ export function ApplicationDetailPage() {
 
 			{tab === "interviews" && (
 				<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-					{interviews.map((iv) =>
-						editingInterviewId === iv.id ? (
+					{interviews.map((iv) => {
+						const cardConflict = findSchedulingConflict(iv.scheduledAt, iv.durationMinutes, otherInterviews, iv.id);
+						return editingInterviewId === iv.id ? (
 							<InterviewForm
 								key={iv.id}
 								initial={iv}
+								otherInterviews={otherInterviews}
+								confirm={confirm}
 								onSubmit={(round, interviewer, scheduledAt, mode, durationMinutes, meetingLink, notesText) =>
 									handleUpdateInterview(iv.id, round, interviewer, scheduledAt, mode, durationMinutes, meetingLink, notesText)
 								}
@@ -682,11 +710,29 @@ export function ApplicationDetailPage() {
 									</div>
 								</div>
 								{iv.notes && <div style={{ fontSize: 13, color: "var(--color-text)" }}>{iv.notes}</div>}
+								{cardConflict && (
+									<div
+										style={{
+											marginTop: 6,
+											fontSize: 12.5,
+											fontWeight: 500,
+											color: "var(--color-warning-text)",
+											background: "var(--color-warning-bg)",
+											borderRadius: 8,
+											padding: "8px 10px",
+										}}
+									>
+										{t("applicationDetail.interviewForm.scheduleConflict", {
+											company: cardConflict.company,
+											time: formatDateTime(cardConflict.scheduledAt),
+										})}
+									</div>
+								)}
 							</div>
-						)
-					)}
+						);
+					})}
 					{showInterviewForm && (
-						<InterviewForm onSubmit={handleAddInterview} onClose={() => setShowInterviewForm(false)} />
+						<InterviewForm otherInterviews={otherInterviews} confirm={confirm} onSubmit={handleAddInterview} onClose={() => setShowInterviewForm(false)} />
 					)}
 					{interviews.length > 0 && !showInterviewForm && (
 						<div
@@ -981,10 +1027,14 @@ function NoteForm({
 
 function InterviewForm({
 	initial,
+	otherInterviews = [],
+	confirm,
 	onSubmit,
 	onClose,
 }: {
 	initial?: Interview;
+	otherInterviews?: SchedulingConflictCandidate[];
+	confirm?: (message: string, options?: { confirmLabel?: string; danger?: boolean }) => Promise<boolean>;
 	onSubmit: (
 		round: string,
 		interviewer: string,
@@ -1006,9 +1056,28 @@ function InterviewForm({
 	const [notes, setNotes] = useState(initial?.notes ?? "");
 	const [submitting, setSubmitting] = useState(false);
 
+	const conflict = scheduledAt
+		? findSchedulingConflict(
+				new Date(scheduledAt).toISOString(),
+				durationMinutes ? Number(durationMinutes) : null,
+				otherInterviews,
+				initial?.id
+			)
+		: undefined;
+
 	async function handleSubmit(e: FormEvent) {
 		e.preventDefault();
 		if (!round.trim() || !scheduledAt) return;
+		if (conflict && confirm) {
+			const proceed = await confirm(
+				t("applicationDetail.interviewForm.scheduleConflictConfirm", {
+					company: conflict.company,
+					time: formatDateTime(conflict.scheduledAt),
+				}),
+				{ confirmLabel: t("applicationDetail.interviewForm.saveAnywayCta"), danger: false }
+			);
+			if (!proceed) return;
+		}
 		setSubmitting(true);
 		try {
 			await onSubmit(round, interviewer, scheduledAt, mode, durationMinutes, meetingLink, notes);
@@ -1072,6 +1141,23 @@ function InterviewForm({
 					style={inputStyle}
 				/>
 			</div>
+			{conflict && (
+				<div
+					style={{
+						fontSize: 12.5,
+						fontWeight: 500,
+						color: "var(--color-warning-text)",
+						background: "var(--color-warning-bg)",
+						borderRadius: 8,
+						padding: "8px 10px",
+					}}
+				>
+					{t("applicationDetail.interviewForm.scheduleConflict", {
+						company: conflict.company,
+						time: formatDateTime(conflict.scheduledAt),
+					})}
+				</div>
+			)}
 			<input
 				placeholder={t("applicationDetail.interviewForm.notesPlaceholder")}
 				value={notes}

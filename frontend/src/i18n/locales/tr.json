@@ -99,6 +99,9 @@
 		"reminderPrompt": {
 			"title": "Görüşme hatırlatmaları",
 			"description": "Görüşmelerinizden önce bir hatırlatma bandı görmek ister misiniz? Nasıl çalışacağını seçin — bunu istediğiniz zaman Ayarlar'dan değiştirebilirsiniz."
+		},
+		"conflictBanner": {
+			"message": "Çakışan görüşmelerin var: {{companyA}} ({{timeA}}) ile {{companyB}} ({{timeB}}) çakışıyor"
 		}
 	},
 	"analytics": {
@@ -268,7 +271,10 @@
 			"saveCta": "Değişiklikleri kaydet",
 			"durationLabel": "{{count}} dk",
 			"joinCta": "Görüşmeye katıl",
-			"goToLinkCta": "Bağlantıya git"
+			"goToLinkCta": "Bağlantıya git",
+			"scheduleConflict": "{{company}} ile olan görüşmenle çakışıyor: {{time}}",
+			"scheduleConflictConfirm": "Bu görüşme, {{company}} ile olan görüşmenle çakışıyor: {{time}}. Yine de kaydetmek istiyor musun?",
+			"saveAnywayCta": "Yine de kaydet"
 		},
 		"contactForm": {
 			"namePlaceholder": "İsim",

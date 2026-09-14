@@ -66,6 +66,7 @@ class DashboardService(
 		val upcomingInterviewsResponse = upcomingInterviews.take(UPCOMING_INTERVIEWS_LIMIT).mapNotNull { interview ->
 			val application = applicationsById[interview.applicationId] ?: return@mapNotNull null
 			UpcomingInterviewResponse(
+				id = interview.id,
 				applicationId = interview.applicationId,
 				company = application.company,
 				role = application.role,

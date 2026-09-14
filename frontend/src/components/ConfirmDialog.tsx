@@ -3,11 +3,13 @@ import { useTranslation } from "react-i18next";
 
 interface ConfirmDialogProps {
 	message: string;
+	confirmLabel?: string;
+	danger?: boolean;
 	onConfirm: () => void;
 	onCancel: () => void;
 }
 
-export function ConfirmDialog({ message, onConfirm, onCancel }: ConfirmDialogProps) {
+export function ConfirmDialog({ message, confirmLabel, danger = true, onConfirm, onCancel }: ConfirmDialogProps) {
 	const { t } = useTranslation();
 	return (
 		<div
@@ -62,13 +64,13 @@ export function ConfirmDialog({ message, onConfirm, onCancel }: ConfirmDialogPro
 							border: "none",
 							borderRadius: 10,
 							padding: "9px 16px",
-							background: "var(--color-danger)",
+							background: danger ? "var(--color-danger)" : "var(--color-accent)",
 							color: "var(--color-on-accent)",
 							font: "600 13px var(--font-body)",
 							cursor: "pointer",
 						}}
 					>
-						{t("common.delete")}
+						{confirmLabel ?? t("common.delete")}
 					</button>
 				</div>
 			</div>
@@ -76,12 +78,19 @@ export function ConfirmDialog({ message, onConfirm, onCancel }: ConfirmDialogPro
 	);
 }
 
+interface ConfirmOptions {
+	confirmLabel?: string;
+	danger?: boolean;
+}
+
 export function useConfirm() {
 	const [message, setMessage] = useState<string | null>(null);
+	const [options, setOptions] = useState<ConfirmOptions>({});
 	const resolver = useRef<((value: boolean) => void) | null>(null);
 
-	function confirm(msg: string): Promise<boolean> {
+	function confirm(msg: string, opts?: ConfirmOptions): Promise<boolean> {
 		setMessage(msg);
+		setOptions(opts ?? {});
 		return new Promise((resolve) => {
 			resolver.current = resolve;
 		});
@@ -97,7 +106,16 @@ export function useConfirm() {
 		setMessage(null);
 	}
 
-	const dialog = message !== null ? <ConfirmDialog message={message} onConfirm={handleConfirm} onCancel={handleCancel} /> : null;
+	const dialog =
+		message !== null ? (
+			<ConfirmDialog
+				message={message}
+				confirmLabel={options.confirmLabel}
+				danger={options.danger}
+				onConfirm={handleConfirm}
+				onCancel={handleCancel}
+			/>
+		) : null;
 
 	return { confirm, dialog };
 }

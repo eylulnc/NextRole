@@ -42,6 +42,31 @@ export function decodeReminderChoice(choice: ReminderChoice): { mode: InterviewR
 	}
 }
 
+export interface SchedulingConflictCandidate {
+	id: string;
+	company: string;
+	scheduledAt: string;
+	durationMinutes: number | null;
+}
+
+// Finds another interview whose [start, end) window overlaps the given one, if any.
+export function findSchedulingConflict(
+	scheduledAt: string,
+	durationMinutes: number | null,
+	candidates: SchedulingConflictCandidate[],
+	excludeId?: string
+): SchedulingConflictCandidate | undefined {
+	const start = new Date(scheduledAt).getTime();
+	if (Number.isNaN(start)) return undefined;
+	const end = start + (durationMinutes ?? DEFAULT_INTERVIEW_DURATION_MINUTES) * 60 * 1000;
+	return candidates.find((candidate) => {
+		if (candidate.id === excludeId) return false;
+		const candidateStart = new Date(candidate.scheduledAt).getTime();
+		const candidateEnd = candidateStart + (candidate.durationMinutes ?? DEFAULT_INTERVIEW_DURATION_MINUTES) * 60 * 1000;
+		return start < candidateEnd && candidateStart < end;
+	});
+}
+
 export function isSameLocalDay(a: string, b: string): boolean {
 	const dateA = new Date(a);
 	const dateB = new Date(b);

@@ -44,6 +44,7 @@ class CalendarControllerTest {
 	fun `interviews returns every interview across all applications`() {
 		every { calendarService.getInterviews(userId) } returns listOf(
 			UpcomingInterviewResponse(
+				id = UUID.randomUUID(),
 				applicationId = UUID.randomUUID(),
 				company = "Acme",
 				role = "Engineer",
