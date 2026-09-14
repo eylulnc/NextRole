@@ -15,7 +15,6 @@ import { stageLabel, statusDotColor } from "../components/StatusBadge";
 import { XIcon } from "../components/IconButton";
 import { formatDateTime, formatTime } from "../utils/date";
 import {
-	findSchedulingConflict,
 	isMeetingJoinable,
 	isWithinReminderMode,
 	REMINDER_CHOICES,
@@ -274,14 +273,11 @@ export function DashboardPage() {
 	const moreRemindersCount = Math.max(qualifyingReminders.length - 1, 0);
 	const bannerVisible = primaryReminder !== undefined && bannerSnoozedUntil <= Date.now();
 
-	// Flags the first overlapping pair among the interviews shown below — a lightweight,
-	// always-visible heads-up independent of the (snoozable) reminder banner above.
-	const conflictingInterview = stats.upcomingInterviews.find((iv) =>
-		findSchedulingConflict(iv.scheduledAt, iv.durationMinutes, stats.upcomingInterviews, iv.id)
-	);
-	const conflictingWith = conflictingInterview
-		? findSchedulingConflict(conflictingInterview.scheduledAt, conflictingInterview.durationMinutes, stats.upcomingInterviews, conflictingInterview.id)
-		: undefined;
+	// Surfaces the first overlapping pair as an always-visible heads-up, independent of the
+	// (snoozable) reminder banner above. Conflicts are resolved server-side against every upcoming
+	// interview, so a clash with one too far out to be listed here is still reported.
+	const conflictingInterview = stats.upcomingInterviews.find((iv) => iv.conflictsWith);
+	const conflictingWith = conflictingInterview?.conflictsWith ?? undefined;
 
 	const subColorPositive = "var(--color-positive)";
 	const subColorNeutral = "var(--color-text-muted)";

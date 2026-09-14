@@ -135,6 +135,7 @@ describe("ApplicationDetailPage", () => {
 				mode: null,
 				durationMinutes: 60,
 				meetingLink: null,
+				conflictsWith: null,
 			},
 		]);
 		renderDetailPage();
@@ -361,6 +362,7 @@ describe("ApplicationDetailPage", () => {
 				mode: null,
 				durationMinutes: 60,
 				meetingLink: null,
+				conflictsWith: null,
 			},
 		]);
 		const { container } = renderDetailPage();
@@ -389,6 +391,7 @@ describe("ApplicationDetailPage", () => {
 				mode: null,
 				durationMinutes: 60,
 				meetingLink: null,
+				conflictsWith: null,
 			},
 		]);
 		const { container } = renderDetailPage();
@@ -422,6 +425,7 @@ describe("ApplicationDetailPage", () => {
 				mode: null,
 				durationMinutes: 60,
 				meetingLink: null,
+				conflictsWith: null,
 			},
 		]);
 		vi.mocked(applicationsApi.createInterview).mockResolvedValue({
@@ -478,6 +482,7 @@ describe("ApplicationDetailPage", () => {
 				mode: null,
 				durationMinutes: 60,
 				meetingLink: null,
+				conflictsWith: null,
 			},
 		]);
 		renderDetailPage();

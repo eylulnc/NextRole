@@ -8,6 +8,14 @@ data class FunnelStageCount(
 	val count: Int
 )
 
+data class InterviewConflictResponse(
+	val id: UUID,
+	val applicationId: UUID,
+	val company: String,
+	val scheduledAt: Instant,
+	val durationMinutes: Int? = null
+)
+
 data class UpcomingInterviewResponse(
 	val id: UUID,
 	val applicationId: UUID,
@@ -17,7 +25,8 @@ data class UpcomingInterviewResponse(
 	val scheduledAt: Instant,
 	val mode: String? = null,
 	val durationMinutes: Int? = null,
-	val meetingLink: String? = null
+	val meetingLink: String? = null,
+	val conflictsWith: InterviewConflictResponse? = null
 )
 
 data class RecentActivityResponse(

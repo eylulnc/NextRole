@@ -180,6 +180,59 @@ class DashboardServiceTest {
 	}
 
 	@Test
+	fun `attaches conflicts for interviews beyond the returned limit`() {
+		val app = application("TECHNICAL")
+		// Seven upcoming interviews, only five returned. The clash is between the fifth (returned)
+		// and the sixth (cut off) — exactly what a client-side check over the returned slice misses.
+		val scheduled = (1..5).map { Instant.now().plus(it.toLong(), ChronoUnit.DAYS) }
+		val returned = scheduled.mapIndexed { index, at ->
+			Interview(applicationId = app.id, round = "Round $index", scheduledAt = at, durationMinutes = 60)
+		}
+		val beyondLimit = Interview(
+			applicationId = app.id,
+			round = "Overlaps the fifth",
+			scheduledAt = scheduled.last().plus(30, ChronoUnit.MINUTES),
+			durationMinutes = 60
+		)
+		val alsoBeyondLimit = Interview(
+			applicationId = app.id,
+			round = "Later still",
+			scheduledAt = scheduled.last().plus(10, ChronoUnit.DAYS),
+			durationMinutes = 60
+		)
+		every { applicationRepository.findByUserId(userId) } returns listOf(app)
+		every { interviewRepository.findUpcomingByUserId(userId, any()) } returns
+			returned + beyondLimit + alsoBeyondLimit
+		every { statusHistoryRepository.findRecentByUserId(userId) } returns emptyList()
+
+		val result = dashboardService.getStatistics(userId)
+
+		assertEquals(5, result.upcomingInterviews.size)
+		assertEquals(beyondLimit.id, result.upcomingInterviews.last().conflictsWith?.id)
+		assertEquals("Acme", result.upcomingInterviews.last().conflictsWith?.company)
+	}
+
+	@Test
+	fun `leaves conflictsWith null when no interviews overlap`() {
+		val app = application("TECHNICAL")
+		val interviews = (0 until 2).map { index ->
+			Interview(
+				applicationId = app.id,
+				round = "Round $index",
+				scheduledAt = Instant.now().plus((index + 1).toLong(), ChronoUnit.DAYS),
+				durationMinutes = 60
+			)
+		}
+		every { applicationRepository.findByUserId(userId) } returns listOf(app)
+		every { interviewRepository.findUpcomingByUserId(userId, any()) } returns interviews
+		every { statusHistoryRepository.findRecentByUserId(userId) } returns emptyList()
+
+		val result = dashboardService.getStatistics(userId)
+
+		assertEquals(listOf(null, null), result.upcomingInterviews.map { it.conflictsWith })
+	}
+
+	@Test
 	fun `maps recent activity to their application's company`() {
 		val app = application("APPLIED")
 		val entry = ApplicationStatusHistory(applicationId = app.id, status = "APPLIED")

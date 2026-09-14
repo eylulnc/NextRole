@@ -56,6 +56,7 @@ describe("CalendarPage", () => {
 			mode: null,
 			durationMinutes: null,
 			meetingLink: null,
+			conflictsWith: null,
 		};
 		vi.mocked(calendarApi.getCalendarInterviews).mockResolvedValue([future]);
 		renderCalendar();
@@ -78,6 +79,7 @@ describe("CalendarPage", () => {
 			mode: null,
 			durationMinutes: null,
 			meetingLink: null,
+			conflictsWith: null,
 		};
 		vi.mocked(calendarApi.getCalendarInterviews).mockResolvedValue([pastInterview]);
 		renderCalendar();
@@ -101,6 +103,7 @@ describe("CalendarPage", () => {
 			mode: null,
 			durationMinutes: null,
 			meetingLink: null,
+			conflictsWith: null,
 		};
 		vi.mocked(calendarApi.getCalendarInterviews).mockResolvedValue([soon]);
 		renderCalendar();
