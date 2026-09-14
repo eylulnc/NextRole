@@ -24,6 +24,12 @@ class Interview(
 
 	var mode: String? = null,
 
+	@Column(name = "duration_minutes")
+	var durationMinutes: Int? = null,
+
+	@Column(name = "meeting_link")
+	var meetingLink: String? = null,
+
 	@Column(columnDefinition = "TEXT")
 	var notes: String? = null,
 

@@ -79,7 +79,30 @@
 		"pipelineOverview": "Pipeline overview",
 		"noUpcomingInterviews": "No interviews scheduled.",
 		"noRecentActivity": "No recent activity yet.",
-		"movedTo": "{{company}} moved to {{status}}"
+		"movedTo": "{{company}} moved to {{status}}",
+		"reminderBanner": {
+			"label": "Next up",
+			"inHours": "In {{count}}h",
+			"inMinutes": "In {{count}}m",
+			"now": "Now",
+			"openNotes": "Open notes",
+			"moreToday": "+{{count}} more today",
+			"dismiss": "Dismiss",
+			"snoozeChoices": {
+				"10min": "Remind me in 10 min",
+				"1h": "Remind me in 1h",
+				"today": "Don't show today",
+				"never": "Never",
+				"always": "Always"
+			}
+		},
+		"reminderPrompt": {
+			"title": "Interview reminders",
+			"description": "Want a reminder banner before your interviews? Choose how you'd like it to work — you can change this anytime in Settings."
+		},
+		"conflictBanner": {
+			"message": "You have conflicting interviews: {{companyA}} at {{timeA}} overlaps with {{companyB}} at {{timeB}}"
+		}
 	},
 	"analytics": {
 		"title": "Analytics",
@@ -137,6 +160,14 @@
 		"language": "Language",
 		"defaultCurrency": "Default currency",
 		"theme": "Theme",
+		"interviewReminders": "Interview reminders on the dashboard",
+		"reminderChoices": {
+			"OFF": "Off",
+			"ALWAYS": "Always (any time today)",
+			"HOURS_3": "3 hours before",
+			"HOURS_12": "12 hours before",
+			"HOURS_24": "24 hours before (a day before)"
+		},
 		"languageOptions": {
 			"en": "English",
 			"de": "Deutsch",
@@ -193,10 +224,9 @@
 		"jobDescription": "Job description",
 		"noJobDescription": "No job description saved yet.",
 		"techStack": "Tech stack",
-		"keyDates": "Key dates",
-		"applied": "Applied: {{date}}",
-		"notAppliedYet": "Not applied yet",
-		"lastUpdated": "Last updated: {{date}}",
+		"appliedLabel": "Applied",
+		"savedLabel": "Saved",
+		"nextInterviewLabel": "Next interview",
 		"noInterviews": "No interviews scheduled yet.",
 		"noContacts": "No contacts saved yet.",
 		"noNotes": "No notes yet.",
@@ -234,9 +264,17 @@
 			"roundPlaceholder": "Round (e.g. HR Screen)",
 			"interviewerPlaceholder": "Interviewer",
 			"modePlaceholder": "Mode (e.g. Video call)",
+			"durationPlaceholder": "Duration (minutes)",
+			"meetingLinkPlaceholder": "Meeting link",
 			"notesPlaceholder": "Notes (optional)",
 			"submit": "Add interview",
-			"saveCta": "Save changes"
+			"saveCta": "Save changes",
+			"durationLabel": "{{count}} min",
+			"joinCta": "Join meeting",
+			"goToLinkCta": "Go to link",
+			"scheduleConflict": "Overlaps with your {{company}} interview at {{time}}",
+			"scheduleConflictConfirm": "This interview conflicts with your {{company}} interview at {{time}}. Are you sure you want to save it?",
+			"saveAnywayCta": "Save anyway"
 		},
 		"contactForm": {
 			"namePlaceholder": "Name",

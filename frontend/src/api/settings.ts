@@ -1,13 +1,20 @@
 import { apiClient } from "./client";
+import type { InterviewReminderMode } from "./auth";
 
 export interface UserSettings {
 	language: string;
 	defaultCurrency: string;
+	interviewReminderMode: InterviewReminderMode;
+	interviewReminderHours: number;
+	interviewReminderPrompted: boolean;
 }
 
 export interface UpdateUserSettingsRequest {
 	language?: string;
 	defaultCurrency?: string;
+	interviewReminderMode?: InterviewReminderMode;
+	interviewReminderHours?: number;
+	interviewReminderPrompted?: boolean;
 }
 
 export async function getSettings(): Promise<UserSettings> {

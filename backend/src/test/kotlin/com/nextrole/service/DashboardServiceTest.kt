@@ -158,6 +158,28 @@ class DashboardServiceTest {
 	}
 
 	@Test
+	fun `maps upcoming interview mode, duration, and meeting link`() {
+		val app = application("TECHNICAL")
+		val interview = Interview(
+			applicationId = app.id,
+			round = "Technical",
+			scheduledAt = Instant.now().plus(2, ChronoUnit.DAYS),
+			mode = "Video call",
+			durationMinutes = 45,
+			meetingLink = "https://meet.example.com/room"
+		)
+		every { applicationRepository.findByUserId(userId) } returns listOf(app)
+		every { interviewRepository.findUpcomingByUserId(userId, any()) } returns listOf(interview)
+		every { statusHistoryRepository.findRecentByUserId(userId) } returns emptyList()
+
+		val result = dashboardService.getStatistics(userId)
+
+		assertEquals("Video call", result.upcomingInterviews[0].mode)
+		assertEquals(45, result.upcomingInterviews[0].durationMinutes)
+		assertEquals("https://meet.example.com/room", result.upcomingInterviews[0].meetingLink)
+	}
+
+	@Test
 	fun `maps recent activity to their application's company`() {
 		val app = application("APPLIED")
 		val entry = ApplicationStatusHistory(applicationId = app.id, status = "APPLIED")

@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { CalendarPage } from "./CalendarPage";
 import { AuthProvider } from "../context/AuthContext";
 import * as calendarApi from "../api/calendar";
@@ -26,8 +26,16 @@ function renderCalendar() {
 
 describe("CalendarPage", () => {
 	beforeEach(() => {
+		// Pin the clock well away from local midnight so "+1h"/"+24h" offsets in these tests
+		// can't flip which calendar day they land on depending on when the suite happens to run.
+		vi.useFakeTimers({ toFake: ["Date"] });
+		vi.setSystemTime(new Date(2026, 7, 15, 8, 0, 0));
 		localStorage.clear();
 		vi.clearAllMocks();
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
 	});
 
 	it("shows an empty state when there are no interviews", async () => {
@@ -39,11 +47,15 @@ describe("CalendarPage", () => {
 
 	it("lists upcoming interviews and navigates to the application on click", async () => {
 		const future: UpcomingInterview = {
+			id: "iv-1",
 			applicationId: "app-1",
 			company: "Acme Corp",
 			role: "Backend Engineer",
 			round: "HR Screen",
 			scheduledAt: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(),
+			mode: null,
+			durationMinutes: null,
+			meetingLink: null,
 		};
 		vi.mocked(calendarApi.getCalendarInterviews).mockResolvedValue([future]);
 		renderCalendar();
@@ -57,11 +69,15 @@ describe("CalendarPage", () => {
 		const past = new Date();
 		past.setHours(past.getHours() - 2);
 		const pastInterview: UpcomingInterview = {
+			id: "iv-2",
 			applicationId: "app-2",
 			company: "Legacy Corp",
 			role: "Engineer",
 			round: "Technical",
 			scheduledAt: past.toISOString(),
+			mode: null,
+			durationMinutes: null,
+			meetingLink: null,
 		};
 		vi.mocked(calendarApi.getCalendarInterviews).mockResolvedValue([pastInterview]);
 		renderCalendar();
@@ -72,6 +88,25 @@ describe("CalendarPage", () => {
 
 		expect(await screen.findByText("Legacy Corp")).toBeInTheDocument();
 		expect(screen.getByText("View upcoming")).toBeInTheDocument();
+	});
+
+	it("marks today's earliest qualifying interview with the same accent indicator as the dashboard banner", async () => {
+		const soon: UpcomingInterview = {
+			id: "iv-3",
+			applicationId: "app-1",
+			company: "Acme Corp",
+			role: "Backend Engineer",
+			round: "HR Screen",
+			scheduledAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+			mode: null,
+			durationMinutes: null,
+			meetingLink: null,
+		};
+		vi.mocked(calendarApi.getCalendarInterviews).mockResolvedValue([soon]);
+		renderCalendar();
+
+		await screen.findByText("Acme Corp");
+		expect(screen.getByTitle("Next up")).toBeInTheDocument();
 	});
 
 	it("navigates between months", async () => {

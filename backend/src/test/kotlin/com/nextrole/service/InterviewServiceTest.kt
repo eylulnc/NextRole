@@ -44,6 +44,26 @@ class InterviewServiceTest {
 	}
 
 	@Test
+	fun `create saves duration and meeting link when provided`() {
+		every { applicationService.get(userId, applicationId) } returns mockk<Application>()
+		val savedSlot = slot<Interview>()
+		every { interviewRepository.save(capture(savedSlot)) } answers { savedSlot.captured }
+
+		interviewService.create(
+			userId, applicationId,
+			CreateInterviewRequest(
+				round = "Technical Interview",
+				scheduledAt = Instant.now(),
+				durationMinutes = 45,
+				meetingLink = "https://meet.example.com/room"
+			)
+		)
+
+		assertEquals(45, savedSlot.captured.durationMinutes)
+		assertEquals("https://meet.example.com/room", savedSlot.captured.meetingLink)
+	}
+
+	@Test
 	fun `create throws when the application is not owned by this user`() {
 		every { applicationService.get(userId, applicationId) } throws ApplicationNotFoundException(applicationId)
 
@@ -79,6 +99,23 @@ class InterviewServiceTest {
 		val result = interviewService.update(userId, applicationId, interviewId, UpdateInterviewRequest(round = "Technical Interview"))
 
 		assertEquals("Technical Interview", result.round)
+	}
+
+	@Test
+	fun `update sets duration and meeting link when provided`() {
+		val interviewId = UUID.randomUUID()
+		val interview = Interview(id = interviewId, applicationId = applicationId, round = "HR Screen", scheduledAt = Instant.now())
+		every { applicationService.get(userId, applicationId) } returns mockk<Application>()
+		every { interviewRepository.findById(interviewId) } returns Optional.of(interview)
+		every { interviewRepository.save(interview) } returns interview
+
+		val result = interviewService.update(
+			userId, applicationId, interviewId,
+			UpdateInterviewRequest(durationMinutes = 30, meetingLink = "https://meet.example.com/room")
+		)
+
+		assertEquals(30, result.durationMinutes)
+		assertEquals("https://meet.example.com/room", result.meetingLink)
 	}
 
 	@Test

@@ -36,6 +36,9 @@
   --color-error-strong: oklch(50% 0.19 25);
   --color-positive: oklch(50% 0.1 150);
 
+  --color-warning-bg: oklch(93% 0.05 85);
+  --color-warning-text: oklch(45% 0.1 75);
+
   --font-heading: "Sora", system-ui, sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
@@ -79,6 +82,9 @@
     --color-success: oklch(72% 0.14 150);
     --color-error-strong: oklch(68% 0.19 25);
     --color-positive: oklch(70% 0.11 150);
+
+    --color-warning-bg: oklch(32% 0.05 85);
+    --color-warning-text: oklch(82% 0.1 85);
   }
 }
 
@@ -119,6 +125,9 @@
   --color-success: oklch(72% 0.14 150);
   --color-error-strong: oklch(68% 0.19 25);
   --color-positive: oklch(70% 0.11 150);
+
+  --color-warning-bg: oklch(32% 0.05 85);
+  --color-warning-text: oklch(82% 0.1 85);
 }
 
 * {
@@ -128,7 +137,7 @@
 body {
   margin: 0;
   background: var(--color-bg);
-  font-family: var(--font-body);
+  font-family: var(--font-body), serif;
   color: var(--color-text);
 }
 

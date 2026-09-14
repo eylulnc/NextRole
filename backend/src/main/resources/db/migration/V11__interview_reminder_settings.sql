@@ -1,0 +1,3 @@
+ALTER TABLE users ADD COLUMN interview_reminder_mode VARCHAR(10) NOT NULL DEFAULT 'ALWAYS';
+ALTER TABLE users ADD COLUMN interview_reminder_hours INTEGER NOT NULL DEFAULT 24;
+ALTER TABLE users ADD COLUMN interview_reminder_prompted BOOLEAN NOT NULL DEFAULT FALSE;

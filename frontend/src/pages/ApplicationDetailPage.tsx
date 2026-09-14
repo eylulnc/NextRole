@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
 	changeApplicationStatus,
@@ -41,8 +41,11 @@ import { IconButton, PencilIcon, PlusIcon } from "../components/IconButton";
 import { KebabMenu } from "../components/KebabMenu";
 import { useToast } from "../context/ToastContext";
 import { formatDate, formatDateTime } from "../utils/date";
+import { findSchedulingConflict, isMeetingJoinable, type SchedulingConflictCandidate } from "../utils/interviewTiming";
+import { getCalendarInterviews } from "../api/calendar";
 import { formatSalaryRange } from "../utils/currency";
 import { formatLocation } from "../utils/workMode";
+import * as React from "react";
 
 type Tab = "overview" | "history" | "interviews" | "contacts" | "notes";
 
@@ -132,13 +135,16 @@ export function ApplicationDetailPage() {
 	const { stages, visibleStages } = usePipelineStages();
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { showToast } = useToast();
 	const [application, setApplication] = useState<Application | null>(null);
 	const [history, setHistory] = useState<StatusHistoryEntry[]>([]);
 	const [notes, setNotes] = useState<Note[]>([]);
 	const [interviews, setInterviews] = useState<Interview[]>([]);
+	const [otherInterviews, setOtherInterviews] = useState<SchedulingConflictCandidate[]>([]);
 	const [contacts, setContacts] = useState<Contact[]>([]);
-	const [tab, setTab] = useState<Tab>("overview");
+	const requestedTab = (location.state as { tab?: Tab } | null)?.tab;
+	const [tab, setTab] = useState<Tab>(requestedTab ?? "overview");
 	const [editing, setEditing] = useState(false);
 	const [changingStage, setChangingStage] = useState(false);
 	const [showNoteForm, setShowNoteForm] = useState(false);
@@ -153,18 +159,20 @@ export function ApplicationDetailPage() {
 
 	async function refresh() {
 		if (!id) return;
-		const [app, hist, noteList, interviewList, contactList] = await Promise.all([
+		const [app, hist, noteList, interviewList, contactList, calendarInterviews] = await Promise.all([
 			getApplication(id),
 			getApplicationHistory(id),
 			listNotes(id),
 			listInterviews(id),
 			listContacts(id),
+			getCalendarInterviews(),
 		]);
 		setApplication(app);
 		setHistory(hist);
 		setNotes(noteList);
 		setInterviews(interviewList);
 		setContacts(contactList);
+		setOtherInterviews(calendarInterviews);
 	}
 
 	useEffect(() => {
@@ -226,7 +234,15 @@ export function ApplicationDetailPage() {
 		}
 	}
 
-	async function handleAddInterview(round: string, interviewer: string, scheduledAt: string, mode: string, notesText: string) {
+	async function handleAddInterview(
+		round: string,
+		interviewer: string,
+		scheduledAt: string,
+		mode: string,
+		durationMinutes: string,
+		meetingLink: string,
+		notesText: string
+	) {
 		if (!id) return;
 		try {
 			await createInterview(id, {
@@ -234,6 +250,8 @@ export function ApplicationDetailPage() {
 				interviewer: interviewer || undefined,
 				scheduledAt: new Date(scheduledAt).toISOString(),
 				mode: mode || undefined,
+				durationMinutes: durationMinutes ? Number(durationMinutes) : undefined,
+				meetingLink: meetingLink || undefined,
 				notes: notesText || undefined,
 			});
 			setShowInterviewForm(false);
@@ -289,6 +307,8 @@ export function ApplicationDetailPage() {
 		interviewer: string,
 		scheduledAt: string,
 		mode: string,
+		durationMinutes: string,
+		meetingLink: string,
 		notesText: string
 	) {
 		if (!id) return;
@@ -298,6 +318,8 @@ export function ApplicationDetailPage() {
 				interviewer: interviewer || undefined,
 				scheduledAt: new Date(scheduledAt).toISOString(),
 				mode: mode || undefined,
+				durationMinutes: durationMinutes ? Number(durationMinutes) : undefined,
+				meetingLink: meetingLink || undefined,
 				notes: notesText || undefined,
 			});
 			setEditingInterviewId(null);
@@ -353,6 +375,18 @@ export function ApplicationDetailPage() {
 			</AppShell>
 		);
 	}
+
+	const techStackTags = (application.techStack ?? "")
+		.split(",")
+		.map((tag) => tag.trim())
+		.filter(Boolean);
+
+	const nextInterview = interviews
+		.filter((iv) => new Date(iv.scheduledAt).getTime() >= Date.now())
+		.sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())[0];
+	const nextInterviewConflict = nextInterview
+		? findSchedulingConflict(nextInterview.scheduledAt, nextInterview.durationMinutes, otherInterviews, nextInterview.id)
+		: undefined;
 
 	return (
 		<AppShell>
@@ -510,14 +544,11 @@ export function ApplicationDetailPage() {
 						</div>
 					)}
 					<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-						<div style={cardStyle}>
-							<h3 style={{ font: "700 14px var(--font-heading)", margin: "0 0 10px" }}>{t("applicationDetail.techStack")}</h3>
-							<div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-								{(application.techStack ?? "")
-									.split(",")
-									.map((t) => t.trim())
-									.filter(Boolean)
-									.map((t) => (
+						{techStackTags.length > 0 && (
+							<div style={cardStyle}>
+								<h3 style={{ font: "700 14px var(--font-heading)", margin: "0 0 10px" }}>{t("applicationDetail.techStack")}</h3>
+								<div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+									{techStackTags.map((t) => (
 										<span
 											key={t}
 											style={{
@@ -530,19 +561,49 @@ export function ApplicationDetailPage() {
 											{t}
 										</span>
 									))}
-							</div>
-						</div>
-						<div style={cardStyle}>
-							<h3 style={{ font: "700 14px var(--font-heading)", margin: "0 0 8px" }}>{t("applicationDetail.keyDates")}</h3>
-							<div style={{ fontSize: 13, color: "var(--color-text-muted)", display: "flex", flexDirection: "column", gap: 6 }}>
-								<div>
-									{application.status !== "SAVED" && application.applicationDate
-										? t("applicationDetail.applied", { date: formatDate(application.applicationDate) })
-										: t("applicationDetail.notAppliedYet")}
 								</div>
-								<div>{t("applicationDetail.lastUpdated", { date: formatDate(application.updatedAt) })}</div>
+							</div>
+						)}
+						<div style={cardStyle}>
+							<div style={{ fontSize: 12, color: "var(--color-text-muted)", fontWeight: 500 }}>
+								{application.status !== "SAVED" && application.applicationDate
+									? t("applicationDetail.appliedLabel")
+									: t("applicationDetail.savedLabel")}
+							</div>
+							<div style={{ fontSize: 14, fontWeight: 600, marginTop: 4 }}>
+								{application.status !== "SAVED" && application.applicationDate
+									? formatDate(application.applicationDate)
+									: formatDate(application.createdAt)}
 							</div>
 						</div>
+						{nextInterview && (
+							<div style={cardStyle}>
+								<div style={{ fontSize: 12, color: "var(--color-text-muted)", fontWeight: 500 }}>
+									{t("applicationDetail.nextInterviewLabel")}
+								</div>
+								<div style={{ fontSize: 14, fontWeight: 600, marginTop: 4 }}>
+									{nextInterview.round} · {formatDateTime(nextInterview.scheduledAt)}
+								</div>
+								{nextInterviewConflict && (
+									<div
+										style={{
+											marginTop: 8,
+											fontSize: 12.5,
+											fontWeight: 500,
+											color: "var(--color-warning-text)",
+											background: "var(--color-warning-bg)",
+											borderRadius: 8,
+											padding: "8px 10px",
+										}}
+									>
+										{t("applicationDetail.interviewForm.scheduleConflict", {
+											company: nextInterviewConflict.company,
+											time: formatDateTime(nextInterviewConflict.scheduledAt),
+										})}
+									</div>
+								)}
+							</div>
+						)}
 					</div>
 				</div>
 			)}
@@ -580,13 +641,16 @@ export function ApplicationDetailPage() {
 
 			{tab === "interviews" && (
 				<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-					{interviews.map((iv) =>
-						editingInterviewId === iv.id ? (
+					{interviews.map((iv) => {
+						const cardConflict = findSchedulingConflict(iv.scheduledAt, iv.durationMinutes, otherInterviews, iv.id);
+						return editingInterviewId === iv.id ? (
 							<InterviewForm
 								key={iv.id}
 								initial={iv}
-								onSubmit={(round, interviewer, scheduledAt, mode, notesText) =>
-									handleUpdateInterview(iv.id, round, interviewer, scheduledAt, mode, notesText)
+								otherInterviews={otherInterviews}
+								confirm={confirm}
+								onSubmit={(round, interviewer, scheduledAt, mode, durationMinutes, meetingLink, notesText) =>
+									handleUpdateInterview(iv.id, round, interviewer, scheduledAt, mode, durationMinutes, meetingLink, notesText)
 								}
 								onClose={() => setEditingInterviewId(null)}
 							/>
@@ -608,20 +672,67 @@ export function ApplicationDetailPage() {
 										]}
 									/>
 								</div>
-								<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
 									<div style={{ fontSize: 12, color: "var(--color-text-muted)" }}>
-										{[iv.interviewer, iv.mode].filter(Boolean).join(" · ")}
+										{[
+											iv.interviewer,
+											iv.mode,
+											iv.durationMinutes ? t("applicationDetail.interviewForm.durationLabel", { count: iv.durationMinutes }) : null,
+										]
+											.filter(Boolean)
+											.join(" · ")}
 									</div>
-									<span style={{ fontSize: 12, color: "var(--color-text-faint)" }}>
-										{formatDateTime(iv.scheduledAt)}
-									</span>
+									<div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+										<span style={{ fontSize: 12, color: "var(--color-text-faint)" }}>
+											{formatDateTime(iv.scheduledAt)}
+										</span>
+										{iv.meetingLink && (
+											<a
+												href={iv.meetingLink}
+												target="_blank"
+												rel="noreferrer"
+												style={{
+													marginTop: 4,
+													fontSize: 13,
+													fontWeight: 600,
+													textDecoration: "none",
+													background: "var(--color-highlight-bg)",
+													color: "var(--color-highlight-text-strong)",
+													borderRadius: 8,
+													padding: "8px 14px",
+												}}
+											>
+												{isMeetingJoinable(iv.scheduledAt, iv.durationMinutes)
+													? t("applicationDetail.interviewForm.joinCta")
+													: t("applicationDetail.interviewForm.goToLinkCta")}
+											</a>
+										)}
+									</div>
 								</div>
 								{iv.notes && <div style={{ fontSize: 13, color: "var(--color-text)" }}>{iv.notes}</div>}
+								{cardConflict && (
+									<div
+										style={{
+											marginTop: 6,
+											fontSize: 12.5,
+											fontWeight: 500,
+											color: "var(--color-warning-text)",
+											background: "var(--color-warning-bg)",
+											borderRadius: 8,
+											padding: "8px 10px",
+										}}
+									>
+										{t("applicationDetail.interviewForm.scheduleConflict", {
+											company: cardConflict.company,
+											time: formatDateTime(cardConflict.scheduledAt),
+										})}
+									</div>
+								)}
 							</div>
-						)
-					)}
+						);
+					})}
 					{showInterviewForm && (
-						<InterviewForm onSubmit={handleAddInterview} onClose={() => setShowInterviewForm(false)} />
+						<InterviewForm otherInterviews={otherInterviews} confirm={confirm} onSubmit={handleAddInterview} onClose={() => setShowInterviewForm(false)} />
 					)}
 					{interviews.length > 0 && !showInterviewForm && (
 						<div
@@ -916,11 +1027,23 @@ function NoteForm({
 
 function InterviewForm({
 	initial,
+	otherInterviews = [],
+	confirm,
 	onSubmit,
 	onClose,
 }: {
 	initial?: Interview;
-	onSubmit: (round: string, interviewer: string, scheduledAt: string, mode: string, notes: string) => Promise<void>;
+	otherInterviews?: SchedulingConflictCandidate[];
+	confirm?: (message: string, options?: { confirmLabel?: string; danger?: boolean }) => Promise<boolean>;
+	onSubmit: (
+		round: string,
+		interviewer: string,
+		scheduledAt: string,
+		mode: string,
+		durationMinutes: string,
+		meetingLink: string,
+		notes: string
+	) => Promise<void>;
 	onClose: () => void;
 }) {
 	const { t } = useTranslation();
@@ -928,20 +1051,43 @@ function InterviewForm({
 	const [interviewer, setInterviewer] = useState(initial?.interviewer ?? "");
 	const [scheduledAt, setScheduledAt] = useState(initial ? toDateTimeLocal(initial.scheduledAt) : "");
 	const [mode, setMode] = useState(initial?.mode ?? "");
+	const [durationMinutes, setDurationMinutes] = useState(initial?.durationMinutes?.toString() ?? "");
+	const [meetingLink, setMeetingLink] = useState(initial?.meetingLink ?? "");
 	const [notes, setNotes] = useState(initial?.notes ?? "");
 	const [submitting, setSubmitting] = useState(false);
+
+	const conflict = scheduledAt
+		? findSchedulingConflict(
+				new Date(scheduledAt).toISOString(),
+				durationMinutes ? Number(durationMinutes) : null,
+				otherInterviews,
+				initial?.id
+			)
+		: undefined;
 
 	async function handleSubmit(e: FormEvent) {
 		e.preventDefault();
 		if (!round.trim() || !scheduledAt) return;
+		if (conflict && confirm) {
+			const proceed = await confirm(
+				t("applicationDetail.interviewForm.scheduleConflictConfirm", {
+					company: conflict.company,
+					time: formatDateTime(conflict.scheduledAt),
+				}),
+				{ confirmLabel: t("applicationDetail.interviewForm.saveAnywayCta"), danger: false }
+			);
+			if (!proceed) return;
+		}
 		setSubmitting(true);
 		try {
-			await onSubmit(round, interviewer, scheduledAt, mode, notes);
+			await onSubmit(round, interviewer, scheduledAt, mode, durationMinutes, meetingLink, notes);
 			if (!initial) {
 				setRound("");
 				setInterviewer("");
 				setScheduledAt("");
 				setMode("");
+				setDurationMinutes("");
+				setMeetingLink("");
 				setNotes("");
 			}
 		} finally {
@@ -979,7 +1125,39 @@ function InterviewForm({
 					onChange={(e) => setMode(e.target.value)}
 					style={inputStyle}
 				/>
+				<input
+					type="number"
+					min={0}
+					placeholder={t("applicationDetail.interviewForm.durationPlaceholder")}
+					value={durationMinutes}
+					onChange={(e) => setDurationMinutes(e.target.value)}
+					style={inputStyle}
+				/>
+				<input
+					type="url"
+					placeholder={t("applicationDetail.interviewForm.meetingLinkPlaceholder")}
+					value={meetingLink}
+					onChange={(e) => setMeetingLink(e.target.value)}
+					style={inputStyle}
+				/>
 			</div>
+			{conflict && (
+				<div
+					style={{
+						fontSize: 12.5,
+						fontWeight: 500,
+						color: "var(--color-warning-text)",
+						background: "var(--color-warning-bg)",
+						borderRadius: 8,
+						padding: "8px 10px",
+					}}
+				>
+					{t("applicationDetail.interviewForm.scheduleConflict", {
+						company: conflict.company,
+						time: formatDateTime(conflict.scheduledAt),
+					})}
+				</div>
+			)}
 			<input
 				placeholder={t("applicationDetail.interviewForm.notesPlaceholder")}
 				value={notes}

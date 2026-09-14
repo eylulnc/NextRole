@@ -6,11 +6,15 @@ export interface FunnelStageCount {
 }
 
 export interface UpcomingInterview {
+	id: string;
 	applicationId: string;
 	company: string;
 	role: string;
 	round: string;
 	scheduledAt: string;
+	mode: string | null;
+	durationMinutes: number | null;
+	meetingLink: string | null;
 }
 
 export interface RecentActivity {

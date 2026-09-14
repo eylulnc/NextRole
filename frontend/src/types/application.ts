@@ -59,6 +59,8 @@ export interface Interview {
 	interviewer: string | null;
 	scheduledAt: string;
 	mode: string | null;
+	durationMinutes: number | null;
+	meetingLink: string | null;
 	notes: string | null;
 	createdAt: string;
 }
@@ -68,6 +70,8 @@ export interface CreateInterviewRequest {
 	interviewer?: string;
 	scheduledAt: string;
 	mode?: string;
+	durationMinutes?: number;
+	meetingLink?: string;
 	notes?: string;
 }
 

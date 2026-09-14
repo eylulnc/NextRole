@@ -79,7 +79,30 @@
 		"pipelineOverview": "Pipeline-Übersicht",
 		"noUpcomingInterviews": "Keine Interviews geplant.",
 		"noRecentActivity": "Noch keine Aktivität.",
-		"movedTo": "{{company}} wechselte zu {{status}}"
+		"movedTo": "{{company}} wechselte zu {{status}}",
+		"reminderBanner": {
+			"label": "Als Nächstes",
+			"inHours": "In {{count}}Std",
+			"inMinutes": "In {{count}}Min",
+			"now": "Jetzt",
+			"openNotes": "Notizen öffnen",
+			"moreToday": "+{{count}} weitere heute",
+			"dismiss": "Ausblenden",
+			"snoozeChoices": {
+				"10min": "In 10 Min. erinnern",
+				"1h": "In 1 Std. erinnern",
+				"today": "Heute nicht mehr zeigen",
+				"never": "Nie",
+				"always": "Immer"
+			}
+		},
+		"reminderPrompt": {
+			"title": "Interview-Erinnerungen",
+			"description": "Möchten Sie vor Ihren Interviews eine Erinnerung sehen? Wählen Sie, wie es funktionieren soll — das können Sie jederzeit in den Einstellungen ändern."
+		},
+		"conflictBanner": {
+			"message": "Du hast sich überschneidende Interviews: {{companyA}} um {{timeA}} überschneidet sich mit {{companyB}} um {{timeB}}"
+		}
 	},
 	"analytics": {
 		"title": "Analyse",
@@ -137,6 +160,14 @@
 		"language": "Sprache",
 		"defaultCurrency": "Standardwährung",
 		"theme": "Design",
+		"interviewReminders": "Interview-Erinnerungen im Dashboard",
+		"reminderChoices": {
+			"OFF": "Aus",
+			"ALWAYS": "Immer (jederzeit heute)",
+			"HOURS_3": "3 Stunden vorher",
+			"HOURS_12": "12 Stunden vorher",
+			"HOURS_24": "24 Stunden vorher (einen Tag vorher)"
+		},
 		"languageOptions": {
 			"en": "English",
 			"de": "Deutsch",
@@ -193,10 +224,9 @@
 		"jobDescription": "Stellenbeschreibung",
 		"noJobDescription": "Noch keine Stellenbeschreibung gespeichert.",
 		"techStack": "Tech-Stack",
-		"keyDates": "Wichtige Termine",
-		"applied": "Beworben: {{date}}",
-		"notAppliedYet": "Noch nicht beworben",
-		"lastUpdated": "Zuletzt aktualisiert: {{date}}",
+		"appliedLabel": "Beworben",
+		"savedLabel": "Gespeichert",
+		"nextInterviewLabel": "Nächstes Interview",
 		"noInterviews": "Noch keine Interviews geplant.",
 		"noContacts": "Noch keine Kontakte gespeichert.",
 		"noNotes": "Noch keine Notizen.",
@@ -234,9 +264,17 @@
 			"roundPlaceholder": "Runde (z. B. HR-Screening)",
 			"interviewerPlaceholder": "Interviewer",
 			"modePlaceholder": "Format (z. B. Videoanruf)",
+			"durationPlaceholder": "Dauer (Minuten)",
+			"meetingLinkPlaceholder": "Meeting-Link",
 			"notesPlaceholder": "Notizen (optional)",
 			"submit": "Interview hinzufügen",
-			"saveCta": "Änderungen speichern"
+			"saveCta": "Änderungen speichern",
+			"durationLabel": "{{count}} Min.",
+			"joinCta": "Meeting beitreten",
+			"goToLinkCta": "Zum Link",
+			"scheduleConflict": "Überschneidet sich mit deinem Interview bei {{company}} um {{time}}",
+			"scheduleConflictConfirm": "Dieses Interview überschneidet sich mit deinem Interview bei {{company}} um {{time}}. Möchtest du trotzdem speichern?",
+			"saveAnywayCta": "Trotzdem speichern"
 		},
 		"contactForm": {
 			"namePlaceholder": "Name",
