@@ -3,6 +3,8 @@ package com.nextrole.web
 import com.nextrole.service.AuthService
 import com.nextrole.web.dto.AuthResponse
 import com.nextrole.web.dto.LoginRequest
+import com.nextrole.web.dto.RefreshRequest
+import com.nextrole.web.dto.RefreshResponse
 import com.nextrole.web.dto.RegisterRequest
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -21,6 +23,16 @@ class AuthController(
 	@PostMapping("/register")
 	fun register(@Valid @RequestBody request: RegisterRequest): ResponseEntity<AuthResponse> =
 		ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request))
+
+	@PostMapping("/refresh")
+	fun refresh(@Valid @RequestBody request: RefreshRequest): ResponseEntity<RefreshResponse> =
+		ResponseEntity.ok(authService.refresh(request.refreshToken))
+
+	@PostMapping("/logout")
+	fun logout(@Valid @RequestBody request: RefreshRequest): ResponseEntity<Void> {
+		authService.logout(request.refreshToken)
+		return ResponseEntity.noContent().build()
+	}
 
 	@PostMapping("/login")
 	fun login(@Valid @RequestBody request: LoginRequest): ResponseEntity<AuthResponse> =

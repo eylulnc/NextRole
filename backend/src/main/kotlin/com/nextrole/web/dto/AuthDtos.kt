@@ -14,8 +14,18 @@ data class LoginRequest(
 	@field:NotBlank val password: String
 )
 
+data class RefreshRequest(
+	@field:NotBlank val refreshToken: String
+)
+
+data class RefreshResponse(
+	val token: String,
+	val refreshToken: String
+)
+
 data class AuthResponse(
 	val token: String,
+	val refreshToken: String,
 	val email: String,
 	val language: String,
 	val defaultCurrency: String,
