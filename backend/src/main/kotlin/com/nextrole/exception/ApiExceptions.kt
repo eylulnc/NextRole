@@ -4,6 +4,8 @@ class EmailAlreadyRegisteredException(email: String) : RuntimeException("Email a
 
 class InvalidCredentialsException : RuntimeException("Invalid email or password")
 
+class InvalidRefreshTokenException : RuntimeException("Refresh token is invalid or has expired")
+
 class ApplicationNotFoundException(id: Any) : RuntimeException("Application not found: $id")
 
 class ResourceNotFoundException(resource: String, id: Any) : RuntimeException("$resource not found: $id")
