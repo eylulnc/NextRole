@@ -3,7 +3,8 @@ import * as authApi from "../api/auth";
 import type { InterviewReminderMode } from "../api/auth";
 import i18n from "../i18n/config";
 
-const TOKEN_KEY = "nextrole_token";
+import { TOKEN_KEY, REFRESH_TOKEN_KEY } from "../api/client";
+
 const EMAIL_KEY = "nextrole_email";
 const LANGUAGE_KEY = "nextrole_language";
 const CURRENCY_KEY = "nextrole_default_currency";
@@ -24,7 +25,7 @@ interface AuthContextValue extends ReminderSettings {
 	isAuthenticated: boolean;
 	login: (email: string, password: string) => Promise<void>;
 	register: (email: string, password: string) => Promise<void>;
-	logout: () => void;
+	logout: () => Promise<void>;
 	updateLocalSettings: (settings: {
 		language?: string;
 		defaultCurrency?: string;
@@ -52,6 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 	function persistSession(response: authApi.AuthResponse) {
 		localStorage.setItem(TOKEN_KEY, response.token);
+		localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken);
 		localStorage.setItem(EMAIL_KEY, response.email);
 		localStorage.setItem(LANGUAGE_KEY, response.language);
 		localStorage.setItem(CURRENCY_KEY, response.defaultCurrency);
@@ -77,8 +79,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		persistSession(response);
 	}
 
-	function logout() {
+	async function logout() {
+		// Revoke server-side first, so a copied refresh token can't outlive the session. Local
+		// state is cleared regardless — a failed call must never trap someone in a logged-in UI.
+		const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+		if (refreshToken) {
+			try {
+				await authApi.logout(refreshToken);
+			} catch {
+				// ignore — clearing below still ends the session on this device
+			}
+		}
 		localStorage.removeItem(TOKEN_KEY);
+		localStorage.removeItem(REFRESH_TOKEN_KEY);
 		localStorage.removeItem(EMAIL_KEY);
 		localStorage.removeItem(LANGUAGE_KEY);
 		localStorage.removeItem(CURRENCY_KEY);
