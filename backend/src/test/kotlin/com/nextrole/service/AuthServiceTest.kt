@@ -26,12 +26,15 @@ class AuthServiceTest {
 	private val passwordEncoder = mockk<PasswordEncoder>()
 	private val jwtService = mockk<JwtService>()
 	private val pipelineStageService = mockk<PipelineStageService>()
-	private val authService = AuthService(userRepository, passwordEncoder, jwtService, pipelineStageService)
+	private val refreshTokenService = mockk<RefreshTokenService>()
+	private val authService =
+		AuthService(userRepository, passwordEncoder, jwtService, pipelineStageService, refreshTokenService)
 
 	@BeforeEach
 	fun setUp() {
 		every { jwtService.generateToken(any(), any()) } returns "fake-jwt-token"
 		every { pipelineStageService.seedDefaults(any()) } just Runs
+		every { refreshTokenService.issue(any(), any()) } returns "fake-refresh-token"
 	}
 
 	@Test

@@ -19,6 +19,10 @@ class GlobalExceptionHandler {
 	fun handleInvalidCredentials(ex: InvalidCredentialsException): ResponseEntity<ErrorResponse> =
 		ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorResponse(ex.message ?: "Invalid credentials"))
 
+	@ExceptionHandler(InvalidRefreshTokenException::class)
+	fun handleInvalidRefreshToken(ex: InvalidRefreshTokenException): ResponseEntity<ErrorResponse> =
+		ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorResponse(ex.message ?: "Invalid refresh token"))
+
 	@ExceptionHandler(ApplicationNotFoundException::class)
 	fun handleApplicationNotFound(ex: ApplicationNotFoundException): ResponseEntity<ErrorResponse> =
 		ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse(ex.message ?: "Not found"))
