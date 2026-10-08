@@ -64,7 +64,10 @@ export function ApplicationBoard({ applications, onStatusChange, onAddToStatus, 
 	return (
 		// The board fills the rest of the page and scrolls on both axes itself: a horizontal scroll
 		// container can't let sticky children stick to the page, so the column headers stick to it.
-		<div style={{ display: "flex", gap: 16, overflow: "auto", flex: 1, minHeight: 320, paddingBottom: 24, width: "100%", minWidth: 0 }}>
+		// The inner row sizes to the tallest column and stretches every column to match; a sticky
+		// header can't outlive its column, so a short column would otherwise lose its header.
+		<div style={{ overflow: "auto", flex: 1, minHeight: 320, width: "100%", minWidth: 0 }}>
+			<div style={{ display: "flex", gap: 16, width: "max-content", minHeight: "100%", paddingBottom: 24 }}>
 			{columns.map((col) => (
 				<div
 					key={col.status}
@@ -243,6 +246,7 @@ export function ApplicationBoard({ applications, onStatusChange, onAddToStatus, 
 					</div>
 				</div>
 			))}
+			</div>
 		</div>
 	);
 }
