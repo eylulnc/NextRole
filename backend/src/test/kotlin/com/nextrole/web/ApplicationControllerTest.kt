@@ -9,7 +9,9 @@ import com.nextrole.service.ApplicationService
 import com.nextrole.web.dto.ChangeStatusRequest
 import com.nextrole.web.dto.CreateApplicationRequest
 import io.mockk.every
+import io.mockk.slot
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,6 +19,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.http.MediaType
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
@@ -76,6 +79,27 @@ class ApplicationControllerTest {
 			status { isOk() }
 			jsonPath("$.content[0].company") { value("Acme") }
 		}
+	}
+
+	@Test
+	fun `list defaults to the full result set when no size is given`() {
+		val pageable = slot<Pageable>()
+		every { applicationService.list(userId, capture(pageable)) } returns PageImpl(emptyList())
+
+		mockMvc.get("/api/applications").andExpect { status { isOk() } }
+
+		assertEquals(ApplicationController.DEFAULT_PAGE_SIZE, pageable.captured.pageSize)
+	}
+
+	@Test
+	fun `list honours an explicit size`() {
+		val pageable = slot<Pageable>()
+		every { applicationService.list(userId, capture(pageable)) } returns PageImpl(emptyList())
+
+		mockMvc.get("/api/applications?size=25&page=2").andExpect { status { isOk() } }
+
+		assertEquals(25, pageable.captured.pageSize)
+		assertEquals(2, pageable.captured.pageNumber)
 	}
 
 	@Test

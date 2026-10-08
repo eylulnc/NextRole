@@ -20,6 +20,10 @@ const cardStyle: React.CSSProperties = {
 	gap: 8,
 };
 
+// Columns show this many cards up front and reveal more in steps of the same size, so one busy
+// stage doesn't stretch the whole page.
+const CARDS_PER_STEP = 6;
+
 interface Props {
 	applications: Application[];
 	onStatusChange: (applicationId: string, status: ApplicationStatus) => void;
@@ -33,12 +37,22 @@ export function ApplicationBoard({ applications, onStatusChange, onAddToStatus, 
 	const { t } = useTranslation();
 	const { visibleStages } = usePipelineStages();
 	const [dragOverStatus, setDragOverStatus] = useState<ApplicationStatus | null>(null);
+	const [shownByStatus, setShownByStatus] = useState<Partial<Record<ApplicationStatus, number>>>({});
 
 	const columns = statusOptions(visibleStages).map((opt) => ({
 		status: opt.value as ApplicationStatus,
 		label: opt.label,
-		cards: applications.filter((a) => a.status === opt.value),
+		// Most recently changed first. A status change bumps updatedAt on the server, so a card just
+		// dragged into a column lands at the top instead of in the part hidden behind "Show more".
+		// Parsed rather than string-compared: Instants serialize with varying fractional digits.
+		cards: applications
+			.filter((a) => a.status === opt.value)
+			.sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt) || a.company.localeCompare(b.company)),
 	}));
+
+	function setShown(status: ApplicationStatus, count: number) {
+		setShownByStatus((prev) => ({ ...prev, [status]: count }));
+	}
 
 	function handleDragStart(e: DragEvent<HTMLDivElement>, applicationId: string) {
 		e.dataTransfer.setData("text/plain", applicationId);
@@ -53,7 +67,12 @@ export function ApplicationBoard({ applications, onStatusChange, onAddToStatus, 
 	}
 
 	return (
-		<div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 24, width: "100%", minWidth: 0 }}>
+		// The board fills the rest of the page and scrolls on both axes itself: a horizontal scroll
+		// container can't let sticky children stick to the page, so the column headers stick to it.
+		// The inner row sizes to the tallest column and stretches every column to match; a sticky
+		// header can't outlive its column, so a short column would otherwise lose its header.
+		<div style={{ overflow: "auto", flex: 1, minHeight: 320, width: "100%", minWidth: 0 }}>
+			<div style={{ display: "flex", gap: 16, width: "max-content", minHeight: "100%", paddingBottom: 24 }}>
 			{columns.map((col) => (
 				<div
 					key={col.status}
@@ -77,7 +96,18 @@ export function ApplicationBoard({ applications, onStatusChange, onAddToStatus, 
 						transition: "background 0.1s ease",
 					}}
 				>
-					<div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 4px" }}>
+					<div
+						style={{
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "space-between",
+							padding: "6px 4px",
+							position: "sticky",
+							top: 0,
+							zIndex: 1,
+							background: dragOverStatus === col.status ? "var(--color-drag-over)" : "var(--color-bg)",
+						}}
+					>
 						<div style={{ display: "flex", alignItems: "center", gap: 8 }}>
 							<div
 								style={{
@@ -113,7 +143,7 @@ export function ApplicationBoard({ applications, onStatusChange, onAddToStatus, 
 						)}
 					</div>
 					<div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-						{col.cards.map((app) => (
+						{col.cards.slice(0, shownByStatus[col.status] ?? CARDS_PER_STEP).map((app) => (
 							<div
 								key={app.id}
 								draggable
@@ -164,6 +194,30 @@ export function ApplicationBoard({ applications, onStatusChange, onAddToStatus, 
 								)}
 							</div>
 						))}
+						{(() => {
+							const shown = shownByStatus[col.status] ?? CARDS_PER_STEP;
+							const remaining = col.cards.length - shown;
+							if (remaining <= 0 && col.cards.length <= CARDS_PER_STEP) return null;
+							return (
+								<button
+									type="button"
+									onClick={() => setShown(col.status, remaining > 0 ? shown + CARDS_PER_STEP : CARDS_PER_STEP)}
+									style={{
+										border: "none",
+										borderRadius: 10,
+										padding: "8px 12px",
+										background: "transparent",
+										color: "var(--color-text-muted)",
+										font: "600 12.5px var(--font-body)",
+										cursor: "pointer",
+									}}
+								>
+									{remaining > 0
+										? t("applications.board.showMore", { count: Math.min(CARDS_PER_STEP, remaining) })
+										: t("applications.board.showLess")}
+								</button>
+							);
+						})()}
 						{col.cards.length === 0 && (
 							<button
 								onClick={() => onAddToStatus(col.status)}
@@ -197,6 +251,7 @@ export function ApplicationBoard({ applications, onStatusChange, onAddToStatus, 
 					</div>
 				</div>
 			))}
+			</div>
 		</div>
 	);
 }

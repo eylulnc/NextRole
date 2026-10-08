@@ -152,4 +152,46 @@ describe("ApplicationBoard", () => {
 
 		expect(onStatusChange).toHaveBeenCalledWith("app-1", "HR_INTERVIEW");
 	});
+
+	it("shows the first 6 cards of a column and reveals more in steps of 6", async () => {
+		const apps = Array.from({ length: 16 }, (_, i) => ({ ...APP_APPLIED, id: `app-${i + 1}`, company: `Company ${i + 1}` }));
+		renderBoard(apps);
+
+		await screen.findByText("Company 1");
+		expect(screen.getAllByLabelText(/^Actions for /)).toHaveLength(6);
+		expect(screen.getByText("16")).toBeInTheDocument();
+
+		await userEvent.click(screen.getByRole("button", { name: "Show 6 more" }));
+		expect(screen.getAllByLabelText(/^Actions for /)).toHaveLength(12);
+
+		await userEvent.click(screen.getByRole("button", { name: "Show 4 more" }));
+		expect(screen.getAllByLabelText(/^Actions for /)).toHaveLength(16);
+
+		await userEvent.click(screen.getByRole("button", { name: "Show less" }));
+		expect(screen.getAllByLabelText(/^Actions for /)).toHaveLength(6);
+	});
+
+	it("shows no show-more control when a column fits", async () => {
+		const apps = Array.from({ length: 6 }, (_, i) => ({ ...APP_APPLIED, id: `app-${i + 1}`, company: `Company ${i + 1}` }));
+		renderBoard(apps);
+
+		await screen.findByText("Company 1");
+		expect(screen.queryByRole("button", { name: /^Show / })).not.toBeInTheDocument();
+	});
+
+	it("orders each column by most recently changed, so a moved card is visible at the top", async () => {
+		const older = Array.from({ length: 7 }, (_, i) => ({
+			...APP_APPLIED,
+			id: `app-${i + 1}`,
+			company: `Company ${i + 1}`,
+			updatedAt: `2026-08-0${i + 1}T00:00:00Z`,
+		}));
+		const justMoved = { ...APP_APPLIED, id: "app-moved", company: "Just Moved", updatedAt: "2026-09-01T10:00:00.5Z" };
+		renderBoard([...older, justMoved]);
+
+		const names = (await screen.findAllByLabelText(/^Actions for /)).map((el) => el.getAttribute("aria-label"));
+		expect(names[0]).toBe("Actions for Just Moved");
+		expect(names[1]).toBe("Actions for Company 7");
+		expect(names).toHaveLength(6);
+	});
 });

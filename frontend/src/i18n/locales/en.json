@@ -153,6 +153,16 @@
 			"techStack": "Tech stack",
 			"status": "Status",
 			"applied": "Applied"
+		},
+		"pagination": {
+			"page": "Page {{page}} of {{pages}}",
+			"rowsPerPage": "Rows per page",
+			"previous": "Previous page",
+			"next": "Next page"
+		},
+		"board": {
+			"showMore": "Show {{count}} more",
+			"showLess": "Show less"
 		}
 	},
 	"settingsModal": {

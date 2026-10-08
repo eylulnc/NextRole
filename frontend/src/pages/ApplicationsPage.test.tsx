@@ -37,6 +37,14 @@ function samplePage(content: Application[] = [SAMPLE_APPLICATION]): Page<Applica
 	return { content, totalElements: content.length, totalPages: 1, number: 0, size: 20 };
 }
 
+function manyApplications(count: number): Application[] {
+	return Array.from({ length: count }, (_, i) => ({
+		...SAMPLE_APPLICATION,
+		id: `app-${i + 1}`,
+		company: `Company ${String(i + 1).padStart(2, "0")}`,
+	}));
+}
+
 function renderApplicationsPage(initialEntries: Parameters<typeof MemoryRouter>[0]["initialEntries"] = ["/applications"]) {
 	localStorage.setItem("nextrole_email", "user@example.com");
 	localStorage.setItem("nextrole_token", "fake-token");
@@ -379,5 +387,76 @@ describe("ApplicationsPage", () => {
 
 		expect(await screen.findByText("Saved")).toBeInTheDocument();
 		expect(screen.queryByRole("button", { name: "Filters" })).not.toBeInTheDocument();
+	});
+
+	it("shows 25 rows per page and moves between pages", async () => {
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage(manyApplications(30)));
+		renderApplicationsPage();
+
+		expect(await screen.findByText("Page 1 of 2")).toBeInTheDocument();
+		expect(screen.getAllByLabelText(/^Actions for /)).toHaveLength(25);
+		expect(screen.getByRole("button", { name: "Previous page" })).toBeDisabled();
+
+		await userEvent.click(screen.getByRole("button", { name: "Next page" }));
+
+		expect(screen.getByText("Page 2 of 2")).toBeInTheDocument();
+		expect(screen.getAllByLabelText(/^Actions for /)).toHaveLength(5);
+		expect(screen.getByRole("button", { name: "Next page" })).toBeDisabled();
+	});
+
+	it("paginates the filtered result, not the full list", async () => {
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage(manyApplications(30)));
+		renderApplicationsPage();
+
+		await screen.findByText("Page 1 of 2");
+		await userEvent.type(screen.getByPlaceholderText("Search company or role"), "Company 0");
+
+		expect(screen.getByText("Page 1 of 1")).toBeInTheDocument();
+		expect(screen.getAllByLabelText(/^Actions for /)).toHaveLength(9);
+	});
+
+	it("returns to the first page when the search changes", async () => {
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage(manyApplications(60)));
+		renderApplicationsPage();
+
+		await screen.findByText("Page 1 of 3");
+		await userEvent.click(screen.getByRole("button", { name: "Next page" }));
+		expect(screen.getByText("Page 2 of 3")).toBeInTheDocument();
+
+		await userEvent.type(screen.getByPlaceholderText("Search company or role"), "Company");
+
+		expect(screen.getByText("Page 1 of 3")).toBeInTheDocument();
+	});
+
+	it("remembers the rows-per-page choice across remounts", async () => {
+		vi.mocked(applicationsApi.listApplications).mockResolvedValue(samplePage(manyApplications(30)));
+		const { unmount } = renderApplicationsPage();
+
+		await screen.findByText("Page 1 of 2");
+		await userEvent.selectOptions(screen.getByLabelText("Rows per page"), "50");
+		expect(screen.getByText("Page 1 of 1")).toBeInTheDocument();
+
+		unmount();
+		renderApplicationsPage();
+
+		expect(await screen.findByText("Page 1 of 1")).toBeInTheDocument();
+	});
+
+	it("falls back a page when the only row on the last page is deleted", async () => {
+		const apps = manyApplications(26);
+		vi.mocked(applicationsApi.listApplications)
+			.mockResolvedValueOnce(samplePage(apps))
+			.mockResolvedValueOnce(samplePage(apps.slice(1)));
+		vi.mocked(applicationsApi.deleteApplication).mockResolvedValue(undefined);
+		renderApplicationsPage();
+
+		await screen.findByText("Page 1 of 2");
+		await userEvent.click(screen.getByRole("button", { name: "Next page" }));
+		const [lastRow] = screen.getAllByLabelText(/^Actions for /);
+		await userEvent.click(lastRow);
+		await userEvent.click(screen.getByRole("menuitem", { name: "Delete" }));
+		await userEvent.click(await screen.findByRole("button", { name: "Delete" }));
+
+		expect(await screen.findByText("Page 1 of 1")).toBeInTheDocument();
 	});
 });
