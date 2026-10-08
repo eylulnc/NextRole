@@ -13,8 +13,8 @@ describe("listApplications", () => {
 		});
 	});
 
-	// Regression guard: with no explicit size the endpoint falls back to Spring's default of 20
-	// and silently drops every application past it — no error, just missing rows.
+	// Regression guard: a page smaller than the result set silently drops every application past
+	// it — no error, just missing rows.
 	it("requests a page large enough to hold the whole result set", async () => {
 		await listApplications();
 

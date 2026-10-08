@@ -11,6 +11,7 @@ import com.nextrole.web.dto.toResponse
 import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -28,8 +29,10 @@ class ApplicationController(
 		return ResponseEntity.status(HttpStatus.CREATED).body(application.toResponse())
 	}
 
+	// Clients filter, sort, search, and lay out the board over the full result set, so a request
+	// without an explicit size must still return everything rather than Spring's default of 20.
 	@GetMapping
-	fun list(pageable: Pageable): Page<ApplicationResponse> =
+	fun list(@PageableDefault(size = DEFAULT_PAGE_SIZE) pageable: Pageable): Page<ApplicationResponse> =
 		applicationService.list(CurrentUser.id(), pageable).map { it.toResponse() }
 
 	@GetMapping("/{id}")
@@ -53,4 +56,8 @@ class ApplicationController(
 	@GetMapping("/{id}/history")
 	fun history(@PathVariable id: UUID): List<StatusHistoryResponse> =
 		applicationService.getHistory(CurrentUser.id(), id).map { it.toResponse() }
+
+	companion object {
+		const val DEFAULT_PAGE_SIZE = 1000
+	}
 }

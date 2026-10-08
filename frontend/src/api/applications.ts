@@ -18,8 +18,8 @@ import type {
 } from "../types/application";
 
 // The applications table, board, filters, search, and sorting all operate client-side over the
-// full result set, so fetch it in one page rather than paginating. Without an explicit size the
-// endpoint falls back to Spring's default of 20 and silently drops everything past it.
+// full result set, so fetch it in one page rather than paginating. The endpoint defaults to the
+// same size, but sending it explicitly keeps the contract visible and independent of that default.
 // Spring's own max-page-size ceiling is 2000, so this stays well within it.
 const APPLICATIONS_PAGE_SIZE = 1000;
 
