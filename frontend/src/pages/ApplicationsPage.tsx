@@ -69,6 +69,14 @@ function isView(value: string | null): value is View {
 	return value === "table" || value === "board";
 }
 
+const PAGE_SIZE_KEY = "nextrole_applications_page_size";
+const PAGE_SIZES = [25, 50, 100];
+
+function readPageSize(): number {
+	const stored = Number(localStorage.getItem(PAGE_SIZE_KEY));
+	return PAGE_SIZES.includes(stored) ? stored : PAGE_SIZES[0];
+}
+
 const WORK_MODES = ["REMOTE", "HYBRID", "ONSITE"] as const;
 
 const filterInputStyle: React.CSSProperties = {
@@ -123,6 +131,8 @@ export function ApplicationsPage() {
 	const filtersRef = useRef<HTMLDivElement>(null);
 	const [sortColumn, setSortColumn] = useState<SortColumn>("applied");
 	const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+	const [pageSize, setPageSize] = useState(readPageSize);
+	const [page, setPage] = useState(0);
 
 	function toggleSort(column: SortColumn) {
 		if (sortColumn !== column) {
@@ -226,6 +236,31 @@ export function ApplicationsPage() {
 		});
 		return list;
 	}, [filtered, sortColumn, sortDirection]);
+
+	// Back to the first page whenever the visible set is reshaped. Deliberately not keyed on the
+	// application list itself, so editing a row on page 3 doesn't bounce the user to page 1.
+	useEffect(() => {
+		setPage(0);
+	}, [
+		search,
+		statusFilter,
+		workModeFilter,
+		techStackFilter,
+		locationFilter,
+		dateFromFilter,
+		dateToFilter,
+		minSalaryFilter,
+		maxSalaryFilter,
+		sortColumn,
+		sortDirection,
+		pageSize,
+	]);
+
+	const pageCount = Math.max(1, Math.ceil(sorted.length / pageSize));
+	// Clamped rather than stored, so deleting the last row of the last page falls back a page.
+	const currentPage = Math.min(page, pageCount - 1);
+	const pageStart = currentPage * pageSize;
+	const pageRows = sorted.slice(pageStart, pageStart + pageSize);
 
 	const activeFilterCount = [
 		statusFilter,
@@ -548,6 +583,7 @@ export function ApplicationsPage() {
 					onDelete={handleDelete}
 				/>
 			) : (
+				<>
 				<div style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: 14, overflowX: "auto" }}>
 					<div style={{ minWidth: 920 }}>
 					<div
@@ -576,7 +612,7 @@ export function ApplicationsPage() {
 						<SortableHeader column="applied" label={t("applications.columns.applied")} sortColumn={sortColumn} sortDirection={sortDirection} onSort={toggleSort} />
 						<div />
 					</div>
-					{sorted.map((app) => (
+					{pageRows.map((app) => (
 						<div
 							key={app.id}
 							onClick={() => navigate(`/applications/${app.id}`)}
@@ -660,6 +696,64 @@ export function ApplicationsPage() {
 					))}
 					</div>
 				</div>
+				<div
+					style={{
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "space-between",
+						flexWrap: "wrap",
+						gap: 10,
+						fontSize: 13,
+						color: "var(--color-text-muted)",
+					}}
+				>
+					<span>
+						{t("applications.pagination.page", { page: currentPage + 1, pages: pageCount })}
+					</span>
+					<div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+						<label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+							{t("applications.pagination.rowsPerPage")}
+							<select
+								value={pageSize}
+								onChange={(e) => {
+									const size = Number(e.target.value);
+									setPageSize(size);
+									localStorage.setItem(PAGE_SIZE_KEY, String(size));
+								}}
+								style={filterSelectStyle}
+							>
+								{PAGE_SIZES.map((size) => (
+									<option key={size} value={size}>
+										{size}
+									</option>
+								))}
+							</select>
+						</label>
+						<button
+							type="button"
+							onClick={() => setPage(currentPage - 1)}
+							disabled={currentPage === 0}
+							aria-label={t("applications.pagination.previous")}
+							style={{ ...filterInputStyle, cursor: currentPage === 0 ? "default" : "pointer", opacity: currentPage === 0 ? 0.5 : 1 }}
+						>
+							‹
+						</button>
+						<button
+							type="button"
+							onClick={() => setPage(currentPage + 1)}
+							disabled={currentPage === pageCount - 1}
+							aria-label={t("applications.pagination.next")}
+							style={{
+								...filterInputStyle,
+								cursor: currentPage === pageCount - 1 ? "default" : "pointer",
+								opacity: currentPage === pageCount - 1 ? 0.5 : 1,
+							}}
+						>
+							›
+						</button>
+					</div>
+				</div>
+				</>
 			)}
 
 			{creating && (

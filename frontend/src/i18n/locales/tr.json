@@ -153,6 +153,16 @@
 			"techStack": "Teknoloji",
 			"status": "Durum",
 			"applied": "Başvuru tarihi"
+		},
+		"pagination": {
+			"page": "Sayfa {{page}} / {{pages}}",
+			"rowsPerPage": "Sayfa başına satır",
+			"previous": "Önceki sayfa",
+			"next": "Sonraki sayfa"
+		},
+		"board": {
+			"showMore": "{{count}} tane daha göster",
+			"showLess": "Daha az göster"
 		}
 	},
 	"settingsModal": {

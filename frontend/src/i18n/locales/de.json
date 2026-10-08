@@ -153,6 +153,16 @@
 			"techStack": "Tech-Stack",
 			"status": "Status",
 			"applied": "Beworben"
+		},
+		"pagination": {
+			"page": "Seite {{page}} von {{pages}}",
+			"rowsPerPage": "Zeilen pro Seite",
+			"previous": "Vorherige Seite",
+			"next": "Nächste Seite"
+		},
+		"board": {
+			"showMore": "{{count}} weitere anzeigen",
+			"showLess": "Weniger anzeigen"
 		}
 	},
 	"settingsModal": {
