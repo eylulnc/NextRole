@@ -152,4 +152,30 @@ describe("ApplicationBoard", () => {
 
 		expect(onStatusChange).toHaveBeenCalledWith("app-1", "HR_INTERVIEW");
 	});
+
+	it("shows the first 6 cards of a column and reveals more in steps of 6", async () => {
+		const apps = Array.from({ length: 16 }, (_, i) => ({ ...APP_APPLIED, id: `app-${i + 1}`, company: `Company ${i + 1}` }));
+		renderBoard(apps);
+
+		await screen.findByText("Company 1");
+		expect(screen.getAllByLabelText(/^Actions for /)).toHaveLength(6);
+		expect(screen.getByText("16")).toBeInTheDocument();
+
+		await userEvent.click(screen.getByRole("button", { name: "Show 6 more" }));
+		expect(screen.getAllByLabelText(/^Actions for /)).toHaveLength(12);
+
+		await userEvent.click(screen.getByRole("button", { name: "Show 4 more" }));
+		expect(screen.getAllByLabelText(/^Actions for /)).toHaveLength(16);
+
+		await userEvent.click(screen.getByRole("button", { name: "Show less" }));
+		expect(screen.getAllByLabelText(/^Actions for /)).toHaveLength(6);
+	});
+
+	it("shows no show-more control when a column fits", async () => {
+		const apps = Array.from({ length: 6 }, (_, i) => ({ ...APP_APPLIED, id: `app-${i + 1}`, company: `Company ${i + 1}` }));
+		renderBoard(apps);
+
+		await screen.findByText("Company 1");
+		expect(screen.queryByRole("button", { name: /^Show / })).not.toBeInTheDocument();
+	});
 });
