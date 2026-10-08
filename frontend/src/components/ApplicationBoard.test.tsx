@@ -178,4 +178,20 @@ describe("ApplicationBoard", () => {
 		await screen.findByText("Company 1");
 		expect(screen.queryByRole("button", { name: /^Show / })).not.toBeInTheDocument();
 	});
+
+	it("orders each column by most recently changed, so a moved card is visible at the top", async () => {
+		const older = Array.from({ length: 7 }, (_, i) => ({
+			...APP_APPLIED,
+			id: `app-${i + 1}`,
+			company: `Company ${i + 1}`,
+			updatedAt: `2026-08-0${i + 1}T00:00:00Z`,
+		}));
+		const justMoved = { ...APP_APPLIED, id: "app-moved", company: "Just Moved", updatedAt: "2026-09-01T10:00:00.5Z" };
+		renderBoard([...older, justMoved]);
+
+		const names = (await screen.findAllByLabelText(/^Actions for /)).map((el) => el.getAttribute("aria-label"));
+		expect(names[0]).toBe("Actions for Just Moved");
+		expect(names[1]).toBe("Actions for Company 7");
+		expect(names).toHaveLength(6);
+	});
 });

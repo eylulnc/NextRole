@@ -42,7 +42,12 @@ export function ApplicationBoard({ applications, onStatusChange, onAddToStatus, 
 	const columns = statusOptions(visibleStages).map((opt) => ({
 		status: opt.value as ApplicationStatus,
 		label: opt.label,
-		cards: applications.filter((a) => a.status === opt.value),
+		// Most recently changed first. A status change bumps updatedAt on the server, so a card just
+		// dragged into a column lands at the top instead of in the part hidden behind "Show more".
+		// Parsed rather than string-compared: Instants serialize with varying fractional digits.
+		cards: applications
+			.filter((a) => a.status === opt.value)
+			.sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt) || a.company.localeCompare(b.company)),
 	}));
 
 	function setShown(status: ApplicationStatus, count: number) {
